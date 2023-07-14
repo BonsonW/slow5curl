@@ -1,3 +1,6 @@
 [submodule "slow5lib"]
 	path = slow5lib
 	url = https://github.com/hasindu2008/slow5lib
+[submodule "curl"]
+	path = curl
+	url = https://github.com/curl/curl
