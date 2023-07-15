@@ -1,0 +1,120 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"curl/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1595,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1605,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1609,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1638,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1645,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"build/curl/curl-config"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/pkgconfig",
+			"paths" : 
+			[
+				"build/curl/libcurl.pc"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				"curl/include/curl"
+			],
+			"type" : "directory"
+		},
+		{
+			"backtrace" : 4,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/CURL",
+			"exportName" : "CURLTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "libcurl::@d03fb44da6c579e06900",
+					"index" : 226
+				},
+				{
+					"id" : "curl::@489aa8d1ab0e9ebc4509",
+					"index" : 1
+				}
+			],
+			"paths" : 
+			[
+				"curl/CMakeFiles/Export/lib/cmake/CURL/CURLTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/CURL",
+			"paths" : 
+			[
+				"build/curl/generated/CURLConfigVersion.cmake",
+				"build/curl/generated/CURLConfig.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "curl",
+		"source" : "curl"
+	}
+}

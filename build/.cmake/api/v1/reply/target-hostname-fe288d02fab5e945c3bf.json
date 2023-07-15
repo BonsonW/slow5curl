@@ -1,0 +1,221 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "curl/tests/libtest/.libs/libhostname.so"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"set_property",
+			"add_definitions",
+			"include_directories",
+			"setup_test"
+		],
+		"files" : 
+		[
+			"curl/tests/libtest/CMakeLists.txt",
+			"curl/CMakeLists.txt",
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 70,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 77,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 1306,
+				"parent" : 3
+			},
+			{
+				"file" : 2
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 6,
+				"parent" : 5
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 12,
+				"parent" : 5
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 13,
+				"parent" : 5
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 19,
+				"parent" : 5
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 20,
+				"parent" : 5
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 61,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 37,
+				"parent" : 11
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "  -W -Wall -pedantic -Wbad-function-cast -Wconversion -Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs -Wno-long-long -Wno-multichar -Wpointer-arith -Wshadow -Wsign-compare -Wundef -Wunused -Wwrite-strings -Wcast-align -Wdeclaration-after-statement -Wempty-body -Wendif-labels -Wfloat-equal -Wignored-qualifiers -Wno-format-nonliteral -Wno-sign-conversion -Wno-system-headers -Wstrict-prototypes -Wtype-limits -Wvla -Wmissing-parameter-type -Wold-style-declaration -Wstrict-aliasing=3 -Wformat=2 -Warray-bounds=2 -ftree-vrp -Wduplicated-cond -Wnull-dereference -fdelete-null-pointer-checks -Wshift-negative-value -Wshift-overflow=2 -Walloc-zero -Wduplicated-branches -Wformat-overflow=2 -Wformat-truncation=1 -Wrestrict -Wdouble-promotion -Wunused-const-variable -fPIC"
+				},
+				{
+					"fragment" : "-fvisibility=hidden"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "CURL_HIDDEN_SYMBOLS"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "HAVE_CONFIG_H"
+				},
+				{
+					"define" : "hostname_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 6,
+					"path" : "/home/bonson/slow5-wget/src"
+				},
+				{
+					"backtrace" : 7,
+					"path" : "/home/bonson/slow5-wget/slow5lib/include"
+				},
+				{
+					"backtrace" : 8,
+					"path" : "/home/bonson/slow5-wget/slow5lib/src"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/home/bonson/slow5-wget/curl/include"
+				},
+				{
+					"backtrace" : 10,
+					"path" : "/home/bonson/slow5-wget/curl/src"
+				},
+				{
+					"backtrace" : 12,
+					"path" : "/home/bonson/slow5-wget/curl/lib"
+				},
+				{
+					"backtrace" : 12,
+					"path" : "/home/bonson/slow5-wget/build/curl/lib"
+				},
+				{
+					"backtrace" : 12,
+					"path" : "/home/bonson/slow5-wget/build/curl/include"
+				},
+				{
+					"backtrace" : 12,
+					"path" : "/home/bonson/slow5-wget/curl/tests/libtest"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"id" : "hostname::@7971a0d1fe0e6dc33234",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "",
+				"role" : "flags"
+			}
+		],
+		"language" : "C"
+	},
+	"name" : "hostname",
+	"nameOnDisk" : "libhostname.so",
+	"paths" : 
+	{
+		"build" : "curl/tests/libtest",
+		"source" : "curl/tests/libtest"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				1
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "curl/tests/libtest/sethostname.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "curl/tests/libtest/sethostname.h",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "MODULE_LIBRARY"
+}

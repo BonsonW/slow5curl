@@ -1,0 +1,1 @@
+/usr/bin/cc -fPIC  -g -Wall -O2 -std=c99 -shared -Wl,-soname,libslow5.so -o libslow5.so CMakeFiles/slow5.dir/src/slow5.c.o CMakeFiles/slow5.dir/src/slow5_idx.c.o CMakeFiles/slow5.dir/src/slow5_misc.c.o CMakeFiles/slow5.dir/src/slow5_press.c.o  thirdparty/streamvbyte/libstreamvbyte_slow5.a 
