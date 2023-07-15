@@ -1,6 +1,11 @@
 #include "fetch.h"
 #include "../slow5lib/src/slow5_idx.h"
 
+int response_free(response_t *resp) {
+    free(resp->data);
+    return 0;
+}
+
 // adapted from https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
 static size_t callback(
     void *data,
@@ -9,24 +14,24 @@ static size_t callback(
     void *clientp
 ) {
     size_t realsize = size * nmemb;
-    struct memory *mem = (struct memory *)clientp;
+    struct response *mem = (struct response *)clientp;
     
-    char *ptr = realloc(mem->response, mem->size + realsize + 1);
+    char *ptr = realloc(mem->data, mem->size + realsize + 1);
     if (ptr == NULL) { // out of mem
         return 0;
     }
     
-    mem->response = ptr;
-    memcpy(&(mem->response[mem->size]), data, realsize);
+    mem->data = ptr;
+    memcpy(&(mem->data[mem->size]), data, realsize);
     mem->size += realsize;
-    mem->response[mem->size] = 0;
+    mem->data[mem->size] = 0;
     
     return realsize;
 }
 
 // write byte-range GET response to buffer
 int get_object_bytes(
-    memory_t *chunk,
+    response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size
@@ -38,7 +43,7 @@ int get_object_bytes(
 
         // setup write callback
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)chunk);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
         
         // construct range field
         int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
@@ -74,10 +79,10 @@ int fetch_read(
 	
 	// exclude meta data before copying record
 	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
-	memory_t chunk = {0};
+	response_t resp = {0};
 
 	ret = get_object_bytes(
-	    &chunk,
+	    &resp,
 		url, 
 		read_index.offset,
 		read_index.size
@@ -91,11 +96,11 @@ int fetch_read(
 
 	slow5_rec_t *read = NULL;
 	
-	char *read_start = chunk.response + sizeof(slow5_rec_size_t);
+	char *read_start = resp.data + sizeof(slow5_rec_size_t);
 
 	ret = slow_decode((void *)&read_start, &bytes, &read, sp);
 	slow5_rec_free(read);
-	free(chunk.response);
+	response_free(&resp);
 
 	if (ret < 0) { 
 		fprintf(stderr, "Error decoding read %s\n", read_id);

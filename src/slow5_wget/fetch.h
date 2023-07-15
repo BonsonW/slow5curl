@@ -1,15 +1,17 @@
 #include <slow5/slow5.h>
 #include <curl/curl.h>
 
-struct memory {
-  char *response;
+struct response {
+  char *data;
   size_t size;
 };
 
-typedef struct memory memory_t;
+typedef struct response response_t;
+
+int response_free(response_t *resp);
 
 int get_object_bytes(
-    memory_t *chunk,
+    response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size

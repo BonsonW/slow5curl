@@ -24,10 +24,10 @@ struct slow5_file *slow5_wget_open(
     
     const char *mode = "r";
     
-    memory_t chunk = {0};
+    response_t resp = {0};
 
 	int ret = get_object_bytes(
-	    &chunk,
+	    &resp,
 		url, 
 		0,
 		BLOW5_HDR_SIZE
@@ -37,7 +37,7 @@ struct slow5_file *slow5_wget_open(
 		return NULL;
 	}
 	
-	FILE *fp = fmemopen(chunk.response, chunk.size, mode);
+	FILE *fp = fmemopen(resp.data, resp.size, mode);
 
     if (!fp) {
         SLOW5_ERROR_EXIT("Error opening file '%s': %s.", url, strerror(errno));
@@ -54,6 +54,7 @@ struct slow5_file *slow5_wget_open(
     } else {
         s5p->meta.mode = mode;
     }
-
+    
+    response_free(&resp);
     return s5p;
 }
