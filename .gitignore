@@ -25,7 +25,7 @@
 *.log
 *.sql
 *.sqlite
-*.txt
+build/*
 
 # OS generated files #
 ######################

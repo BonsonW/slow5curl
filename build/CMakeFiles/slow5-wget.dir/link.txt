@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/slow5-wget.dir/src/main.c.o CMakeFiles/slow5-wget.dir/src/fetch.c.o CMakeFiles/slow5-wget.dir/src/slow5_wget.c.o -o slow5-wget  -Wl,-rpath,/home/bonson/slow5-wget/build/slow5lib:/home/bonson/slow5-wget/build/curl/lib slow5lib/libslow5.so -lz curl/lib/libcurl.so.4.8.0 slow5lib/thirdparty/streamvbyte/libstreamvbyte_slow5.a 
