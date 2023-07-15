@@ -1,4 +1,5 @@
 #include "slow5_wget.h"
+#include "../slow5lib/src/slow5_idx.h"
 
 struct memory {
   char *response;
@@ -47,8 +48,8 @@ int get_object_bytes(
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)chunk);
         
         // construct range field
-        int len = snprintf(NULL, 0, "%d", begin) + snprintf(NULL, 0, "%d", begin+size);
-        const char *range = malloc(len + 2);
+        int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size);
+        char *range = malloc(len + 2);
         sprintf(range, "%zu-%zu", begin, size);
         
         curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -71,7 +72,7 @@ int fetch_read(
     slow5_file_t *sp,
     slow5_idx_t *s_idx
 ) {
-    slow5_rec_idx read_index;
+    struct slow5_rec_idx read_index;
 	int ret = slow5_idx_get(s_idx, read_id, &read_index);
 	if (ret < 0) {
 		fprintf(stderr, "Error in getting index for read %s\n", read_id);
@@ -80,10 +81,13 @@ int fetch_read(
 	
 	// exclude meta data before copying record
 	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
-	memory_t chunk = { .response = (char *)malloc(read_index.size) .size = 0};
+	memory_t chunk = {
+	    .response = (char *)malloc(read_index.size),
+	    .size = 0
+	};
 
 	ret = get_object_bytes(
-	    &chunk
+	    &chunk,
 		url, 
 		read_index.offset,
 		read_index.size
@@ -99,7 +103,7 @@ int fetch_read(
 	
 	char *read_start = chunk.response + sizeof(slow5_rec_size_t);
 
-	ret = slow5_decode(&read_start, &bytes, &read, sp);
+	ret = slow_decode((void *)&read_start, &bytes, &read, sp);
 	slow5_rec_free(read);
 	free(chunk.response);
 

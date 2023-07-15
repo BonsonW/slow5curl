@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <slow5/slow5.h>
+#include <curl/curl.h>
 
 #define TO_PICOAMPS(RAW_VAL,DIGITISATION,OFFSET,RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
@@ -27,7 +28,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    slow5_idx_t *s_idx = sp->s_idx;
+    slow5_idx_t *s_idx = sp->index;
     
     // read here
     
