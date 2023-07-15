@@ -74,10 +74,7 @@ int fetch_read(
 	
 	// exclude meta data before copying record
 	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
-	memory_t chunk = {
-	    .response = (char *)malloc(read_index.size),
-	    .size = 0
-	};
+	memory_t chunk = {0};
 
 	ret = get_object_bytes(
 	    &chunk,
