@@ -1,10 +1,7 @@
 #include <slow5/slow5.h>
-#include <curl/curl.h>
 
-// read 
-int fetch_read(
+// open file, only supports reads
+slow5_file_t *slow5_wget_init(
     const char *url,
-    const char *read_id,
-    slow5_file_t *sp,
-    slow5_idx_t *s_idx
+    enum slow5_fmt format
 );
