@@ -30,7 +30,7 @@ static size_t callback(
 }
 
 // write byte-range GET response to buffer
-int get_object_bytes(
+int fetch_bytes(
     response_t *resp,
     const char *url,
     uint64_t begin,
@@ -81,7 +81,7 @@ int fetch_read(
 	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
 	response_t resp = {0};
 
-	ret = get_object_bytes(
+	ret = fetch_bytes(
 	    &resp,
 		url, 
 		read_index.offset,

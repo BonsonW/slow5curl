@@ -1,13 +1,13 @@
 #include "../slow5lib/src/slow5.c"
 
-#include "slow5_wget.h"
+#include "s5wget.h"
 #include "fetch.h"
 #include <stdint.h>
 #include <string.h>
 
 const size_t BLOW5_HDR_META_SIZE = 69;
 
-struct slow5_file *slow5_wget_init(FILE *fp, const char *pathname, enum slow5_fmt format) {
+struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt format) {
     /* pathname allowed to be NULL at this point */
     if (!fp) {
         SLOW5_ERROR("Argument '%s' cannot be NULL.", SLOW5_TO_STR(fp));
@@ -86,7 +86,7 @@ struct slow5_file *slow5_wget_init(FILE *fp, const char *pathname, enum slow5_fm
     return s5p;
 }
 
-slow5_file_t *slow5_wget_open(
+slow5_file_t *s5wget_open(
     const char *url,
     enum slow5_fmt format
 ) {
@@ -108,7 +108,7 @@ slow5_file_t *slow5_wget_open(
     // get header meta data
     response_t hdr_meta = {0};
 
-	int ret = get_object_bytes(
+	int ret = fetch_bytes(
 	    &hdr_meta,
 		url, 
 		0,
@@ -126,7 +126,7 @@ slow5_file_t *slow5_wget_open(
 	// get rest of header data
 	response_t hdr = {0};
 
-	ret = get_object_bytes(
+	ret = fetch_bytes(
 	    &hdr,
 		url, 
 		0,
@@ -138,6 +138,7 @@ slow5_file_t *slow5_wget_open(
 	}
 	
 	// treat header buffer as data stream
+	// todo: read the header line by line with fetch_bytes
 	FILE *fp = fmemopen(hdr.data, hdr.size, mode);
     
     if (!fp) {
@@ -147,7 +148,7 @@ slow5_file_t *slow5_wget_open(
     }
     
     // initialize slow5 file
-    struct slow5_file *s5p = slow5_wget_init(fp, url, format);
+    struct slow5_file *s5p = s5wget_init(fp, url, format);
     if (!s5p) {
         if (fclose(fp) == EOF) {
             SLOW5_ERROR("Error closing file '%s': %s.", url, strerror(errno));

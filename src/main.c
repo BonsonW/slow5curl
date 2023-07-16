@@ -6,35 +6,34 @@
 #include <slow5/slow5.h>
 #include <curl/curl.h>
 
-#include "slow5_wget.h"
+#include "s5wget/s5wget.h"
 
 int main(int argc, char* argv[]) {
     curl_global_init(CURL_GLOBAL_ALL);
     
     const char *url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5";
-    slow5_file_t *sp = slow5_wget_open(url, SLOW5_FORMAT_BINARY);
-
-    // const char *read_ids_path = "/home/hasindu/scratch/na12878_prom_lsk114/chr22/chr22reads.list";
-
-    // // slow5 setup
-    // slow5_file_t *sp = slow5_open(slow5_path, "r");
-    // if (sp == NULL) {
-    //    fprintf(stderr, "Error in opening file\n");
-    //    return -1;
-    // }
-
-    // int ret = 0;
-    // ret = slow5_idx_load(sp);
-    // if (ret < 0) {
-    //     fprintf(stderr, "Error in loading index\n");
-    //     return -1;
-    // }
-
-    // slow5_idx_t *s_idx = sp->index;
+    const char *read_ids_path = "/home/hasindu/scratch/na12878_prom_lsk114/chr22/chr22reads.list";
     
-    // // read here
+    // slow5 setup
+    slow5_file_t *sp = s5wget_open(url, SLOW5_FORMAT_BINARY);
+    if (sp == NULL) {
+       fprintf(stderr, "Error in opening file\n");
+       return -1;
+    }
+
+    int ret = 0;
+    ret = slow5_idx_load(sp); // todo: create custom index load for specifying index location
+    if (ret < 0) {
+        fprintf(stderr, "Error in loading index\n");
+        return -1;
+    }
+
+    slow5_idx_t *s_idx = sp->index;
     
-    // slow5_idx_unload(sp);
+    // todo: parse read list
+    // todo: fetch reads
+    
+    slow5_idx_unload(sp);
     
     slow5_close(sp);
     curl_global_cleanup();
