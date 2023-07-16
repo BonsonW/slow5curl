@@ -43,8 +43,6 @@ struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt fo
         SLOW5_LOG_DEBUG("Buffer for file stream of '%s' was set to %d.", pathname, SLOW5_FSTREAM_BUFF_SIZE);
     }
 
-    // TODO Attempt to determine from magic number
-
     slow5_press_method_t method;
     struct slow5_hdr *header = slow5_hdr_init(fp, format, &method);
     if (!header) {
@@ -90,7 +88,7 @@ struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt fo
     return s5p;
 }
 
-slow5_file_t *s5wget_open(
+slow5_file_t *s5wget_file(
     const char *url,
     enum slow5_fmt format
 ) {

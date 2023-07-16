@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     const char *idx_path = "/home/bonson/PGXXHX230142_reads.blow5.idx";
     
     // slow5 setup
-    slow5_file_t *sp = s5wget_open(url, SLOW5_FORMAT_BINARY);
+    slow5_file_t *sp = s5wget_file(url, SLOW5_FORMAT_BINARY);
     if (sp == NULL) {
        fprintf(stderr, "Error in opening file\n");
        return -1;
