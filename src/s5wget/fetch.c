@@ -32,7 +32,7 @@ static size_t callback(
 }
 
 // write byte-range GET response to buffer
-int fetch_bytes(
+int fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
     uint64_t begin,
@@ -43,7 +43,7 @@ int fetch_bytes(
     if (curl) {
         CURLcode res;
 
-        // setup write callback
+        // write into response
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
         
@@ -62,5 +62,40 @@ int fetch_bytes(
         return -1;
     }
     
+    return 0;
+}
+
+int fetch_bytes_into_fp_start(
+    FILE *fp,
+    const char *url,
+    uint64_t begin,
+    uint64_t size
+) {
+    CURL *curl = curl_easy_init();
+    fseek(fp, 0, SEEK_SET);
+    
+    if (curl) {
+        CURLcode res;
+
+        // write into file pointer
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
+        
+        // construct range field
+        int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
+        char *range = malloc(len + 2);
+        sprintf(range, "%zu-%zu", begin, size);
+        
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        
+        res = curl_easy_perform(curl);
+
+        curl_easy_cleanup(curl);
+    } else {
+        return -1;
+    }
+    
+    fseek(fp, 0, SEEK_SET);
     return 0;
 }

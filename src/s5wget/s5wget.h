@@ -5,6 +5,11 @@ slow5_file_t *s5wget_file(
     enum slow5_fmt format
 );
 
+int s5wget_idx(
+    slow5_file_t *s5p,
+    const char *url
+);
+
 int s5wget_read(
     const char *url,
     const char *read_id,
@@ -17,5 +22,3 @@ int slow5_idx_load_from_path(
     slow5_file_t *s5p,
     const char *path
 );
-
-// todo: read idx from URL

@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
     curl_global_init(CURL_GLOBAL_ALL);
     
     const char *url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5";
+    const char *idx_url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5.idx";
     // const char *read_ids_path = "/home/hasindu/scratch/na12878_prom_lsk114/chr22/chr22reads.list";
     const char *idx_path = "/home/bonson/PGXXHX230142_reads.blow5.idx";
     
@@ -23,7 +24,7 @@ int main(int argc, char* argv[]) {
     }
 
     int ret = 0;
-    ret = slow5_idx_load_from_path(sp, idx_path);
+    ret = s5wget_idx(sp, idx_url);
     if (ret < 0) {
         fprintf(stderr, "Error in loading index\n");
         return -1;
