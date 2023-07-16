@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
     }
 
     int ret = 0;
-    ret = slow5_idx_load_from_path(sp, idx_path); // todo: create custom index load for specifying index location
+    ret = slow5_idx_load_from_path(sp, idx_path);
     if (ret < 0) {
         fprintf(stderr, "Error in loading index\n");
         return -1;

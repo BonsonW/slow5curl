@@ -66,6 +66,7 @@ struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt fo
     s5p->format = format;
     s5p->header = header;
     s5p->meta.fread_buffer = fread_buff;
+    s5p->meta.fd = -1;
 
     s5p->compress = slow5_press_init(method);
     if (!s5p->compress) {
