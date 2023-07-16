@@ -8,6 +8,7 @@
 #include <string.h>
 
 const size_t BLOW5_HDR_META_SIZE = 69;
+const size_t SLOW5_MAX_HDR_SIZE = 10 * 1024 * 1024; // 10MB max header size
 
 struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt format) {
     /* pathname allowed to be NULL at this point */
@@ -124,6 +125,10 @@ slow5_file_t *s5wget_open(
 	// get header size
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta.data + 64, 4);
+	
+	if (header_size > SLOW5_MAX_HDR_SIZE) {
+        SLOW5_ERROR("File '%s' has exceeded the max header size of 10MB.", url);
+    }
 	
 	// get rest of header data
 	response_t hdr = {0};
