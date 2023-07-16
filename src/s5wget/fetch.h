@@ -17,7 +17,7 @@ int fetch_bytes_into_resp(
     uint64_t size
 );
 
-int fetch_bytes_into_fp_start(
+int fetch_bytes_into_fb(
     FILE *fp,
     const char *url,
     uint64_t begin,

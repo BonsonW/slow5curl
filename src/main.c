@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     const char *url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5";
     const char *idx_url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5.idx";
     // const char *read_ids_path = "/home/hasindu/scratch/na12878_prom_lsk114/chr22/chr22reads.list";
-    const char *idx_path = "/home/bonson/PGXXHX230142_reads.blow5.idx";
+    // const char *idx_path = "/home/bonson/PGXXHX230142_reads.blow5.idx";
     
     // slow5 setup
     slow5_file_t *sp = s5wget_file(url, SLOW5_FORMAT_BINARY);

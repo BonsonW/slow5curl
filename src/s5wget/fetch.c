@@ -50,7 +50,7 @@ int fetch_bytes_into_resp(
         // construct range field
         int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
         char *range = malloc(len + 2);
-        sprintf(range, "%zu-%zu", begin, size);
+        sprintf(range, "%zu-%zu", begin, begin+size-1);
         
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_RANGE, range);
@@ -65,14 +65,13 @@ int fetch_bytes_into_resp(
     return 0;
 }
 
-int fetch_bytes_into_fp_start(
+int fetch_bytes_into_fb(
     FILE *fp,
     const char *url,
     uint64_t begin,
     uint64_t size
 ) {
     CURL *curl = curl_easy_init();
-    fseek(fp, 0, SEEK_SET);
     
     if (curl) {
         CURLcode res;
@@ -84,7 +83,7 @@ int fetch_bytes_into_fp_start(
         // construct range field
         int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
         char *range = malloc(len + 2);
-        sprintf(range, "%zu-%zu", begin, size);
+        sprintf(range, "%zu-%zu", begin, begin+size-1);
         
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_RANGE, range);
@@ -96,6 +95,5 @@ int fetch_bytes_into_fp_start(
         return -1;
     }
     
-    fseek(fp, 0, SEEK_SET);
     return 0;
 }
