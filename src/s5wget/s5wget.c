@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <string.h>
 
-const size_t BLOW5_HDR_META_SIZE = 69;
+const size_t BLOW5_HDR_META_SIZE = 68;
 const size_t SLOW5_MAX_HDR_SIZE = 10 * 1024 * 1024; // 10MB max header size
 
 struct slow5_file *s5wget_init(FILE *fp, const char *pathname, enum slow5_fmt format) {
