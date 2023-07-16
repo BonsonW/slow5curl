@@ -1,5 +1,7 @@
+#include <stdlib.h>
+#include <string.h>
+
 #include "fetch.h"
-#include "../slow5lib/src/slow5_idx.h"
 
 int response_free(response_t *resp) {
     free(resp->data);
@@ -60,54 +62,5 @@ int fetch_bytes(
         return -1;
     }
     
-    return 0;
-}
-
-// fetch read from URL given slow5 pointer and slow5 index 
-int fetch_read(
-    const char *url,
-    const char *read_id,
-    slow5_file_t *sp,
-    slow5_idx_t *s_idx
-) {
-    struct slow5_rec_idx read_index;
-	int ret = slow5_idx_get(s_idx, read_id, &read_index);
-	if (ret < 0) {
-		fprintf(stderr, "Error in getting index for read %s\n", read_id);
-		return -1;
-	}
-	
-	// exclude meta data before copying record
-	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
-	response_t resp = {0};
-
-	ret = fetch_bytes(
-	    &resp,
-		url, 
-		read_index.offset,
-		read_index.size
-	);
-	if (ret < 0) {
-		fprintf(stderr, "Error in getting index for read %s\n", read_id);
-		return -1;
-	}
-
-	fprintf(stderr, "Successfully fetched read %s\n", read_id);
-
-	slow5_rec_t *read = NULL;
-	
-	char *read_start = resp.data + sizeof(slow5_rec_size_t);
-
-	ret = slow_decode((void *)&read_start, &bytes, &read, sp);
-	slow5_rec_free(read);
-	response_free(&resp);
-
-	if (ret < 0) { 
-		fprintf(stderr, "Error decoding read %s\n", read_id);
-		return -1;
-	} else {
-		fprintf(stderr, "Successfully decoded read %s\n", read_id);
-	}
-
     return 0;
 }

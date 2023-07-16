@@ -227,3 +227,48 @@ int slow5_idx_load_from_path(
         return -1;
     }
 }
+
+
+// fetch read from URL given slow5 pointer and slow5 index 
+int s5wget_read(
+    const char *url,
+    const char *read_id,
+    slow5_file_t *sp,
+    slow5_idx_t *s_idx,
+    slow5_rec_t *read
+) {
+    struct slow5_rec_idx read_index;
+	int ret = slow5_idx_get(s_idx, read_id, &read_index);
+	if (ret < 0) {
+		SLOW5_ERROR("Error getting index for read %s.", read_id);
+		return -1;
+	}
+	
+	// exclude meta data before copying record
+	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
+	response_t resp = {0};
+
+	ret = fetch_bytes(
+	    &resp,
+		url, 
+		read_index.offset,
+		read_index.size
+	);
+	if (ret < 0) {
+		SLOW5_ERROR("Error fetching bytes for read %s.", read_id);
+		return -1;
+	}
+	
+	char *read_start = resp.data + sizeof(slow5_rec_size_t);
+
+	ret = slow_decode((void *)&read_start, &bytes, &read, sp);
+	slow5_rec_free(read);
+	response_free(&resp);
+
+	if (ret < 0) { 
+		SLOW5_ERROR("Error decoding read %s\n", read_id);
+		return -1;
+	}
+
+    return 0;
+}
