@@ -1,7 +1,9 @@
 #include "../slow5lib/src/slow5.c"
+#include "../slow5lib/src/slow5_idx.c"
 
 #include "s5wget.h"
 #include "fetch.h"
+#include "slow5/slow5.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -163,4 +165,59 @@ slow5_file_t *s5wget_open(
     response_free(&hdr);
     
     return s5p;
+}
+
+slow5_idx_t *slow5_idx_init_from_path(
+    slow5_file_t *s5p,
+    const char *path
+) {
+    slow5_idx_t *index = slow5_idx_init_empty();
+    if (!index) {
+        return NULL;
+    }
+    
+    index->pathname = strdup(path);
+
+    FILE *index_fp;
+
+    if ((index_fp = fopen(index->pathname, "r")) == NULL) {
+        SLOW5_ERROR("Index file not found. Creating an index at '%s'.", index->pathname);
+        fclose(index->fp);
+        slow5_idx_free(index);
+        index->fp = NULL;
+        return NULL;
+    }
+    
+    index->fp = index_fp;
+    
+    // todo: verify that the idx file is up to date
+    
+    if (slow5_idx_read(index) != 0) {
+        slow5_idx_free(index);
+        return NULL;
+    }
+    
+    if (index->version.major != s5p->header->version.major ||
+            index->version.minor != s5p->header->version.minor ||
+            index->version.patch != s5p->header->version.patch) {
+        SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
+                index->version.major, index->version.minor, index->version.patch,
+                s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
+        slow5_idx_free(index);
+        return NULL;
+    }
+
+    return index;
+}
+
+int slow5_idx_load_from_path(
+    slow5_file_t *s5p,
+    const char *path
+) {
+    s5p->index = slow5_idx_init_from_path(s5p, path);
+    if (s5p->index) {
+        return 0;
+    } else {
+        return -1;
+    }
 }
