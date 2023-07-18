@@ -1,5 +1,8 @@
-#include <curl/curl.h>
+#ifndef FETCH_H_
+#define FETCH_H_
+
 #include <stdint.h>
+#include <slow5/slow5.h>
 
 struct response {
     char *data;
@@ -23,3 +26,5 @@ int fetch_bytes_into_fb(
     uint64_t begin,
     uint64_t size
 );
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef S5CURL_H_
+#define S5CURL_H_
+
 #include <slow5/slow5.h>
 
 typedef struct slow5_curl {
@@ -28,14 +31,11 @@ int s5curl_read(
 );
 
 // int s5curl_read_list(
-//     const char *url,
+//     slow5_curl_t *s5c,
+//     uint64_t max_connects,
+//     uint64_t n_reads,
 //     const char **read_ids,
-//     slow5_file_t *sp,
-//     slow5_idx_t *s_idx,
 //     slow5_rec_t **reads
 // );
 
-int slow5_idx_load_from_path(
-    slow5_file_t *s5p,
-    const char *path
-);
+#endif

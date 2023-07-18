@@ -7,6 +7,7 @@
 #include <curl/curl.h>
 
 #include "s5curl/s5curl.h"
+#include "s5curl/index.h"
 
 int main(int argc, char* argv[]) {
     curl_global_init(CURL_GLOBAL_ALL);
