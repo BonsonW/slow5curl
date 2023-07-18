@@ -4,8 +4,8 @@ project(slow5-wget)
 
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/src/s5wget)
-set(SOURCES src/main.c src/error.h src/s5wget/fetch.c src/s5wget/fetch.h src/s5wget/s5wget.c src/s5wget/s5wget.h)
+include_directories(${CMAKE_SOURCE_DIR}/src/s5curl)
+set(SOURCES src/main.c src/error.h src/s5curl/fetch.c src/s5curl/fetch.h src/s5curl/s5curl.c src/s5curl/s5curl.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

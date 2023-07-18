@@ -1,16 +1,16 @@
 #include <slow5/slow5.h>
 
-slow5_file_t *s5wget_file(
+slow5_file_t *s5curl_file(
     const char *url,
     enum slow5_fmt format
 );
 
-int s5wget_idx(
+int s5curl_idx(
     slow5_file_t *s5p,
     const char *url
 );
 
-int s5wget_read(
+int s5curl_read(
     const char *url,
     const char *read_id,
     slow5_file_t *sp,

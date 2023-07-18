@@ -1,7 +1,7 @@
 #include "../slow5lib/src/slow5.c"
 #include "../slow5lib/src/slow5_idx.c"
 
-#include "s5wget.h"
+#include "s5curl.h"
 #include "fetch.h"
 #include "slow5/slow5.h"
 #include <stdint.h>
@@ -11,7 +11,7 @@ const size_t BLOW5_HDR_META_SIZE = 68;
 const size_t BLOW5_MAX_HDR_SIZE = 10 * 1024 * 1024; // 10MB max header size
 
 // fetch read from URL given slow5 pointer and slow5 index 
-int s5wget_read(
+int s5curl_read(
     const char *url,
     const char *read_id,
     slow5_file_t *sp,
@@ -54,7 +54,7 @@ int s5wget_read(
     return 0;
 }
 
-struct slow5_file *s5wget_init(
+struct slow5_file *s5curl_init(
     FILE *fp,
     const char *pathname,
     enum slow5_fmt format
@@ -135,7 +135,7 @@ struct slow5_file *s5wget_init(
     return s5p;
 }
 
-slow5_file_t *s5wget_file(
+slow5_file_t *s5curl_file(
     const char *url,
     enum slow5_fmt format
 ) {
@@ -197,7 +197,7 @@ slow5_file_t *s5wget_file(
 	fseek(fp, 0, SEEK_SET);
 
     // initialize slow5 file
-    struct slow5_file *s5p = s5wget_init(fp, url, format);
+    struct slow5_file *s5p = s5curl_init(fp, url, format);
     if (!s5p) {
         if (fclose(fp) == EOF) {
             SLOW5_ERROR("Error closing file '%s': %s.", url, strerror(errno));
@@ -268,7 +268,7 @@ int slow5_idx_load_from_path(
     }
 }
 
-static int s5wget_idx_read(
+static int s5curl_idx_read(
     struct slow5_idx *index
 ) {
     struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
@@ -383,7 +383,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     
     // todo: verify that the idx file is up to date
     
-    ret = s5wget_idx_read(index);
+    ret = s5curl_idx_read(index);
     if (ret != 0) {
         SLOW5_ERROR("Error reading idx %s.", strerror(ret));
         slow5_idx_free(index);
@@ -403,7 +403,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     return index;
 }
 
-int s5wget_idx(
+int s5curl_idx(
     slow5_file_t *s5p,
     const char *url
 ) {

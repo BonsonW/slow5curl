@@ -6,7 +6,7 @@
 #include <slow5/slow5.h>
 #include <curl/curl.h>
 
-#include "s5wget/s5wget.h"
+#include "s5curl/s5curl.h"
 
 int main(int argc, char* argv[]) {
     curl_global_init(CURL_GLOBAL_ALL);
@@ -17,14 +17,14 @@ int main(int argc, char* argv[]) {
     // const char *idx_path = "/home/bonson/PGXXHX230142_reads.blow5.idx";
     
     // slow5 setup
-    slow5_file_t *sp = s5wget_file(url, SLOW5_FORMAT_BINARY);
+    slow5_file_t *sp = s5curl_file(url, SLOW5_FORMAT_BINARY);
     if (sp == NULL) {
        fprintf(stderr, "Error in opening file\n");
        return -1;
     }
 
     int ret = 0;
-    ret = s5wget_idx(sp, idx_url);
+    ret = s5curl_idx(sp, idx_url);
     if (ret < 0) {
         fprintf(stderr, "Error in loading index\n");
         return -1;
