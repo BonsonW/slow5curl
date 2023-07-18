@@ -10,14 +10,28 @@
 const size_t BLOW5_HDR_META_SIZE = 68;
 const size_t BLOW5_MAX_HDR_SIZE = 10 * 1024 * 1024; // 10MB max header size
 
+void s5curl_close(
+    slow5_curl_t *s5c
+) {
+    slow5_close(s5c->s5p);
+}
+
+void s5curl_idx_unload(
+    slow5_curl_t *s5c
+) {
+    slow5_idx_free(s5c->s5p->index);
+    s5c->s5p->index = NULL;
+}
+
 // fetch read from URL given slow5 pointer and slow5 index 
 int s5curl_read(
-    const char *url,
+    slow5_curl_t *s5c,
     const char *read_id,
-    slow5_file_t *sp,
-    slow5_idx_t *s_idx,
     slow5_rec_t *read
 ) {
+    slow5_idx_t *s_idx = s5c->s5p->index;
+    slow5_file_t *s5p = s5c->s5p;
+
     struct slow5_rec_idx read_index;
 	int ret = slow5_idx_get(s_idx, read_id, &read_index);
 	if (ret < 0) {
@@ -31,7 +45,7 @@ int s5curl_read(
 
 	ret = fetch_bytes_into_resp(
 	    &resp,
-		url, 
+		s5c->url, 
 		read_index.offset,
 		read_index.size
 	);
@@ -42,7 +56,7 @@ int s5curl_read(
 	
 	char *read_start = resp.data + sizeof(slow5_rec_size_t);
 
-	ret = slow_decode((void *)&read_start, &bytes, &read, sp);
+	ret = slow_decode((void *)&read_start, &bytes, &read, s5p);
 	slow5_rec_free(read);
 	response_free(&resp);
 
@@ -135,9 +149,8 @@ struct slow5_file *s5curl_init(
     return s5p;
 }
 
-slow5_file_t *s5curl_file(
-    const char *url,
-    enum slow5_fmt format
+slow5_curl_t *s5curl_open(
+    const char *url
 ) {
     const char *mode = "r";
     
@@ -197,7 +210,7 @@ slow5_file_t *s5curl_file(
 	fseek(fp, 0, SEEK_SET);
 
     // initialize slow5 file
-    struct slow5_file *s5p = s5curl_init(fp, url, format);
+    struct slow5_file *s5p = s5curl_init(fp, url, SLOW5_FORMAT_UNKNOWN);
     if (!s5p) {
         if (fclose(fp) == EOF) {
             SLOW5_ERROR("Error closing file '%s': %s.", url, strerror(errno));
@@ -210,7 +223,11 @@ slow5_file_t *s5curl_file(
     // cleanup
     response_free(&hdr_meta);
 
-    return s5p;
+    slow5_curl_t *s5c = (slow5_curl_t *)calloc(1, sizeof *s5c);
+    s5c->url = strdup(url);
+    s5c->s5p = s5p;
+
+    return s5c;
 }
 
 slow5_idx_t *slow5_idx_init_from_path(
@@ -268,149 +285,149 @@ int slow5_idx_load_from_path(
     }
 }
 
-static int s5curl_idx_read(
-    struct slow5_idx *index
-) {
-    struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
-    const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
-    char buf_magic[sizeof magic];
-    if (fread(buf_magic, sizeof *magic, sizeof magic, index->fp) != sizeof magic) {
-        return SLOW5_ERR_IO;
-    }
-    if (memcmp(magic, buf_magic, sizeof *magic * sizeof magic) != 0) {
-        return SLOW5_ERR_MAGIC;
-    }
+// static int s5curl_idx_read(
+//     struct slow5_idx *index
+// ) {
+//     struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
+//     const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
+//     char buf_magic[sizeof magic];
+//     if (fread(buf_magic, sizeof *magic, sizeof magic, index->fp) != sizeof magic) {
+//         return SLOW5_ERR_IO;
+//     }
+//     if (memcmp(magic, buf_magic, sizeof *magic * sizeof magic) != 0) {
+//         return SLOW5_ERR_MAGIC;
+//     }
     
-    if (fread(&index->version.major, sizeof index->version.major, 1, index->fp) != 1 ||
-        fread(&index->version.minor, sizeof index->version.minor, 1, index->fp) != 1 ||
-        fread(&index->version.patch, sizeof index->version.patch, 1, index->fp) != 1) {
-        return SLOW5_ERR_IO;
-    }
+//     if (fread(&index->version.major, sizeof index->version.major, 1, index->fp) != 1 ||
+//         fread(&index->version.minor, sizeof index->version.minor, 1, index->fp) != 1 ||
+//         fread(&index->version.patch, sizeof index->version.patch, 1, index->fp) != 1) {
+//         return SLOW5_ERR_IO;
+//     }
 
-    if (slow5_is_version_compatible(index->version, max_supported) == 0){
-        SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is higher than the max slow5 version '" SLOW5_VERSION_STRING "' supported by this slow5lib! Please re-index or use a newer version of slow5lib.",
-                index->version.major, index->version.minor, index->version.patch);
-        return SLOW5_ERR_VERSION;
-    }
+//     if (slow5_is_version_compatible(index->version, max_supported) == 0){
+//         SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is higher than the max slow5 version '" SLOW5_VERSION_STRING "' supported by this slow5lib! Please re-index or use a newer version of slow5lib.",
+//                 index->version.major, index->version.minor, index->version.patch);
+//         return SLOW5_ERR_VERSION;
+//     }
     
-    uint64_t read_offset = SLOW5_INDEX_HEADER_SIZE_OFFSET;
-    while (1) {
-        slow5_rid_len_t read_id_len;
+//     uint64_t read_offset = SLOW5_INDEX_HEADER_SIZE_OFFSET;
+//     while (1) {
+//         slow5_rid_len_t read_id_len;
 
-        // fetch read id len
-        response_t hdr_rid_len = {0};
-    	if ((fetch_bytes_into_resp(&hdr_rid_len, index->pathname, read_offset, 2)) < 0) {
-    		SLOW5_ERROR("Fetching read_id from '%s' failed.", index->pathname);
-    		return SLOW5_ERR_IO;
-    	}
-    	read_offset += 2;
+//         // fetch read id len
+//         response_t hdr_rid_len = {0};
+//     	if ((fetch_bytes_into_resp(&hdr_rid_len, index->pathname, read_offset, 2)) < 0) {
+//     		SLOW5_ERROR("Fetching read_id from '%s' failed.", index->pathname);
+//     		return SLOW5_ERR_IO;
+//     	}
+//     	read_offset += 2;
     	
-    	memcpy(&read_id_len, hdr_rid_len.data, 2);
-        char *read_id = (char *) malloc((read_id_len + 1) * sizeof *read_id); // +1 for '\0'
-        SLOW5_MALLOC_CHK(read_id);
-        fprintf(stderr, "read_id_len: %u\n", read_id_len);
+//     	memcpy(&read_id_len, hdr_rid_len.data, 2);
+//         char *read_id = (char *) malloc((read_id_len + 1) * sizeof *read_id); // +1 for '\0'
+//         SLOW5_MALLOC_CHK(read_id);
+//         fprintf(stderr, "read_id_len: %u\n", read_id_len);
         
-        // fetch entry data
-        response_t hdr = {0};
-        uint64_t entry_size = read_id_len + (2 * sizeof(uint64_t));
-    	if ((fetch_bytes_into_resp(&hdr, index->pathname,  read_offset, entry_size)) < 0) {
-    		SLOW5_ERROR("Fetching entry from '%s' failed.", index->pathname);
-    		return SLOW5_ERR_IO;
-    	}
-    	read_offset += entry_size;
+//         // fetch entry data
+//         response_t hdr = {0};
+//         uint64_t entry_size = read_id_len + (2 * sizeof(uint64_t));
+//     	if ((fetch_bytes_into_resp(&hdr, index->pathname,  read_offset, entry_size)) < 0) {
+//     		SLOW5_ERROR("Fetching entry from '%s' failed.", index->pathname);
+//     		return SLOW5_ERR_IO;
+//     	}
+//     	read_offset += entry_size;
     	
-    	fprintf(stderr, "file pointer: %zu\n", read_offset);
+//     	fprintf(stderr, "file pointer: %zu\n", read_offset);
 
-        memcpy(read_id, hdr.data, read_id_len);
-        read_id[read_id_len] = '\0'; // Add null byte
+//         memcpy(read_id, hdr.data, read_id_len);
+//         read_id[read_id_len] = '\0'; // Add null byte
 
-        uint64_t offset;
-        uint64_t size;
+//         uint64_t offset;
+//         uint64_t size;
         
-        memcpy(&offset, hdr.data + read_id_len, sizeof offset);
-        memcpy(&size, hdr.data + read_id_len + sizeof offset, sizeof size);
+//         memcpy(&offset, hdr.data + read_id_len, sizeof offset);
+//         memcpy(&size, hdr.data + read_id_len + sizeof offset, sizeof size);
 
-        // if (slow5_idx_insert(index, read_id, offset, size) == -1) {
-        //     SLOW5_ERROR("Inserting '%s' to index failed", read_id);
-        //     // TODO handle error and free
-        //     return -1;
-        // }
+//         // if (slow5_idx_insert(index, read_id, offset, size) == -1) {
+//         //     SLOW5_ERROR("Inserting '%s' to index failed", read_id);
+//         //     // TODO handle error and free
+//         //     return -1;
+//         // }
         
-        fprintf(stderr, "id:        %s\n", read_id);
-        fprintf(stderr, "offset:    %zu\n", offset);
-        fprintf(stderr, "size:      %zu\n\n", size);
+//         fprintf(stderr, "id:        %s\n", read_id);
+//         fprintf(stderr, "offset:    %zu\n", offset);
+//         fprintf(stderr, "size:      %zu\n\n", size);
         
-        response_free(&hdr_rid_len);
-        response_free(&hdr);
-    }
+//         response_free(&hdr_rid_len);
+//         response_free(&hdr);
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
-slow5_idx_t *slow5_idx_init_from_url(
-    slow5_file_t *s5p,
-    const char *url
-) {
-    slow5_idx_t *index = slow5_idx_init_empty();
-    if (!index) {
-        return NULL;
-    }
+// slow5_idx_t *slow5_idx_init_from_url(
+//     slow5_file_t *s5p,
+//     const char *url
+// ) {
+//     slow5_idx_t *index = slow5_idx_init_empty();
+//     if (!index) {
+//         return NULL;
+//     }
     
-    index->pathname = strdup(url);
+//     index->pathname = strdup(url);
 
-    FILE *index_fp = fmemopen(NULL, SLOW5_INDEX_HEADER_SIZE_OFFSET+1, "r+");
-    if (index_fp == NULL) {
-        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
-        slow5_idx_free(index);
-        index->fp = NULL;
-        return NULL;
-    }
+//     FILE *index_fp = fmemopen(NULL, SLOW5_INDEX_HEADER_SIZE_OFFSET+1, "r+");
+//     if (index_fp == NULL) {
+//         SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
+//         slow5_idx_free(index);
+//         index->fp = NULL;
+//         return NULL;
+//     }
     
-    // get header meta data
-	int ret = fetch_bytes_into_fb(
-	    index_fp,
-		url, 
-		0,
-		SLOW5_INDEX_HEADER_SIZE_OFFSET
-	);
-	if (ret < 0) {
-		SLOW5_ERROR("Reading file header meta data of '%s' failed.", url);
-		return NULL;
-	}
-	fseek(index_fp, 0, SEEK_SET);
+//     // get header meta data
+// 	int ret = fetch_bytes_into_fb(
+// 	    index_fp,
+// 		url, 
+// 		0,
+// 		SLOW5_INDEX_HEADER_SIZE_OFFSET
+// 	);
+// 	if (ret < 0) {
+// 		SLOW5_ERROR("Reading file header meta data of '%s' failed.", url);
+// 		return NULL;
+// 	}
+// 	fseek(index_fp, 0, SEEK_SET);
     
-    index->fp = index_fp;
+//     index->fp = index_fp;
     
-    // todo: verify that the idx file is up to date
+//     // todo: verify that the idx file is up to date
     
-    ret = s5curl_idx_read(index);
-    if (ret != 0) {
-        SLOW5_ERROR("Error reading idx %s.", strerror(ret));
-        slow5_idx_free(index);
-        return NULL;
-    }
+//     ret = s5curl_idx_read(index);
+//     if (ret != 0) {
+//         SLOW5_ERROR("Error reading idx %s.", strerror(ret));
+//         slow5_idx_free(index);
+//         return NULL;
+//     }
     
-    if (index->version.major != s5p->header->version.major ||
-            index->version.minor != s5p->header->version.minor ||
-            index->version.patch != s5p->header->version.patch) {
-        SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
-                index->version.major, index->version.minor, index->version.patch,
-                s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
-        slow5_idx_free(index);
-        return NULL;
-    }
+//     if (index->version.major != s5p->header->version.major ||
+//             index->version.minor != s5p->header->version.minor ||
+//             index->version.patch != s5p->header->version.patch) {
+//         SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
+//                 index->version.major, index->version.minor, index->version.patch,
+//                 s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
+//         slow5_idx_free(index);
+//         return NULL;
+//     }
 
-    return index;
-}
+//     return index;
+// }
 
-int s5curl_idx(
-    slow5_file_t *s5p,
-    const char *url
-) {
-    s5p->index = slow5_idx_init_from_url(s5p, url);
-    if (s5p->index) {
-        return 0;
-    } else {
-        return -1;
-    }
-}
+// int s5curl_idx(
+//     slow5_curl_t *s5c
+// ) {
+//     slow5_file_t *s5p = s5c->s5p;
+//     s5p->index = slow5_idx_init_from_url(s5p, url);
+//     if (s5p->index) {
+//         return 0;
+//     } else {
+//         return -1;
+//     }
+// }
