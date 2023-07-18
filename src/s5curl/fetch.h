@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 #include <slow5/slow5.h>
+#include <curl/curl.h>
 
 struct response {
     char *data;
     size_t size;
+    uint32_t id;
 };
 
 typedef struct response response_t;
@@ -25,6 +27,14 @@ int fetch_bytes_into_fb(
     const char *url,
     uint64_t begin,
     uint64_t size
+);
+
+int queue_fetch_bytes_into_resp(
+    response_t *resp,
+    const char *url,
+    uint64_t begin,
+    uint64_t size,
+    CURLM *cm
 );
 
 #endif
