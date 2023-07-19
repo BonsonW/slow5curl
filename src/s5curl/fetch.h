@@ -5,13 +5,11 @@
 #include <slow5/slow5.h>
 #include <curl/curl.h>
 
-struct response {
+typedef struct response {
     char *data;
     size_t size;
     uint32_t id;
-};
-
-typedef struct response response_t;
+} response_t;
 
 int response_free(response_t *resp);
 
