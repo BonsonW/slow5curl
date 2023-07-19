@@ -22,7 +22,6 @@ int s5curl_read(
 	}
 	
 	// exclude meta data before copying record
-	size_t bytes = read_index.size - sizeof(slow5_rec_size_t);
 	response_t resp = {0};
 
 	int ret = fetch_bytes_into_resp(
@@ -36,7 +35,7 @@ int s5curl_read(
 		return -1;
 	}
 
-	if (slow_decode((void *)&resp.data, &bytes, &read, s5p) < 0) { 
+	if (slow_decode((void *)&resp.data, &resp.size, &read, s5p) < 0) { 
 		SLOW5_ERROR("Error decoding read %s.\n", read_id);
 		return -1;
 	}
@@ -50,7 +49,7 @@ static int add_transfer(
     slow5_curl_t *s5c,
     CURLM *cm,
     char *read_id,
-    int transfer,
+    uint32_t transfer,
     int *left
 ) {
     slow5_idx_t *s_idx = s5c->s5p->index;
@@ -61,12 +60,12 @@ static int add_transfer(
 		return -1;
 	}
 
-    response_t *resp = (response_t *)malloc(sizeof *resp);
+    response_t *resp = (response_t *)malloc(sizeof(response_t));
     resp->data = NULL;
     resp->size = 0;
     resp->id = transfer;
 
-    if (queue_fetch_bytes_into_resp(resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size, cm) < 0) {
+    if (queue_fetch_bytes_into_resp(resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t), cm) < 0) {
         SLOW5_ERROR("Could not create transfer for read %s.", read_id);
         return -1;
     }
@@ -105,15 +104,15 @@ int s5curl_read_list(
             if (msg->msg == CURLMSG_DONE) {
                 response_t *resp;
                 CURL *e = msg->easy_handle;
-                size_t index = (size_t)resp->id;
                 
-                curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp);
-                
-                size_t bytes = resp->size - sizeof(slow5_rec_size_t);
-                char *read_start = resp->data + sizeof(slow5_rec_size_t);
+                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) { 
+                    return -1;
+                }
+                uint32_t index = resp->id;
+
                 slow5_rec_t *read = NULL;
 
-                if (slow_decode((void *)&read_start, &bytes, &read, s5c->s5p) < 0) { 
+                if (slow_decode((void *)&resp->data, &resp->size, &read, s5c->s5p) < 0) { 
                     SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
                     return -1;
                 }

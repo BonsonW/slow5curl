@@ -123,7 +123,7 @@ int queue_fetch_bytes_into_resp(
     // write into response
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-    curl_easy_setopt(curl, CURLOPT_PRIVATE, &resp);
+    curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
     
     // construct range field
     char *range;
