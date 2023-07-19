@@ -2,7 +2,6 @@
 #define FETCH_H_
 
 #include <stdint.h>
-#include <slow5/slow5.h>
 #include <curl/curl.h>
 
 typedef struct response {
