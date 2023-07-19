@@ -9,7 +9,7 @@ extern enum slow5_log_level_opt  slow5_log_level;
 
 int s5curl_read(
     slow5_curl_t *s5c,
-    const char *read_id,
+    char *read_id,
     slow5_rec_t *read
 ) {
     slow5_idx_t *s_idx = s5c->s5p->index;
@@ -28,17 +28,15 @@ int s5curl_read(
 	int ret = fetch_bytes_into_resp(
 	    &resp,
 		s5c->url, 
-		read_index.offset,
+		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size
 	);
 	if (ret < 0) {
 		SLOW5_ERROR("Error fetching bytes for read %s.", read_id);
 		return -1;
 	}
-	
-	char *read_start = resp.data + sizeof(slow5_rec_size_t);
 
-	if (slow_decode((void *)&read_start, &bytes, &read, s5p) < 0) { 
+	if (slow_decode((void *)&resp.data, &bytes, &read, s5p) < 0) { 
 		SLOW5_ERROR("Error decoding read %s.\n", read_id);
 		return -1;
 	}
@@ -51,7 +49,7 @@ int s5curl_read(
 static int add_transfer(
     slow5_curl_t *s5c,
     CURLM *cm,
-    const char *read_id,
+    char *read_id,
     int transfer,
     int *left
 ) {
@@ -68,7 +66,7 @@ static int add_transfer(
     resp->size = 0;
     resp->id = transfer;
 
-    if (queue_fetch_bytes_into_resp(resp, s5c->url, read_index.offset, read_index.size, cm) < 0) {
+    if (queue_fetch_bytes_into_resp(resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size, cm) < 0) {
         SLOW5_ERROR("Could not create transfer for read %s.", read_id);
         return -1;
     }
@@ -82,7 +80,7 @@ int s5curl_read_list(
     slow5_curl_t *s5c,
     uint64_t max_connects,
     uint64_t n_reads,
-    const char **read_ids,
+    char **read_ids,
     slow5_rec_t **reads
 ) {
     CURLM *cm;

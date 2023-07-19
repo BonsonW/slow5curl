@@ -26,7 +26,7 @@ slow5_curl_t *s5curl_open(
 
 int s5curl_read(
     slow5_curl_t *s5c,
-    const char *read_id,
+    char *read_id,
     slow5_rec_t *read
 );
 
@@ -34,7 +34,7 @@ int s5curl_read_list(
     slow5_curl_t *s5c,
     uint64_t max_connects,
     uint64_t n_reads,
-    const char **read_ids,
+    char **read_ids,
     slow5_rec_t **reads
 );
 
