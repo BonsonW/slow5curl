@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.22.0)
 
-project(slow5-wget)
+project(slow5-curl)
+
+# compile flags
+SET(CXXFLAGS "-lcurl")
+set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
 
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)
@@ -14,11 +18,4 @@ include_directories(${CMAKE_SOURCE_DIR}/slow5lib/include)
 include_directories(${CMAKE_SOURCE_DIR}/slow5lib/src)
 add_subdirectory(${CMAKE_SOURCE_DIR}/slow5lib)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC slow5 -lz)
-
-# curl
-include_directories(${CMAKE_SOURCE_DIR}/curl/include)
-include_directories(${CMAKE_SOURCE_DIR}/curl/src)
-add_subdirectory(${CMAKE_SOURCE_DIR}/curl)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC libcurl)
+target_link_libraries(${PROJECT_NAME} PUBLIC slow5 -lz -lcurl)
