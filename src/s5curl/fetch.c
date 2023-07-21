@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <curl/curl.h>
+
 #include "fetch.h"
 
 int response_free(response_t *resp) {
@@ -31,7 +33,18 @@ static size_t callback(
     return realsize;
 }
 
-// write byte-range GET response to buffer
+// todo: check error for setting the header and mallocing
+static int construct_byte_range(
+    char **range,
+    uint64_t begin,
+    uint64_t size
+) {
+    int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
+    *range = malloc(len + 2);
+    sprintf(*range, "%zu-%zu", begin, begin+size-1);
+    return 0;
+}
+
 int fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
@@ -48,12 +61,12 @@ int fetch_bytes_into_resp(
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
         
         // construct range field
-        int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
-        char *range = malloc(len + 2);
-        sprintf(range, "%zu-%zu", begin, begin+size-1);
+        char *range;
+        construct_byte_range(&range, begin, size);
         
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        free(range);
         
         res = curl_easy_perform(curl);
 
@@ -81,19 +94,46 @@ int fetch_bytes_into_fb(
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
         
         // construct range field
-        int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
-        char *range = malloc(len + 2);
-        sprintf(range, "%zu-%zu", begin, begin+size-1);
+        char *range;
+        construct_byte_range(&range, begin, size);
         
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        free(range);
         
         res = curl_easy_perform(curl);
-
+        
         curl_easy_cleanup(curl);
     } else {
         return -1;
     }
     
+    return 0;
+}
+
+int queue_fetch_bytes_into_resp(
+    response_t *resp,
+    const char *url,
+    uint64_t begin,
+    uint64_t size,
+    CURLM *cm
+) {
+    CURL *curl = curl_easy_init();
+    
+    // write into response
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+    curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
+    
+    // construct range field
+    char *range;
+    construct_byte_range(&range, begin, size);
+    
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    free(range);
+
+    curl_multi_add_handle(cm, curl);
+
     return 0;
 }
