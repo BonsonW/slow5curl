@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.22.0)
 
 project(slow5-curl)
 
-# compile flags
-SET(CXXFLAGS "-lcurl")
-set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
-
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/s5curl)
