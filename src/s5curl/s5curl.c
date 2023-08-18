@@ -12,7 +12,7 @@ extern enum slow5_log_level_opt  slow5_log_level;
 enum slow5_exit_condition_opt slow5_exit_condition = SLOW5_EXIT_OFF;
 
 const size_t BLOW5_HDR_META_SIZE = 68;
-const size_t BLOW5_MAX_HDR_SIZE = 10 * 1024 * 1024; // 10MB max header size
+const size_t BLOW5_MAX_HDR_SIZE = 32 * 1024 * 1024; // 32MB max header size
 
 void s5curl_close(
     slow5_curl_t *s5c
@@ -145,7 +145,7 @@ slow5_curl_t *s5curl_open(
 	memcpy((void *)&header_size, hdr_meta.data + 64, 4);
 	
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
-        SLOW5_ERROR("File '%s' has exceeded the max header size of 10MB.", url);
+        SLOW5_ERROR("File '%s' has exceeded the max header size.", url);
     }
 	
 	// get rest of header data

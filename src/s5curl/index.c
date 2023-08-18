@@ -1,8 +1,14 @@
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
 #include "index.h"
+#include "fetch.h"
+#include "s5curl.h"
+#include <inttypes.h>
 
 extern enum slow5_log_level_opt  slow5_log_level;
+
+#define MAX_BUF_SIZE 32 * 1024 * 1024
+#define DOWNLOAD_SIZE MAX_BUF_SIZE / 2
 
 static inline struct slow5_idx *slow5_idx_init_empty(void) {
 
@@ -153,149 +159,223 @@ int slow5_idx_load_from_path(
     }
 }
 
-// static int s5curl_idx_read(
-//     struct slow5_idx *index
-// ) {
-//     struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
-//     const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
-//     char buf_magic[sizeof magic];
-//     if (fread(buf_magic, sizeof *magic, sizeof magic, index->fp) != sizeof magic) {
-//         return SLOW5_ERR_IO;
-//     }
-//     if (memcmp(magic, buf_magic, sizeof *magic * sizeof magic) != 0) {
-//         return SLOW5_ERR_MAGIC;
-//     }
+static int s5curl_idx_read(
+    struct slow5_idx *index,
+    const char *url
+) {
+    struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
+    const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
+    char buf_magic[sizeof magic];
+    if (fread(buf_magic, sizeof *magic, sizeof magic, index->fp) != sizeof magic) {
+        return SLOW5_ERR_IO;
+    }
+    if (memcmp(magic, buf_magic, sizeof *magic * sizeof magic) != 0) {
+        fprintf(stderr, "%s\n", buf_magic);
+        return SLOW5_ERR_MAGIC;
+    }
     
-//     if (fread(&index->version.major, sizeof index->version.major, 1, index->fp) != 1 ||
-//         fread(&index->version.minor, sizeof index->version.minor, 1, index->fp) != 1 ||
-//         fread(&index->version.patch, sizeof index->version.patch, 1, index->fp) != 1) {
-//         return SLOW5_ERR_IO;
-//     }
+    if (fread(&index->version.major, sizeof index->version.major, 1, index->fp) != 1 ||
+        fread(&index->version.minor, sizeof index->version.minor, 1, index->fp) != 1 ||
+        fread(&index->version.patch, sizeof index->version.patch, 1, index->fp) != 1) {
+        return SLOW5_ERR_IO;
+    }
 
-//     if (slow5_is_version_compatible(index->version, max_supported) == 0){
-//         SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is higher than the max slow5 version '" SLOW5_VERSION_STRING "' supported by this slow5lib! Please re-index or use a newer version of slow5lib.",
-//                 index->version.major, index->version.minor, index->version.patch);
-//         return SLOW5_ERR_VERSION;
-//     }
-    
-//     uint64_t read_offset = SLOW5_INDEX_HEADER_SIZE_OFFSET;
-//     while (1) {
-//         slow5_rid_len_t read_id_len;
+    if (slow5_is_version_compatible(index->version, max_supported) == 0){
+        SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is higher than the max slow5 version '" SLOW5_VERSION_STRING "' supported by this slow5lib! Please re-index or use a newer version of slow5lib.",
+                index->version.major, index->version.minor, index->version.patch);
+        return SLOW5_ERR_VERSION;
+    }
 
-//         // fetch read id len
-//         response_t hdr_rid_len = {0};
-//     	if ((fetch_bytes_into_resp(&hdr_rid_len, index->pathname, read_offset, 2)) < 0) {
-//     		SLOW5_ERROR("Fetching read_id from '%s' failed.", index->pathname);
-//     		return SLOW5_ERR_IO;
-//     	}
-//     	read_offset += 2;
-    	
-//     	memcpy(&read_id_len, hdr_rid_len.data, 2);
-//         char *read_id = (char *) malloc((read_id_len + 1) * sizeof *read_id); // +1 for '\0'
-//         SLOW5_MALLOC_CHK(read_id);
-//         fprintf(stderr, "read_id_len: %u\n", read_id_len);
+    if (fseek(index->fp, SLOW5_INDEX_HEADER_SIZE_OFFSET, SEEK_SET) == -1) {
+        return SLOW5_ERR_IO;
+    }
+
+    uint64_t real_size = DOWNLOAD_SIZE;
+    uint64_t file_offt = DOWNLOAD_SIZE;
+    int ctr = 0;
+    while (1) {
+        slow5_rid_len_t read_id_len;
+
+        // download next part
+        if ((uint64_t)ftell(index->fp) + (uint64_t)(read_id_len + (sizeof(uint64_t) * 2)) > real_size) {
+            fprintf(stderr, "downloading next index bytes... %d\n", ++ctr);
+
+            // copy rest of buf into start
+            uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
+            char *rest = malloc(rest_size);
+            fread(rest, sizeof(char), rest_size, index->fp);
+            fseek(index->fp, 0, SEEK_SET);
+            fwrite(rest, sizeof(char), rest_size, index->fp);
+            free(rest);
+
+            // download next set of memory and copy into buffer
+            int ret = fetch_bytes_into_fb(
+                index->fp,
+                url, 
+                file_offt,
+                DOWNLOAD_SIZE
+            );
+            if (ret < 0) {
+                SLOW5_ERROR("Fetching index data of '%s' failed.", url);
+            }
+            fseek(index->fp, 0, SEEK_SET);
+
+            // update file offset
+            real_size = DOWNLOAD_SIZE + rest_size;
+            file_offt += DOWNLOAD_SIZE;
+        }
         
-//         // fetch entry data
-//         response_t hdr = {0};
-//         uint64_t entry_size = read_id_len + (2 * sizeof(uint64_t));
-//     	if ((fetch_bytes_into_resp(&hdr, index->pathname,  read_offset, entry_size)) < 0) {
-//     		SLOW5_ERROR("Fetching entry from '%s' failed.", index->pathname);
-//     		return SLOW5_ERR_IO;
-//     	}
-//     	read_offset += entry_size;
-    	
-//     	fprintf(stderr, "file pointer: %zu\n", read_offset);
+        if (fread(&read_id_len, sizeof read_id_len, 1, index->fp) != 1) {
+            SLOW5_ERROR("Malformed slow5 index. Failed to read the read ID length.%s", feof(index->fp) ? " Missing index end of file marker." : "");
+            if (feof(index->fp)) {
+                slow5_errno = SLOW5_ERR_TRUNC;
+            } else {
+                slow5_errno = SLOW5_ERR_IO;
+            }
+            return slow5_errno;
+        }
+        char *read_id = (char *) malloc((read_id_len + 1) * sizeof *read_id); // +1 for '\0'
+        SLOW5_MALLOC_CHK(read_id);
 
-//         memcpy(read_id, hdr.data, read_id_len);
-//         read_id[read_id_len] = '\0'; // Add null byte
+        // download next part
+        if ((uint64_t)ftell(index->fp) + (uint64_t)(read_id_len + (sizeof(uint64_t) * 2)) > real_size) {
+            fprintf(stderr, "downloading next index bytes... %d\n", ++ctr);
 
-//         uint64_t offset;
-//         uint64_t size;
-        
-//         memcpy(&offset, hdr.data + read_id_len, sizeof offset);
-//         memcpy(&size, hdr.data + read_id_len + sizeof offset, sizeof size);
+            // copy rest of buf into start
+            uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
+            char *rest = malloc(rest_size);
+            fread(rest, sizeof(char), rest_size, index->fp);
+            fseek(index->fp, 0, SEEK_SET);
+            fwrite(rest, sizeof(char), rest_size, index->fp);
+            free(rest);
 
-//         // if (slow5_idx_insert(index, read_id, offset, size) == -1) {
-//         //     SLOW5_ERROR("Inserting '%s' to index failed", read_id);
-//         //     // TODO handle error and free
-//         //     return -1;
-//         // }
-        
-//         fprintf(stderr, "id:        %s\n", read_id);
-//         fprintf(stderr, "offset:    %zu\n", offset);
-//         fprintf(stderr, "size:      %zu\n\n", size);
-        
-//         response_free(&hdr_rid_len);
-//         response_free(&hdr);
-//     }
+            // download next set of memory and copy into buffer
+            int ret = fetch_bytes_into_fb(
+                index->fp,
+                url, 
+                file_offt,
+                DOWNLOAD_SIZE
+            );
+            if (ret < 0) {
+                SLOW5_ERROR("Fetching index data of '%s' failed.", url);
+            }
+            fseek(index->fp, 0, SEEK_SET);
 
-//     return 0;
-// }
+            // update file offset
+            real_size = DOWNLOAD_SIZE + rest_size;
+            file_offt += DOWNLOAD_SIZE;
+        }
 
-// slow5_idx_t *slow5_idx_init_from_url(
-//     slow5_file_t *s5p,
-//     const char *url
-// ) {
-//     slow5_idx_t *index = slow5_idx_init_empty();
-//     if (!index) {
-//         return NULL;
-//     }
+        size_t bytes_read;
+        if ((bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp)) != read_id_len) {
+            free(read_id);
+            bytes_read += sizeof read_id_len;
+            const char eof[] = SLOW5_INDEX_EOF;
+            if (bytes_read == sizeof eof) {
+                /* check if eof marker */
+                int is_eof = slow5_is_eof(index->fp, eof, sizeof eof);
+                if (is_eof == -1) { /* io/mem error */
+                    SLOW5_ERROR("%s", "Internal error while checking for index eof marker.");
+                } else if (is_eof == -2) {
+                    SLOW5_ERROR("%s", "Malformed index. End of file marker found, but end of file not reached.");
+                } else if (is_eof == 1) {
+                    /* slow5_errno = SLOW5_ERR_EOF; */
+                    // break; // todo: might not work
+                }
+            } else {
+                slow5_errno = SLOW5_ERR_IO;
+            }
+            return slow5_errno;
+        }
+        read_id[read_id_len] = '\0'; // Add null byte
+
+        uint64_t offset;
+        uint64_t size;
+
+        if (fread(&offset, sizeof offset, 1, index->fp) != 1 ||
+                fread(&size, sizeof size, 1, index->fp) != 1) {
+            return SLOW5_ERR_IO;
+        }
+
+        if (slow5_idx_insert(index, read_id, offset, size) == -1) {
+            SLOW5_ERROR("Inserting '%s' to index failed", read_id);
+            // TODO handle error and free
+            return -1;
+        }
+
+        // fprintf(stderr, "id:        %s\n", read_id);
+        // fprintf(stderr, "offset:    %zu\n", offset);
+        // fprintf(stderr, "size:      %zu\n\n", size);
+    }
+
+    return 0;
+}
+
+slow5_idx_t *slow5_idx_init_from_url(
+    slow5_curl_t *s5c
+) {
+    slow5_idx_t *index = slow5_idx_init_empty();
+    if (!index) {
+        return NULL;
+    }
+    slow5_file_t *s5p = s5c->s5p;
     
-//     index->pathname = strdup(url);
+    index->pathname = malloc(strlen(s5c->url)+1);
+    strcat(index->pathname, s5c->url);
+    strcat(index->pathname, ".idx");
 
-//     FILE *index_fp = fmemopen(NULL, SLOW5_INDEX_HEADER_SIZE_OFFSET+1, "r+");
-//     if (index_fp == NULL) {
-//         SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
-//         slow5_idx_free(index);
-//         index->fp = NULL;
-//         return NULL;
-//     }
+    FILE *index_fp = fmemopen(NULL, MAX_BUF_SIZE, "r+");
+    if (index_fp == NULL) {
+        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
+        slow5_idx_free(index);
+        index->fp = NULL;
+        return NULL;
+    }
     
-//     // get header meta data
-// 	int ret = fetch_bytes_into_fb(
-// 	    index_fp,
-// 		url, 
-// 		0,
-// 		SLOW5_INDEX_HEADER_SIZE_OFFSET
-// 	);
-// 	if (ret < 0) {
-// 		SLOW5_ERROR("Reading file header meta data of '%s' failed.", url);
-// 		return NULL;
-// 	}
-// 	fseek(index_fp, 0, SEEK_SET);
+    // get first part of index file
+	int ret = fetch_bytes_into_fb(
+	    index_fp,
+		index->pathname, 
+		0,
+		DOWNLOAD_SIZE
+	);
+	if (ret < 0) {
+		SLOW5_ERROR("Fetching index data of '%s' failed.", index->pathname);
+		return NULL;
+	}
+	fseek(index_fp, 0, SEEK_SET);
     
-//     index->fp = index_fp;
+    index->fp = index_fp;
     
-//     // todo: verify that the idx file is up to date
-    
-//     ret = s5curl_idx_read(index);
-//     if (ret != 0) {
-//         SLOW5_ERROR("Error reading idx %s.", strerror(ret));
-//         slow5_idx_free(index);
-//         return NULL;
-//     }
-    
-//     if (index->version.major != s5p->header->version.major ||
-//             index->version.minor != s5p->header->version.minor ||
-//             index->version.patch != s5p->header->version.patch) {
-//         SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
-//                 index->version.major, index->version.minor, index->version.patch,
-//                 s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
-//         slow5_idx_free(index);
-//         return NULL;
-//     }
+    // todo: verify that the idx file is up to date
 
-//     return index;
-// }
+    ret = s5curl_idx_read(index, index->pathname);
+    if (ret != 0) {
+        SLOW5_ERROR("Error reading idx %s.", strerror(ret));
+        slow5_idx_free(index);
+        return NULL;
+    }
+    
+    if (index->version.major != s5p->header->version.major ||
+            index->version.minor != s5p->header->version.minor ||
+            index->version.patch != s5p->header->version.patch) {
+        SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
+                index->version.major, index->version.minor, index->version.patch,
+                s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
+        slow5_idx_free(index);
+        return NULL;
+    }
 
-// int s5curl_idx(
-//     slow5_curl_t *s5c
-// ) {
-//     slow5_file_t *s5p = s5c->s5p;
-//     s5p->index = slow5_idx_init_from_url(s5p, url);
-//     if (s5p->index) {
-//         return 0;
-//     } else {
-//         return -1;
-//     }
-// }
+    return index;
+}
+
+int s5curl_idx_load(
+    slow5_curl_t *s5c
+) {
+    s5c->s5p->index = slow5_idx_init_from_url(s5c);
+    if (s5c->s5p->index) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
