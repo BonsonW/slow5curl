@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
     }
 
     int ret = 0;
-    ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
-    // ret = s5curl_idx_load(s5c);
+    // ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
+    ret = s5curl_idx_load(s5c);
     if (ret < 0) {
         s5curl_close(s5c);
         curl_global_cleanup();

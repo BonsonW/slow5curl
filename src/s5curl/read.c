@@ -24,14 +24,18 @@ int s5curl_read(
 	// exclude meta data before copying record
 	response_t resp = {0};
 
-	int ret = fetch_bytes_into_resp(
+    CURL *curl = curl_easy_init();
+	CURLcode ret = fetch_bytes_into_resp(
+        curl,
 	    &resp,
 		s5c->url, 
 		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Error fetching bytes for read %s.", read_id);
+    curl_easy_cleanup(curl);
+
+	if (ret != 0) {
+		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(ret));
 		return -1;
 	}
 
@@ -46,6 +50,7 @@ int s5curl_read(
 }
 
 static int add_transfer(
+    CURL *curl,
     slow5_curl_t *s5c,
     CURLM *cm,
     char *read_id,
@@ -65,8 +70,18 @@ static int add_transfer(
     resp->size = 0;
     resp->id = transfer;
 
-    if (queue_fetch_bytes_into_resp(resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t), cm) < 0) {
-        SLOW5_ERROR("Could not create transfer for read %s.", read_id);
+    curl_easy_reset(curl);
+    CURLcode ret = queue_fetch_bytes_into_resp(
+        curl,
+        resp,
+        s5c->url,
+        read_index.offset + sizeof(slow5_rec_size_t),
+        read_index.size - sizeof(slow5_rec_size_t),
+        cm
+    );
+
+    if (ret != 0) {
+        SLOW5_ERROR("Tranfer for read %s failed: %s.", read_id, curl_easy_strerror(ret));
         return -1;
     }
 
@@ -93,7 +108,8 @@ int s5curl_read_list(
     curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, max_connects);
  
     for (transfers = 0; transfers < max_connects && transfers < n_reads; transfers++) {
-        add_transfer(s5c, cm, read_ids[transfers], transfers, &left);
+        CURL *curl = curl_easy_init();
+        add_transfer(curl, s5c, cm, read_ids[transfers], transfers, &left);
     }
     
     do {
@@ -130,7 +146,8 @@ int s5curl_read_list(
             }
 
             if (transfers < n_reads) {
-                add_transfer(s5c, cm, read_ids[transfers], transfers, &left);
+                CURL *curl = curl_easy_init();
+                add_transfer(curl, s5c, cm, read_ids[transfers], transfers, &left);
                 transfers++;
             }
         }

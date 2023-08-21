@@ -161,7 +161,8 @@ int slow5_idx_load_from_path(
 
 static int s5curl_idx_read(
     struct slow5_idx *index,
-    const char *url
+    const char *url,
+    CURL *curl
 ) {
     struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
     const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
@@ -192,11 +193,16 @@ static int s5curl_idx_read(
 
     // get file size
     curl_off_t file_size = 0;
-    fetch_file_size(&file_size, url);
+    curl_easy_reset(curl);
+    CURLcode ret = fetch_file_size(curl, &file_size, url);
+    if (ret != 0) {
+        SLOW5_ERROR("Fetching file size of '%s' failed: %s.", url, curl_easy_strerror(ret));
+    }
     uint64_t file_offt_max = file_size;
 
     uint64_t real_size = DOWNLOAD_SIZE;
     uint64_t file_offt = DOWNLOAD_SIZE;
+
     while (1) {
         slow5_rid_len_t read_id_len;
 
@@ -211,14 +217,16 @@ static int s5curl_idx_read(
             free(rest);
 
             // download next set of memory and copy into buffer
-            int ret = fetch_bytes_into_fb(
+            curl_easy_reset(curl);
+            ret = fetch_bytes_into_fb(
+                curl,
                 index->fp,
                 url, 
                 file_offt,
                 DOWNLOAD_SIZE
             );
-            if (ret < 0) {
-                SLOW5_ERROR("Fetching index data of '%s' failed.", url);
+            if (ret != 0) {
+                SLOW5_ERROR("Fetching index data of '%s' failed: %s.", url, curl_easy_strerror(ret));
             }
             fseek(index->fp, 0, SEEK_SET);
 
@@ -250,14 +258,16 @@ static int s5curl_idx_read(
             free(rest);
 
             // download next set of memory and copy into buffer
-            int ret = fetch_bytes_into_fb(
+            curl_easy_reset(curl);
+            ret = fetch_bytes_into_fb(
+                curl,
                 index->fp,
                 url, 
                 file_offt,
                 DOWNLOAD_SIZE
             );
             if (ret < 0) {
-                SLOW5_ERROR("Fetching index data of '%s' failed.", url);
+                SLOW5_ERROR("Fetching index data of '%s' failed: %s.", url, curl_easy_strerror(ret));
             }
             fseek(index->fp, 0, SEEK_SET);
 
@@ -292,17 +302,14 @@ static int s5curl_idx_read(
             // TODO handle error and free
             return -1;
         }
-
-        // fprintf(stderr, "id:        %s\n", read_id);
-        // fprintf(stderr, "offset:    %zu\n", offset);
-        // fprintf(stderr, "size:      %zu\n\n", size);
     }
 
     return 0;
 }
 
 slow5_idx_t *slow5_idx_init_from_url(
-    slow5_curl_t *s5c
+    slow5_curl_t *s5c,
+    CURL *curl
 ) {
     slow5_idx_t *index = slow5_idx_init_empty();
     if (!index) {
@@ -310,27 +317,33 @@ slow5_idx_t *slow5_idx_init_from_url(
     }
     slow5_file_t *s5p = s5c->s5p;
     
-    index->pathname = malloc(strlen(s5c->url)+1);
-    strcat(index->pathname, s5c->url);
+    index->pathname = malloc(strlen(s5c->url)+5);
+    if (!index->pathname) {
+        slow5_idx_free(index);
+        return NULL;
+    }
+    strcpy(index->pathname, s5c->url);
     strcat(index->pathname, ".idx");
 
     FILE *index_fp = fmemopen(NULL, MAX_BUF_SIZE, "r+");
     if (index_fp == NULL) {
-        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
+        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname); 
         slow5_idx_free(index);
         index->fp = NULL;
         return NULL;
     }
     
     // get first part of index file
-	int ret = fetch_bytes_into_fb(
+    curl_easy_reset(curl);
+	CURLcode ret = fetch_bytes_into_fb(
+        curl,
 	    index_fp,
 		index->pathname, 
 		0,
 		DOWNLOAD_SIZE
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Fetching index data of '%s' failed.", index->pathname);
+	if (ret != 0) {
+		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
 		return NULL;
 	}
 	fseek(index_fp, 0, SEEK_SET);
@@ -339,7 +352,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     
     // todo: verify that the idx file is up to date
 
-    ret = s5curl_idx_read(index, index->pathname);
+    ret = s5curl_idx_read(index, index->pathname, curl);
     if (ret != 0) {
         SLOW5_ERROR("Error reading idx %s.", strerror(ret));
         slow5_idx_free(index);
@@ -362,7 +375,9 @@ slow5_idx_t *slow5_idx_init_from_url(
 int s5curl_idx_load(
     slow5_curl_t *s5c
 ) {
-    s5c->s5p->index = slow5_idx_init_from_url(s5c);
+    CURL *curl = curl_easy_init();
+    s5c->s5p->index = slow5_idx_init_from_url(s5c, curl);
+    curl_easy_cleanup(curl);
     if (s5c->s5p->index) {
         return 0;
     } else {

@@ -46,210 +46,147 @@ static CURLcode construct_byte_range(
 }
 
 CURLcode fetch_bytes_into_resp(
+    CURL *curl,
     response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size
 ) {
-    CURL *curl = curl_easy_init();
+    if (!curl) return CURLE_FAILED_INIT;
+
+    CURLcode res;
+
+    // write into response
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+    if (res != CURLE_OK) return res;
     
-    if (curl) {
-        CURLcode res;
-
-        // write into response
-        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        // construct range field
-        char *range;
-        res = construct_byte_range(&range, begin, size);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        res = curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
+    // construct range field
+    char *range;
+    res = construct_byte_range(&range, begin, size);
+    if (res != CURLE_OK) return res;
+    
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) {
         free(range);
-        
-        
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-
-        if (res != CURLE_OK) return res;
-    } else {
-        return CURLE_FAILED_INIT;
+        return res;
     }
+    res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    if (res != CURLE_OK) {
+        free(range);
+        return res;
+    }
+    free(range);
+    
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK) return res;
     
     return CURLE_OK;
 }
 
 CURLcode fetch_bytes_into_fb(
+    CURL *curl,
     FILE *fp,
     const char *url,
     uint64_t begin,
     uint64_t size
 ) {
-    CURL *curl = curl_easy_init();
+    if (!curl) return CURLE_FAILED_INIT;
     
-    if (curl) {
-        CURLcode res;
+    CURLcode res;
 
-        // write into file pointer
-        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        // construct range field
-        char *range;
-        res = construct_byte_range(&range, begin, size);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        res = curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
-        free(range);
-        
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-        if (res != CURLE_OK) return res;
-    } else {
-        return CURLE_FAILED_INIT;
-    }
+    // write into file pointer
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
+    if (res != CURLE_OK) return res;
     
+    // construct range field
+    char *range;
+    res = construct_byte_range(&range, begin, size);
+    if (res != CURLE_OK) return res;
+    
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) {
+        free(range);
+        return res;
+    }
+    res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    if (res != CURLE_OK) {
+        free(range);
+        return res;
+    }
+    free(range);
+    
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK) return res;
+
     return CURLE_OK;
 }
 
 CURLcode queue_fetch_bytes_into_resp(
+    CURL *curl,
     response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size,
     CURLM *cm
 ) {
-    CURL *curl = curl_easy_init();
-    if (curl) {
-        CURLcode res;
-        
-        // write into response
-        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        // construct range field
-        char *range;
-        res = construct_byte_range(&range, begin, size);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        res = curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            free(range);
-            return res;
-        }
+    if (!curl) return CURLE_FAILED_INIT;
+    CURLcode res;
+    
+    // write into response
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
+    if (res != CURLE_OK) return res;
+    
+    // construct range field
+    char *range;
+    res = construct_byte_range(&range, begin, size);
+    if (res != CURLE_OK) return res;
+    
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) {
         free(range);
-
-        res = curl_multi_add_handle(cm, curl);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-    } else {
-        return CURLE_FAILED_INIT;
+        return res;
     }
+    res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+    if (res != CURLE_OK) {
+        free(range);
+        return res;
+    }
+    free(range);
+
+    res = curl_multi_add_handle(cm, curl);
+    if (res != CURLE_OK) return res;
 
     return CURLE_OK;
 }
 
 CURLcode fetch_file_size(
+    CURL *curl,
     curl_off_t *file_size,
     const char *url
 ) {
-    CURL *curl = curl_easy_init();
+    if (!curl) return CURLE_FAILED_INIT;
+    CURLcode res;
+
+    // get 
+    res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) return res;
     
-    if (curl) {
-        CURLcode res;
+    res = curl_easy_perform(curl);
+    if (res != CURLE_OK) return res;
 
-        // get 
-        res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        res = curl_easy_setopt(curl, CURLOPT_URL, url);
-        if (res != CURLE_OK) {
-            curl_easy_cleanup(curl);
-            return res;
-        }
-        
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
-        if (res != CURLE_OK) return res;
-
-        // return length
-        res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
-        if (res != CURLE_OK) return res;
-    } else {
-        return CURLE_FAILED_INIT;
-    }
+    // return length
+    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
+    if (res != CURLE_OK) return res;
     
     return CURLE_OK;
 }

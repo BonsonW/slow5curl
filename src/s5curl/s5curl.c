@@ -108,11 +108,11 @@ struct slow5_file *s5curl_init(
     return s5p;
 }
 
-slow5_curl_t *s5curl_open(
-    const char *url
+slow5_curl_t *s5curl_open_with(
+    const char *url,
+    CURL *curl,
+    const char *mode
 ) {
-    const char *mode = "r";
-    
     if (slow5_is_big_endian()) {
         SLOW5_ERROR_EXIT("%s", "Big endian machine detected. slow5lib only supports little endian at this time. Please open a github issue stating your machine spec <https://github.com/hasindu2008/slow5lib/issues>.");
         slow5_errno = SLOW5_ERR_OTH;
@@ -129,14 +129,16 @@ slow5_curl_t *s5curl_open(
     // get header meta data
     response_t hdr_meta = {0};
 
-	int ret = fetch_bytes_into_resp(
+    curl_easy_reset(curl);
+	CURLcode ret = fetch_bytes_into_resp(
+        curl,
 	    &hdr_meta,
 		url, 
 		0,
 		BLOW5_HDR_META_SIZE
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Reading file header meta data of '%s' failed.", url);
+	if (ret != 0) {
+		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(ret));
 		return NULL;
 	}
 	
@@ -155,15 +157,17 @@ slow5_curl_t *s5curl_open(
         slow5_errno = SLOW5_ERR_IO;
         return NULL;
     }
-
+    
+    curl_easy_reset(curl);
 	ret = fetch_bytes_into_fb(
+        curl,
 	    fp,
 		url, 
 		0,
 		header_size+BLOW5_HDR_META_SIZE
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Reading file header of '%s' failed.", url);
+	if (ret != 0) {
+		SLOW5_ERROR("Reading file header of '%s' failed: %s.", url, curl_easy_strerror(ret));
 		return NULL;
 	}
 	fseek(fp, 0, SEEK_SET);
@@ -187,4 +191,13 @@ slow5_curl_t *s5curl_open(
     s5c->s5p = s5p;
 
     return s5c;
+}
+
+slow5_curl_t *s5curl_open(
+    const char *url
+) {
+    CURL *curl = curl_easy_init();
+    slow5_curl_t *ret = s5curl_open_with(url, curl, "r");
+    curl_easy_cleanup(curl);
+    return ret;
 }
