@@ -7,8 +7,8 @@
 
 extern enum slow5_log_level_opt  slow5_log_level;
 
-#define MAX_BUF_SIZE 32 * 1024 * 1024
-#define DOWNLOAD_SIZE MAX_BUF_SIZE / 2
+#define MAX_BUF_SIZE (32 * 1024 * 1024)
+#define DOWNLOAD_SIZE (MAX_BUF_SIZE / 2)
 
 static inline struct slow5_idx *slow5_idx_init_empty(void) {
 
@@ -190,16 +190,18 @@ static int s5curl_idx_read(
         return SLOW5_ERR_IO;
     }
 
+    // get file size
+    curl_off_t file_size = 0;
+    fetch_file_size(&file_size, url);
+    uint64_t file_offt_max = file_size;
+
     uint64_t real_size = DOWNLOAD_SIZE;
     uint64_t file_offt = DOWNLOAD_SIZE;
-    int ctr = 0;
     while (1) {
         slow5_rid_len_t read_id_len;
 
         // download next part
         if ((uint64_t)ftell(index->fp) + (uint64_t)(read_id_len + (sizeof(uint64_t) * 2)) > real_size) {
-            fprintf(stderr, "downloading next index bytes... %d\n", ++ctr);
-
             // copy rest of buf into start
             uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
             char *rest = malloc(rest_size);
@@ -239,8 +241,6 @@ static int s5curl_idx_read(
 
         // download next part
         if ((uint64_t)ftell(index->fp) + (uint64_t)(read_id_len + (sizeof(uint64_t) * 2)) > real_size) {
-            fprintf(stderr, "downloading next index bytes... %d\n", ++ctr);
-
             // copy rest of buf into start
             uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
             char *rest = malloc(rest_size);
@@ -267,24 +267,14 @@ static int s5curl_idx_read(
         }
 
         size_t bytes_read;
-        if ((bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp)) != read_id_len) {
+        bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp);
+
+        // check if the file offset is over the file size
+        if ((file_offt - DOWNLOAD_SIZE) + (uint64_t)ftell(index->fp) > file_offt_max) {
             free(read_id);
-            bytes_read += sizeof read_id_len;
-            const char eof[] = SLOW5_INDEX_EOF;
-            if (bytes_read == sizeof eof) {
-                /* check if eof marker */
-                int is_eof = slow5_is_eof(index->fp, eof, sizeof eof);
-                if (is_eof == -1) { /* io/mem error */
-                    SLOW5_ERROR("%s", "Internal error while checking for index eof marker.");
-                } else if (is_eof == -2) {
-                    SLOW5_ERROR("%s", "Malformed index. End of file marker found, but end of file not reached.");
-                } else if (is_eof == 1) {
-                    /* slow5_errno = SLOW5_ERR_EOF; */
-                    // break; // todo: might not work
-                }
-            } else {
-                slow5_errno = SLOW5_ERR_IO;
-            }
+            // todo: check EOF
+            break;
+
             return slow5_errno;
         }
         read_id[read_id_len] = '\0'; // Add null byte

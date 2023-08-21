@@ -34,4 +34,9 @@ int queue_fetch_bytes_into_resp(
     CURLM *cm
 );
 
+int fetch_file_size(
+    curl_off_t *file_size,
+    const char *url
+);
+
 #endif

@@ -137,3 +137,28 @@ int queue_fetch_bytes_into_resp(
 
     return 0;
 }
+
+int fetch_file_size(
+    curl_off_t *file_size,
+    const char *url
+) {
+    CURL *curl = curl_easy_init();
+    
+    if (curl) {
+        CURLcode res;
+
+        // get 
+        curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+        curl_easy_setopt(curl, CURLOPT_URL, url);
+        
+        res = curl_easy_perform(curl);
+
+        curl_easy_cleanup(curl);
+    } else {
+        return -1;
+    }
+
+    curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
+    
+    return 0;
+}
