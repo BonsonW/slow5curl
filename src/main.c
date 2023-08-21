@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
     }
 
     int ret = 0;
-    // ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
-    ret = s5curl_idx_load(s5c);
+    ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
+    // ret = s5curl_idx_load(s5c);
     if (ret < 0) {
         s5curl_close(s5c);
         curl_global_cleanup();
@@ -72,29 +72,29 @@ int main(int argc, char* argv[]) {
     }
     slow5_rec_free(read);
     
-    //// multiple reads
-    // slow5_rec_t **reads = calloc(n_reads, sizeof *reads);
-    // ret = s5curl_read_list(
-    //     s5c,
-    //     max_connects,
-    //     n_reads,
-    //     read_ids,
-    //     reads
-    // );
-    // if (ret < 0) {
-    //     s5curl_idx_unload(s5c);
-    //     s5curl_close(s5c);
-    //     curl_global_cleanup();
-    //     fprintf(stderr, "Could not perform read list.\n");
-    //     return -1;
-    // }
+    // multiple reads
+    slow5_rec_t **reads = calloc(n_reads, sizeof *reads);
+    ret = s5curl_read_list(
+        s5c,
+        max_connects,
+        n_reads,
+        read_ids,
+        reads
+    );
+    if (ret < 0) {
+        s5curl_idx_unload(s5c);
+        s5curl_close(s5c);
+        curl_global_cleanup();
+        fprintf(stderr, "Could not perform read list.\n");
+        return -1;
+    }
 
 
-    // // cleanup
-    // for (int i = 0; i < n_reads; i++) {
-    //     slow5_rec_free(reads[i]);
-    // }
-    // free(reads);
+    // cleanup
+    for (int i = 0; i < n_reads; i++) {
+        slow5_rec_free(reads[i]);
+    }
+    free(reads);
 
     free(read_ids);
     s5curl_idx_unload(s5c);

@@ -21,7 +21,7 @@ static size_t callback(
     struct response *mem = (struct response *)clientp;
     
     char *ptr = realloc(mem->data, mem->size + realsize + 1);
-    if (ptr == NULL) { // out of mem
+    if (ptr == NULL) {
         return 0;
     }
     
@@ -33,19 +33,19 @@ static size_t callback(
     return realsize;
 }
 
-// todo: check error for setting the header and mallocing
-static int construct_byte_range(
+static CURLcode construct_byte_range(
     char **range,
     uint64_t begin,
     uint64_t size
 ) {
     int len = snprintf(NULL, 0, "%zu", begin) + snprintf(NULL, 0, "%zu", begin+size-1);
     *range = malloc(len + 2);
+    if (range == NULL) return CURLE_OUT_OF_MEMORY;
     sprintf(*range, "%zu-%zu", begin, begin+size-1);
-    return 0;
+    return CURLE_OK;
 }
 
-int fetch_bytes_into_resp(
+CURLcode fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
     uint64_t begin,
@@ -57,28 +57,52 @@ int fetch_bytes_into_resp(
         CURLcode res;
 
         // write into response
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
         
         // construct range field
         char *range;
-        construct_byte_range(&range, begin, size);
+        res = construct_byte_range(&range, begin, size);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
         
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        res = curl_easy_setopt(curl, CURLOPT_URL, url);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
         free(range);
         
+        
         res = curl_easy_perform(curl);
-
         curl_easy_cleanup(curl);
+
+        if (res != CURLE_OK) return res;
     } else {
-        return -1;
+        return CURLE_FAILED_INIT;
     }
     
-    return 0;
+    return CURLE_OK;
 }
 
-int fetch_bytes_into_fb(
+CURLcode fetch_bytes_into_fb(
     FILE *fp,
     const char *url,
     uint64_t begin,
@@ -90,28 +114,50 @@ int fetch_bytes_into_fb(
         CURLcode res;
 
         // write into file pointer
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
+        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
         
         // construct range field
         char *range;
-        construct_byte_range(&range, begin, size);
+        res = construct_byte_range(&range, begin, size);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
         
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        res = curl_easy_setopt(curl, CURLOPT_URL, url);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
         free(range);
         
         res = curl_easy_perform(curl);
-        
         curl_easy_cleanup(curl);
+        if (res != CURLE_OK) return res;
     } else {
-        return -1;
+        return CURLE_FAILED_INIT;
     }
     
-    return 0;
+    return CURLE_OK;
 }
 
-int queue_fetch_bytes_into_resp(
+CURLcode queue_fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
     uint64_t begin,
@@ -119,26 +165,61 @@ int queue_fetch_bytes_into_resp(
     CURLM *cm
 ) {
     CURL *curl = curl_easy_init();
-    
-    // write into response
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-    curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
-    
-    // construct range field
-    char *range;
-    construct_byte_range(&range, begin, size);
-    
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_RANGE, range);
-    free(range);
+    if (curl) {
+        CURLcode res;
+        
+        // write into response
+        res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        
+        // construct range field
+        char *range;
+        res = construct_byte_range(&range, begin, size);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        
+        res = curl_easy_setopt(curl, CURLOPT_URL, url);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            free(range);
+            return res;
+        }
+        free(range);
 
-    curl_multi_add_handle(cm, curl);
+        res = curl_multi_add_handle(cm, curl);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+    } else {
+        return CURLE_FAILED_INIT;
+    }
 
-    return 0;
+    return CURLE_OK;
 }
 
-int fetch_file_size(
+CURLcode fetch_file_size(
     curl_off_t *file_size,
     const char *url
 ) {
@@ -148,17 +229,27 @@ int fetch_file_size(
         CURLcode res;
 
         // get 
-        curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-        curl_easy_setopt(curl, CURLOPT_URL, url);
+        res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
+        res = curl_easy_setopt(curl, CURLOPT_URL, url);
+        if (res != CURLE_OK) {
+            curl_easy_cleanup(curl);
+            return res;
+        }
         
         res = curl_easy_perform(curl);
-
         curl_easy_cleanup(curl);
-    } else {
-        return -1;
-    }
+        if (res != CURLE_OK) return res;
 
-    curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
+        // return length
+        res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
+        if (res != CURLE_OK) return res;
+    } else {
+        return CURLE_FAILED_INIT;
+    }
     
-    return 0;
+    return CURLE_OK;
 }

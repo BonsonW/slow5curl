@@ -12,21 +12,21 @@ typedef struct response {
 
 int response_free(response_t *resp);
 
-int fetch_bytes_into_resp(
+CURLcode fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size
 );
 
-int fetch_bytes_into_fb(
+CURLcode fetch_bytes_into_fb(
     FILE *fp,
     const char *url,
     uint64_t begin,
     uint64_t size
 );
 
-int queue_fetch_bytes_into_resp(
+CURLcode queue_fetch_bytes_into_resp(
     response_t *resp,
     const char *url,
     uint64_t begin,
@@ -34,7 +34,7 @@ int queue_fetch_bytes_into_resp(
     CURLM *cm
 );
 
-int fetch_file_size(
+CURLcode fetch_file_size(
     curl_off_t *file_size,
     const char *url
 );
