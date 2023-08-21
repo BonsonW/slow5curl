@@ -7,10 +7,7 @@
 extern "C" {
 #endif
 
-int slow5_idx_load_from_path(
-    slow5_file_t *s5p,
-    const char *path
-);
+int slow5_idx_load_from_path( slow5_file_t *s5p, const char *path);
 
 #ifdef __cplusplus
 }

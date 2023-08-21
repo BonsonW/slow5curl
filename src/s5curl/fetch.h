@@ -16,36 +16,13 @@ typedef struct response {
 
 int response_free(response_t *resp);
 
-CURLcode fetch_bytes_into_resp(
-    CURL *curl,
-    response_t *resp,
-    const char *url,
-    uint64_t begin,
-    uint64_t size
-);
+CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
 
-CURLcode fetch_bytes_into_fb(
-    CURL *curl,
-    FILE *fp,
-    const char *url,
-    uint64_t begin,
-    uint64_t size
-);
+CURLcode fetch_bytes_into_fb(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
 
-CURLcode queue_fetch_bytes_into_resp(
-    CURL *curl,
-    response_t *resp,
-    const char *url,
-    uint64_t begin,
-    uint64_t size,
-    CURLM *cm
-);
+CURLcode queue_fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size, CURLM *cm);
 
-CURLcode fetch_file_size(
-    CURL *curl,
-    curl_off_t *file_size,
-    const char *url
-);
+CURLcode fetch_file_size(CURL *curl, curl_off_t *file_size, const char *url);
 
 #ifdef __cplusplus
 }
