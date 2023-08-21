@@ -47,14 +47,14 @@ void s5curl_idx_unload(
     slow5_curl_t *s5c
 );
 
-int s5curl_read(
+int s5curl_get(
     slow5_curl_t *s5c,
     CURL *curl,
     char *read_id,
     slow5_rec_t *read
 );
 
-int s5curl_read_list(
+int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,
     CURLM *cm,

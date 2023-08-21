@@ -6,7 +6,7 @@
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
 #include "../slow5lib/src/slow5_misc.h"
-#include "s5curl.h"
+#include <slow5curl/s5curl.h>
 #include "fetch.h"
 
 #define SLOW5_FSTREAM_BUFF_SIZE (131072)  /* buffer size for freads and fwrites */

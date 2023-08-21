@@ -3,11 +3,11 @@
 
 #include "../slow5lib/src/slow5_idx.h"
 #include "fetch.h"
-#include "s5curl.h"
+#include <slow5curl/s5curl.h>
 
 extern enum slow5_log_level_opt  slow5_log_level;
 
-int s5curl_read(
+int s5curl_get(
     slow5_curl_t *s5c,
     CURL *curl, 
     char *read_id,
@@ -40,7 +40,7 @@ int s5curl_read(
 		return slow5_errno;
 	}
 
-    int decoded = slow_decode((void *)&resp.data, &resp.size, &read, s5p);
+    int decoded = slow5_decode((void *)&resp.data, &resp.size, &read, s5p);
     response_free(&resp);
     return decoded;
 }
@@ -87,7 +87,7 @@ static int add_transfer(
     return EXIT_SUCCESS;
 }
 
-int s5curl_read_list(
+int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,
     CURLM *cm,
@@ -121,7 +121,7 @@ int s5curl_read_list(
 
                 slow5_rec_t *read = NULL;
 
-                int res = slow_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
+                int res = slow5_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
 
                 if (res != 0) { 
                     SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);

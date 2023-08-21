@@ -1,8 +1,7 @@
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
-#include "index.h"
 #include "fetch.h"
-#include "s5curl.h"
+#include <slow5curl/s5curl.h>
 #include <inttypes.h>
 
 extern enum slow5_log_level_opt  slow5_log_level;
@@ -22,7 +21,6 @@ static inline struct slow5_idx *slow5_idx_init_empty(void) {
 static int slow5_idx_read(
     struct slow5_idx *index
 ) {
-
     struct slow5_version max_supported = SLOW5_VERSION_ARRAY;
     const char magic[] = SLOW5_INDEX_MAGIC_NUMBER;
     char buf_magic[sizeof magic]; // TODO is this a vla?

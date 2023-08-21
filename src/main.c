@@ -6,7 +6,7 @@
 #include <slow5/slow5.h>
 #include <curl/curl.h>
 
-#include "s5curl/s5curl.h"
+#include <slow5curl/s5curl.h>
 #include "s5curl/index.h"
 
 int main(int argc, char* argv[]) {
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     // one read
     CURL *curl = curl_easy_init();
     slow5_rec_t *read = NULL;
-    ret = s5curl_read(s5c, curl, read_ids[0], read);
+    ret = s5curl_get(s5c, curl, read_ids[0], read);
     if (ret < 0) {
         s5curl_idx_unload(s5c);
         s5curl_close(s5c);
@@ -79,7 +79,7 @@ int main(int argc, char* argv[]) {
     conn_stack_t *conns = s5curl_open_conns(max_connects);
 
     slow5_rec_t **reads = calloc(n_reads, sizeof *reads);
-    ret = s5curl_read_list(
+    ret = s5curl_get_batch(
         s5c,
         conns,
         cm,
