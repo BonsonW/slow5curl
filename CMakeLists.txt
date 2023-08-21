@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22.0)
 
-project(slow5-curl)
+project(slow5curl)
 
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)

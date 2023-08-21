@@ -1,4 +1,4 @@
 #! /bin/bash
 
 cd build
-./slow5-curl > log.txt
+./slow5curl > log.txt
