@@ -53,6 +53,12 @@ static int add_transfer(
     uint32_t transfer,
     int *left
 ) {
+    if (!curl) {
+        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
+        return slow5_errno;
+    }
+    
     slow5_idx_t *s_idx = s5c->s5p->index;
 
     struct slow5_rec_idx read_index;

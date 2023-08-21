@@ -53,11 +53,13 @@ void s5curl_close_conns(
         curl_easy_cleanup(conns->curls[i]);
     }
     free(conns->curls);
+    free(conns);
 }
 
 CURL *s5curl_conns_pop(
     conn_stack_t *conns
 ) {
+    if (conns->top < 0) return NULL;
     curl_easy_reset(conns->curls[conns->top]);
     return conns->curls[conns->top--];
 }
