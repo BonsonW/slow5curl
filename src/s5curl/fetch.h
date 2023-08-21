@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <curl/curl.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct response {
     char *data;
     size_t size;
@@ -42,5 +46,9 @@ CURLcode fetch_file_size(
     curl_off_t *file_size,
     const char *url
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

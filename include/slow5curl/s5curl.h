@@ -3,6 +3,10 @@
 
 #include <slow5/slow5.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct conn_stack {
     CURL **curls;
     size_t top;
@@ -62,5 +66,9 @@ int s5curl_get_batch(
     char **read_ids,
     slow5_rec_t **reads
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
