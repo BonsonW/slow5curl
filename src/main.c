@@ -10,7 +10,7 @@
 #include "s5curl/index.h"
 
 int main(int argc, char* argv[]) {
-    int n_reads = 10;
+    int n_reads = 100;
     uint64_t max_connects = 5;
     const char *url = "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5";
     const char *idx_path = "/home/hasindu/scratch/na12878_prom_lsk114/PGXXHX230142_reads.blow5.idx";
@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
     }
 
     int ret = 0;
-    // ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
-    ret = s5curl_idx_load(s5c);
+    ret = slow5_idx_load_from_path(s5c->s5p, idx_path);
+    // ret = s5curl_idx_load(s5c);
     if (ret < 0) {
         s5curl_close(s5c);
         curl_global_cleanup();
@@ -61,8 +61,9 @@ int main(int argc, char* argv[]) {
     }
     
     // one read
+    CURL *curl = curl_easy_init();
     slow5_rec_t *read = NULL;
-    ret = s5curl_read(s5c, read_ids[0], read);
+    ret = s5curl_read(s5c, curl, read_ids[0], read);
     if (ret < 0) {
         s5curl_idx_unload(s5c);
         s5curl_close(s5c);
@@ -70,17 +71,25 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Could not perform read.\n");
         return -1;
     }
+    curl_easy_cleanup(curl);
     slow5_rec_free(read);
     
     // multiple reads
+    CURLM *cm = curl_multi_init();
+    conn_stack_t *conns = s5curl_open_conns(max_connects);
+
     slow5_rec_t **reads = calloc(n_reads, sizeof *reads);
     ret = s5curl_read_list(
         s5c,
-        max_connects,
+        conns,
+        cm,
         n_reads,
         read_ids,
         reads
     );
+    curl_multi_cleanup(cm);
+    s5curl_close_conns(conns);
+
     if (ret < 0) {
         s5curl_idx_unload(s5c);
         s5curl_close(s5c);

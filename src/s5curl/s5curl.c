@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <curl/curl.h>
+
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
 #include "../slow5lib/src/slow5_misc.h"
@@ -12,7 +14,60 @@ extern enum slow5_log_level_opt  slow5_log_level;
 enum slow5_exit_condition_opt slow5_exit_condition = SLOW5_EXIT_OFF;
 
 const size_t BLOW5_HDR_META_SIZE = 68;
-const size_t BLOW5_MAX_HDR_SIZE = 32 * 1024 * 1024; // 32MB max header size
+const size_t BLOW5_MAX_HDR_SIZE = (32 * 1024 * 1024); // 32MB max header size
+
+conn_stack_t *s5curl_open_conns(
+    size_t n_conns
+) {
+    conn_stack_t *conn_stack = (conn_stack_t *)malloc(sizeof *conn_stack);
+    if (!conn_stack) {
+        SLOW5_MALLOC_ERROR();
+        return NULL;
+    }
+
+    conn_stack->curls = malloc(n_conns * sizeof *conn_stack->curls);
+    if (!conn_stack->curls) {
+        SLOW5_MALLOC_ERROR();
+        free(conn_stack);
+        slow5_errno = SLOW5_ERR_MEM;
+        return NULL;
+    }
+
+    for (size_t i = 0; i < n_conns; ++i) {
+        conn_stack->curls[i] = curl_easy_init();
+        if (!conn_stack->curls[i]) {
+            SLOW5_ERROR("Error initializing connection: %s", curl_easy_strerror(CURLE_FAILED_INIT));
+            free(conn_stack);
+            free(conn_stack->curls);
+            slow5_errno = SLOW5_ERR_OTH;
+            return NULL;
+        }
+    }
+    conn_stack->top = n_conns-1;
+}
+
+void s5curl_close_conns(
+    conn_stack_t *conns
+) {
+    for (size_t i = 0; i < conns->n_conns; ++i) {
+        curl_easy_cleanup(conns->curls[i]);
+    }
+    free(conns->curls);
+}
+
+CURL *s5curl_conns_pop(
+    conn_stack_t *conns
+) {
+    curl_easy_reset(conns->curls[conns->top]);
+    return conns->curls[conns->top--];
+}
+
+void s5curl_conns_push(
+    conn_stack_t *conns,
+    CURL *curl
+) {
+    conns->curls[++conns->top] = curl;
+}
 
 void s5curl_close(
     slow5_curl_t *s5c

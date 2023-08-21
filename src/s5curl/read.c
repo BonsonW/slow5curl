@@ -9,6 +9,7 @@ extern enum slow5_log_level_opt  slow5_log_level;
 
 int s5curl_read(
     slow5_curl_t *s5c,
+    CURL *curl, 
     char *read_id,
     slow5_rec_t *read
 ) {
@@ -24,7 +25,6 @@ int s5curl_read(
 	// exclude meta data before copying record
 	response_t resp = {0};
 
-    CURL *curl = curl_easy_init();
 	CURLcode ret = fetch_bytes_into_resp(
         curl,
 	    &resp,
@@ -32,7 +32,6 @@ int s5curl_read(
 		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size
 	);
-    curl_easy_cleanup(curl);
 
 	if (ret != 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(ret));
@@ -92,24 +91,22 @@ static int add_transfer(
 
 int s5curl_read_list(
     slow5_curl_t *s5c,
-    uint64_t max_connects,
+    conn_stack_t *conns,
+    CURLM *cm,
     uint64_t n_reads,
     char **read_ids,
     slow5_rec_t **reads
 ) {
-    CURLM *cm;
     CURLMsg *msg;
     uint32_t transfers = 0;
     int msgs_left = -1;
     int left = 0;
 
-    cm = curl_multi_init();
-
-    curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, max_connects);
+    curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
  
-    for (transfers = 0; transfers < max_connects && transfers < n_reads; transfers++) {
-        CURL *curl = curl_easy_init();
-        add_transfer(curl, s5c, cm, read_ids[transfers], transfers, &left);
+    for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
+        int ret = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+        if (ret != 0) return -1;
     }
     
     do {
@@ -121,9 +118,7 @@ int s5curl_read_list(
                 response_t *resp;
                 CURL *e = msg->easy_handle;
                 
-                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) { 
-                    return -1;
-                }
+                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) return -1;
                 uint32_t index = resp->id;
 
                 slow5_rec_t *read = NULL;
@@ -136,18 +131,21 @@ int s5curl_read_list(
 
                 response_free(resp);
                 free(resp);
-
+                
                 curl_multi_remove_handle(cm, e);
-                curl_easy_cleanup(e);
                 left--;
+                s5curl_conns_push(conns, e);
             } else {
                 SLOW5_ERROR("%s", "Error fetching bytes for read.");
 		        return -1;
             }
 
             if (transfers < n_reads) {
-                CURL *curl = curl_easy_init();
-                add_transfer(curl, s5c, cm, read_ids[transfers], transfers, &left);
+                int ret = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+                if (ret != 0) {
+                    return -1;
+                }
+
                 transfers++;
             }
         }
@@ -156,8 +154,6 @@ int s5curl_read_list(
             curl_multi_wait(cm, NULL, 0, 1000, NULL);
         }
     } while(left);
-
-    curl_multi_cleanup(cm);
 
     return EXIT_SUCCESS;
 }

@@ -3,6 +3,29 @@
 
 #include <slow5/slow5.h>
 
+typedef struct conn_stack {
+    CURL **curls;
+    size_t top;
+    size_t n_conns;
+} conn_stack_t;
+
+conn_stack_t *s5curl_open_conns(
+    size_t n_conns
+);
+
+void s5curl_close_conns(
+    conn_stack_t *conns
+);
+
+CURL *s5curl_conns_pop(
+    conn_stack_t *conns
+);
+
+void s5curl_conns_push(
+    conn_stack_t *conns,
+    CURL *curl
+);
+
 typedef struct slow5_curl {
     const char *url;
     slow5_file_t *s5p;
@@ -26,13 +49,15 @@ void s5curl_idx_unload(
 
 int s5curl_read(
     slow5_curl_t *s5c,
+    CURL *curl,
     char *read_id,
     slow5_rec_t *read
 );
 
 int s5curl_read_list(
     slow5_curl_t *s5c,
-    uint64_t max_connects,
+    conn_stack_t *conns,
+    CURLM *cm,
     uint64_t n_reads,
     char **read_ids,
     slow5_rec_t **reads
