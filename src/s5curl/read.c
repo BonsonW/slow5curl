@@ -17,15 +17,16 @@ int s5curl_read(
     slow5_file_t *s5p = s5c->s5p;
 
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s_idx, read_id, &read_index) < 0) {
+	if (slow5_idx_get(s_idx, read_id, &read_index) != 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-		return -1;
+        slow5_errno = SLOW5_ERR_NOTFOUND;
+		return slow5_errno;
 	}
 	
 	// exclude meta data before copying record
 	response_t resp = {0};
 
-	CURLcode ret = fetch_bytes_into_resp(
+	CURLcode res = fetch_bytes_into_resp(
         curl,
 	    &resp,
 		s5c->url, 
@@ -33,19 +34,15 @@ int s5curl_read(
 		read_index.size
 	);
 
-	if (ret != 0) {
-		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(ret));
-		return -1;
+	if (res != 0) {
+		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
+		return slow5_errno;
 	}
 
-	if (slow_decode((void *)&resp.data, &resp.size, &read, s5p) < 0) { 
-		SLOW5_ERROR("Error decoding read %s.\n", read_id);
-		return -1;
-	}
-
+    int decoded = slow_decode((void *)&resp.data, &resp.size, &read, s5p);
     response_free(&resp);
-
-    return 0;
+    return decoded;
 }
 
 static int add_transfer(
@@ -59,9 +56,10 @@ static int add_transfer(
     slow5_idx_t *s_idx = s5c->s5p->index;
 
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s_idx, read_id, &read_index) < 0) {
+	if (slow5_idx_get(s_idx, read_id, &read_index) != 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-		return -1;
+        slow5_errno = SLOW5_ERR_NOTFOUND;
+		return slow5_errno;
 	}
 
     response_t *resp = (response_t *)malloc(sizeof(response_t));
@@ -69,8 +67,7 @@ static int add_transfer(
     resp->size = 0;
     resp->id = transfer;
 
-    curl_easy_reset(curl);
-    CURLcode ret = queue_fetch_bytes_into_resp(
+    CURLcode res = queue_fetch_bytes_into_resp(
         curl,
         resp,
         s5c->url,
@@ -79,14 +76,15 @@ static int add_transfer(
         cm
     );
 
-    if (ret != 0) {
-        SLOW5_ERROR("Tranfer for read %s failed: %s.", read_id, curl_easy_strerror(ret));
-        return -1;
+    if (res != 0) {
+        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
+        return slow5_errno;
     }
 
     (*left)++;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int s5curl_read_list(
@@ -105,8 +103,8 @@ int s5curl_read_list(
     curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
  
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
-        int ret = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-        if (ret != 0) return -1;
+        int res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+        if (res != 0) return res;
     }
     
     do {
@@ -123,9 +121,11 @@ int s5curl_read_list(
 
                 slow5_rec_t *read = NULL;
 
-                if (slow_decode((void *)&resp->data, &resp->size, &read, s5c->s5p) < 0) { 
+                int res = slow_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
+
+                if (res != 0) { 
                     SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
-                    return -1;
+                    return res;
                 }
                 reads[index] = read;
 
@@ -137,14 +137,13 @@ int s5curl_read_list(
                 s5curl_conns_push(conns, e);
             } else {
                 SLOW5_ERROR("%s", "Error fetching bytes for read.");
-		        return -1;
+                slow5_errno = SLOW5_ERR_OTH;
+                return slow5_errno;
             }
 
             if (transfers < n_reads) {
-                int ret = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-                if (ret != 0) {
-                    return -1;
-                }
+                int res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+                if (res != 0) return res;
 
                 transfers++;
             }
