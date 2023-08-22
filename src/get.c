@@ -160,7 +160,7 @@ int s5curl_get_batch(
 
             if (transfers < n_reads) {
                 res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-                SLOW5_ERROR("%s", "Queuing transfer failed".);
+                SLOW5_ERROR("%s", "Queuing transfer failed.");
                 return res;
 
                 transfers++;

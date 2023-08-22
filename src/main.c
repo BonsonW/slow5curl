@@ -62,19 +62,19 @@ int main(int argc, char* argv[]) {
     }
     
     // one read
-    fprintf(stderr, "one read\n");
-    CURL *curl = curl_easy_init();
-    slow5_rec_t *read = NULL;
-    ret = s5curl_get(s5c, curl, read_ids[0], read);
-    if (ret != 0) {
-        s5curl_idx_unload(s5c);
-        s5curl_close(s5c);
-        curl_global_cleanup();
-        fprintf(stderr, "Could not perform read.\n");
-        return -1;
-    }
-    curl_easy_cleanup(curl);
-    slow5_rec_free(read);
+    // fprintf(stderr, "one read\n");
+    // CURL *curl = curl_easy_init();
+    // slow5_rec_t *read = NULL;
+    // ret = s5curl_get(s5c, curl, read_ids[0], read);
+    // if (ret != 0) {
+    //     s5curl_idx_unload(s5c);
+    //     s5curl_close(s5c);
+    //     curl_global_cleanup();
+    //     fprintf(stderr, "Could not perform read.\n");
+    //     return -1;
+    // }
+    // curl_easy_cleanup(curl);
+    // slow5_rec_free(read);
     
     // multiple reads
     fprintf(stderr, "multi read\n");
