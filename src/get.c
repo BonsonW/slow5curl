@@ -88,6 +88,7 @@ static int add_transfer(
     return EXIT_SUCCESS;
 }
 
+// todo: do not exit on fail, continue trying to transfer the next read
 int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,

@@ -7,7 +7,6 @@
 #include <curl/curl.h>
 
 #include <slow5curl/s5curl.h>
-#include "index.h"
 
 int main(int argc, char* argv[]) {
     int n_reads = 500;
@@ -61,7 +60,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
     
-    // one read
+    // one read TODO: investigate why running this increases odds of seg fault
     // fprintf(stderr, "one read\n");
     // CURL *curl = curl_easy_init();
     // slow5_rec_t *read = NULL;

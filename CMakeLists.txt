@@ -4,17 +4,22 @@ project(slow5curl)
 
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src_tool)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SOURCES
+    include/slow5curl/s5curl.h
     src/main.c
     src/fetch.c
     src/fetch.h
     src/s5curl.c
     src/get.c
     src/index.c
-    src/index.h
-    include/slow5curl/s5curl.h
+    src_tool/thread.h
+    src_tool/error.h
+    src_tool/misc.h
+    src_tool/cmd.h
+    src_tool/get.c
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

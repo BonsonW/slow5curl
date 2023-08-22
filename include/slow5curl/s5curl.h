@@ -38,6 +38,10 @@ int s5curl_get(slow5_curl_t *s5c, CURL *curl, char *read_id, slow5_rec_t *read);
 
 int s5curl_get_batch(slow5_curl_t *s5c, conn_stack_t *conns, CURLM *cm, uint64_t n_reads, char **read_ids, slow5_rec_t **reads);
 
+// temp idx load
+
+int slow5_idx_load_from_path( slow5_file_t *s5p, const char *path);
+
 #ifdef __cplusplus
 }
 #endif

@@ -7,6 +7,8 @@
 #include <getopt.h>
 #include <stdio.h>
 
+#include <curl/curl.h>
+
 #include <slow5/slow5.h>
 #include <slow5curl/s5curl.h>
 #include "thread.h"
@@ -35,66 +37,76 @@
 
 extern int slow5tools_verbosity_level;
 
-void work_per_single_read_get(core_t *core, db_t *db, int32_t i) {
+void get_batch(core_t *core, db_t *db) {
+    slow5_rec_t **reads = calloc(db->n_batch, sizeof *reads);
 
-    char *id = db->read_id[i];
+    int res = s5curl_get_batch(
+        core->s5c,
+        db->conns,
+        db->curl_multi,
+        db->n_batch,
+        db->read_id,
+        reads
+    );
 
-    int len = 0;
-    //fprintf(stderr, "Fetching %s\n", id); // TODO print here or during ordered loop later?
-    slow5_rec_t *record=NULL;
+    // TODO: print errors for get batch, or maybe just skip it and have it return reads??
 
-    len = slow5_get(id,&record,core->fp);
+    for (size_t i = 0; i < db->n_batch; ++i) {
+        slow5_rec_t *record = reads[i];
 
-    if (record == NULL || len < 0) {
-        ++ db->n_err;
-        db->read_record[i].buffer = NULL;
-        db->read_record[i].len = -1;
-    }else {
-        if (core->benchmark == false){
-            size_t record_size;
-            struct slow5_press* compress = slow5_press_init(core->press_method);
-            if(!compress){
-                ERROR("Could not initialize the slow5 compression method%s","");
-                exit(EXIT_FAILURE);
+        // todo: does not check len of record read (check this, may not be relevant)
+        if (record == NULL) {
+            ++db->n_err;
+            db->read_record[i].buffer = NULL;
+            db->read_record[i].len = -1;
+        } else {
+            if (core->benchmark == false){
+                size_t record_size;
+                struct slow5_press* compress = slow5_press_init(core->press_method);
+                if(!compress){
+                    ERROR("Could not initialize the slow5 compression method%s","");
+                    exit(EXIT_FAILURE);
+                }
+                db->read_record[i].buffer = slow5_rec_to_mem(record, core->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
+                db->read_record[i].len = record_size;
+                slow5_press_free(compress);
             }
-            db->read_record[i].buffer = slow5_rec_to_mem(record,core->fp->header->aux_meta, core->format_out, compress, &record_size);
-            db->read_record[i].len = record_size;
-            slow5_press_free(compress);
+            slow5_rec_free(record);
         }
-        slow5_rec_free(record);
+        free(db->read_id[i]);
     }
-    free(id);
+    free(reads);
 }
 
-bool fetch_record(slow5_file_t *fp, const char *read_id, char **argv, program_meta *meta, slow5_fmt format_out,
-                  slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer) {
+// bool fetch_record(slow5_file_t *fp, const char *read_id, char **argv, struct program_meta *meta, slow5_fmt format_out,
+//                   slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer) {
 
-    bool success = true;
+//     bool success = true;
 
-    int len = 0;
-    //fprintf(stderr, "Fetching %s\n", read_id);
-    slow5_rec_t *record=NULL;
+//     int len = 0;
+//     //fprintf(stderr, "Fetching %s\n", read_id);
+//     slow5_rec_t *record=NULL;
 
-    len = slow5_get(read_id, &record,fp);
+//     len = slow5_get(read_id, &record,fp);
 
-    if (record == NULL || len < 0) {
-        success = false;
+//     if (record == NULL || len < 0) {
+//         success = false;
 
-    } else {
-        if (benchmark == false){
-            struct slow5_press* compress = slow5_press_init(press_method);
-            if(!compress){
-                ERROR("Could not initialize the slow5 compression method%s","");
-                exit(EXIT_FAILURE);
-            }
-            slow5_rec_fwrite(slow5_file_pointer,record,fp->header->aux_meta, format_out, compress);
-            slow5_press_free(compress);
-        }
-        slow5_rec_free(record);
-    }
+//     } else {
+//         if (benchmark == false){
+//             struct slow5_press* compress = slow5_press_init(press_method);
+//             if(!compress){
+//                 ERROR("Could not initialize the slow5 compression method%s","");
+//                 exit(EXIT_FAILURE);
+//             }
+//             slow5_rec_fwrite(slow5_file_pointer,record,fp->header->aux_meta, format_out, compress);
+//             slow5_press_free(compress);
+//         }
+//         slow5_rec_free(record);
+//     }
 
-    return success;
-}
+//     return success;
+// }
 
 int get_main(int argc, char **argv, struct program_meta *meta) {
 
@@ -266,24 +278,26 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     char *f_in_name = argv[optind];
+    
+    curl_global_init(CURL_GLOBAL_ALL);
 
-    slow5_file_t *slow5file = slow5_open(f_in_name, "r");
-    if (!slow5file) {
+    slow5_curl_t *slow5curl = s5curl_open(f_in_name);
+    if (!slow5curl) {
         ERROR("cannot open %s. \n", f_in_name);
         return EXIT_FAILURE;
     }
 
-    slow5_press_method_t press_out = {user_opts.record_press_out,user_opts.signal_press_out};
+    slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
 
     if(benchmark == false){
-        if(slow5_hdr_fwrite(user_opts.f_out, slow5file->header, user_opts.fmt_out, press_out) == -1){
+        if(slow5_hdr_fwrite(user_opts.f_out, slow5curl->s5p->header, user_opts.fmt_out, press_out) == -1){
             ERROR("Could not write the output header%s\n", "");
             return EXIT_FAILURE;
         }
     }
 
     if(slow5_index == NULL){
-        int ret_idx = slow5_idx_load(slow5file);
+        int ret_idx = s5curl_idx_load(slow5curl);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s\n", f_in_name);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -291,7 +305,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
-        int ret_idx = slow5_idx_load_with(slow5file, slow5_index);
+        int ret_idx = slow5_idx_load_from_path(slow5curl->s5p, slow5_index);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -306,7 +320,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         // Setup multithreading structures
         core_t core;
         core.num_thread = user_opts.num_threads;
-        core.fp = slow5file;
+        core.s5c = slow5curl;
         core.format_out = user_opts.fmt_out;
         core.press_method = press_out;
         core.benchmark = benchmark;
@@ -317,6 +331,12 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         db.read_record = (raw_record_t*) malloc(cap_ids * sizeof(raw_record_t));
         MALLOC_CHK(db.read_id);
         MALLOC_CHK(db.read_record);
+
+        db.curl_multi = curl_multi_init();
+        db.curl_multi = s5curl_open_conns(core.num_thread);
+        MALLOC_CHK(db.curl_multi);
+        MALLOC_CHK(db.conns);
+
         bool end_of_file = false;
         while (!end_of_file) {
             int64_t num_ids = 0;
@@ -349,7 +369,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             double start = slow5_realtime();
 
             // Fetch records for read ids in the batch
-            work_db(&core, &db, work_per_single_read_get);
+            get_batch(&core, &db);
 
             double end = slow5_realtime();
             read_time += end - start;
@@ -363,10 +383,10 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                     int len = db.read_record[i].len;
                     if (buffer == NULL || len < 0) {
                         if(skip_flag) continue;
-                        ERROR("Could not write the fetched read.%s","");
+                        ERROR("Could not write the fetched read.%s", "");
                         return EXIT_FAILURE;
                     } else {
-                        fwrite(buffer,1,len,user_opts.f_out);
+                        fwrite(buffer, 1, len, user_opts.f_out);
                         free(buffer);
                     }
                 }
@@ -377,25 +397,32 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         // Free everything
         free(db.read_id);
         free(db.read_record);
+
+        curl_multi_cleanup(db.curl_multi);
+        s5curl_close_conns(db.conns);
     } else {
-        for (int i = optind + 1; i < argc; ++ i){
-            bool success = fetch_record(slow5file, argv[i], argv, meta, user_opts.fmt_out, press_out, benchmark, user_opts.f_out);
-            if (!success) {
-                if(skip_flag) continue;
-                ERROR("Could not fetch records.%s","");
-                return EXIT_FAILURE;
-            }
-        }
+        // todo
+        // for (int i = optind + 1; i < argc; ++ i){
+        //     bool success = fetch_record(slow5file, argv[i], argv, meta, user_opts.fmt_out, press_out, benchmark, user_opts.f_out);
+        //     if (!success) {
+        //         if(skip_flag) continue;
+        //         ERROR("Could not fetch records.%s","");
+        //         return EXIT_FAILURE;
+        //     }
+        // }
     }
 
-    if(benchmark == false){
+    if (benchmark == false) {
         if (user_opts.fmt_out == SLOW5_FORMAT_BINARY) {
                 slow5_eof_fwrite(user_opts.f_out);
             }
     }
 
-    slow5_close(slow5file);
+    s5curl_idx_unload(slow5curl);
+    s5curl_close(slow5curl);
     fclose(read_list_in);
+
+    curl_global_cleanup();
 
     EXIT_MSG(EXIT_SUCCESS, argv, meta);
     return EXIT_SUCCESS;
