@@ -13,11 +13,8 @@ int s5curl_get(
     char *read_id,
     slow5_rec_t *read
 ) {
-    slow5_idx_t *s_idx = s5c->s5p->index;
-    slow5_file_t *s5p = s5c->s5p;
-
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s_idx, read_id, &read_index) != 0) {
+	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) != 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
@@ -31,7 +28,7 @@ int s5curl_get(
 	    &resp,
 		s5c->url, 
 		read_index.offset + sizeof(slow5_rec_size_t),
-		read_index.size
+		read_index.size - sizeof(slow5_rec_size_t)
 	);
 
 	if (res != 0) {
@@ -40,7 +37,7 @@ int s5curl_get(
 		return slow5_errno;
 	}
 
-    int decoded = slow5_decode((void *)&resp.data, &resp.size, &read, s5p);
+    int decoded = slow5_decode((void *)&resp.data, &resp.size, &read, s5c->s5p);
     response_free(&resp);
     return decoded;
 }
@@ -59,10 +56,8 @@ static int add_transfer(
         return slow5_errno;
     }
 
-    slow5_idx_t *s_idx = s5c->s5p->index;
-
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s_idx, read_id, &read_index) != 0) {
+	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) != 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
@@ -102,14 +97,18 @@ int s5curl_get_batch(
     slow5_rec_t **reads
 ) {
     CURLMsg *msg;
-    uint32_t transfers = 0;
+    size_t transfers = 0;
     int msgs_left = -1;
     int left = 0;
-
-    curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
+    int res;
+    res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
+    if (res != 0) {
+        SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
+        return res;
+    }
  
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
-        int res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+        res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
         if (res != 0) return res;
     }
     
@@ -123,24 +122,33 @@ int s5curl_get_batch(
                 CURL *e = msg->easy_handle;
                 
                 if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) return -1;
-                uint32_t index = resp->id;
+                size_t index = resp->id;
 
                 slow5_rec_t *read = NULL;
 
-                int res = slow5_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
-
+                res = slow5_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
                 if (res != 0) { 
                     SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
                     return res;
                 }
+
                 reads[index] = read;
 
                 response_free(resp);
                 free(resp);
                 
-                curl_multi_remove_handle(cm, e);
+                res = curl_multi_remove_handle(cm, e);
+                if (res != 0) { 
+                    SLOW5_ERROR("Removing handle failed: %s.", curl_easy_strerror(res));
+                    return res;
+                }
+                
                 left--;
-                s5curl_conns_push(conns, e);
+                res = s5curl_conns_push(conns, e);
+                if (res != 0) { 
+                    SLOW5_ERROR("%s\n","Error pushing to connection stack.");
+                    return res;
+                }
             } else {
                 SLOW5_ERROR("%s", "Error fetching bytes for read.");
                 slow5_errno = SLOW5_ERR_OTH;
@@ -148,7 +156,7 @@ int s5curl_get_batch(
             }
 
             if (transfers < n_reads) {
-                int res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+                res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
                 if (res != 0) return res;
 
                 transfers++;

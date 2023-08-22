@@ -22,6 +22,7 @@ conn_stack_t *s5curl_open_conns(
     conn_stack_t *conn_stack = (conn_stack_t *)malloc(sizeof *conn_stack);
     if (!conn_stack) {
         SLOW5_MALLOC_ERROR();
+        slow5_errno = SLOW5_ERR_MEM;
         return NULL;
     }
 
@@ -64,10 +65,11 @@ CURL *s5curl_conns_pop(
     return conns->curls[conns->top--];
 }
 
-void s5curl_conns_push(
+int s5curl_conns_push(
     conn_stack_t *conns,
     CURL *curl
 ) {
+    if (conns->top == conns->n_conns - 1) return -1;
     conns->curls[++conns->top] = curl;
 }
 

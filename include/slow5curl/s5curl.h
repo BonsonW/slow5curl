@@ -24,7 +24,7 @@ void s5curl_close_conns(conn_stack_t *conns);
 
 CURL *s5curl_conns_pop(conn_stack_t *conns);
 
-void s5curl_conns_push(conn_stack_t *conns, CURL *curl);
+int s5curl_conns_push(conn_stack_t *conns, CURL *curl);
 
 slow5_curl_t *s5curl_open(const char *url);
 
