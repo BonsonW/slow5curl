@@ -104,12 +104,14 @@ int s5curl_get_batch(
     res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
     if (res != 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
-        return res;
+        slow5_errno = SLOW5_ERR_OTH;
+        return slow5_errno;
     }
  
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
         res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-        if (res != 0) return res;
+        SLOW5_ERROR("%s", "Queuing transfer failed.");
+        return res;
     }
     
     do {
@@ -139,14 +141,15 @@ int s5curl_get_batch(
                 
                 res = curl_multi_remove_handle(cm, e);
                 if (res != 0) { 
-                    SLOW5_ERROR("Removing handle failed: %s.", curl_easy_strerror(res));
-                    return res;
+                    SLOW5_ERROR("Removing connection handle failed: %s.", curl_easy_strerror(res));
+                    slow5_errno = SLOW5_ERR_OTH;
+                    return slow5_errno;
                 }
                 
                 left--;
                 res = s5curl_conns_push(conns, e);
                 if (res != 0) { 
-                    SLOW5_ERROR("%s\n","Error pushing to connection stack.");
+                    SLOW5_ERROR("%s\n", "Pushing to connection stack failed.");
                     return res;
                 }
             } else {
@@ -157,7 +160,8 @@ int s5curl_get_batch(
 
             if (transfers < n_reads) {
                 res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-                if (res != 0) return res;
+                SLOW5_ERROR("%s", "Queuing transfer failed".);
+                return res;
 
                 transfers++;
             }
