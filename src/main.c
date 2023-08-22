@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 #include <slow5curl/s5curl.h>
-#include "s5curl/index.h"
+#include "index.h"
 
 int main(int argc, char* argv[]) {
     int n_reads = 100;

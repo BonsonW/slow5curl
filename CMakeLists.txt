@@ -4,17 +4,16 @@ project(slow5curl)
 
 # src
 include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/src/s5curl)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SOURCES
     src/main.c
-    src/s5curl/fetch.c
-    src/s5curl/fetch.h
-    src/s5curl/s5curl.c
-    src/s5curl/get.c
-    src/s5curl/index.c
-    src/s5curl/index.h
+    src/fetch.c
+    src/fetch.h
+    src/s5curl.c
+    src/get.c
+    src/index.c
+    src/index.h
     include/slow5curl/s5curl.h
     )
 
