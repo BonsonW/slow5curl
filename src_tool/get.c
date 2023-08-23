@@ -76,35 +76,34 @@ void get_batch(core_t *core, db_t *db) {
     free(reads);
 }
 
-// bool fetch_record(slow5_file_t *fp, const char *read_id, char **argv, struct program_meta *meta, slow5_fmt format_out,
-//                   slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer) {
+bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
+                  slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer, CURL *curl) {
 
-//     bool success = true;
+    bool success = true;
 
-//     int len = 0;
-//     //fprintf(stderr, "Fetching %s\n", read_id);
-//     slow5_rec_t *record=NULL;
+    int len = 0;
+    slow5_rec_t *record=NULL;
 
-//     len = slow5_get(read_id, &record,fp);
+    len = s5curl_get(s5c, curl, read_id, record);
 
-//     if (record == NULL || len < 0) {
-//         success = false;
+    if (record == NULL || len < 0) {
+        success = false;
 
-//     } else {
-//         if (benchmark == false){
-//             struct slow5_press* compress = slow5_press_init(press_method);
-//             if(!compress){
-//                 ERROR("Could not initialize the slow5 compression method%s","");
-//                 exit(EXIT_FAILURE);
-//             }
-//             slow5_rec_fwrite(slow5_file_pointer,record,fp->header->aux_meta, format_out, compress);
-//             slow5_press_free(compress);
-//         }
-//         slow5_rec_free(record);
-//     }
+    } else {
+        if (benchmark == false){
+            struct slow5_press* compress = slow5_press_init(press_method);
+            if(!compress){
+                ERROR("Could not initialize the slow5 compression method%s","");
+                exit(EXIT_FAILURE);
+            }
+            slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, format_out, compress);
+            slow5_press_free(compress);
+        }
+        slow5_rec_free(record);
+    }
 
-//     return success;
-// }
+    return success;
+}
 
 int get_main(int argc, char **argv, struct program_meta *meta) {
 
@@ -399,15 +398,17 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         curl_multi_cleanup(db.curl_multi);
         s5curl_close_conns(db.conns);
     } else {
-        // todo
-        // for (int i = optind + 1; i < argc; ++ i){
-        //     bool success = fetch_record(slow5file, argv[i], argv, meta, user_opts.fmt_out, press_out, benchmark, user_opts.f_out);
-        //     if (!success) {
-        //         if(skip_flag) continue;
-        //         ERROR("Could not fetch records.%s","");
-        //         return EXIT_FAILURE;
-        //     }
-        // }
+        CURL *curl = curl_easy_init();
+        for (int i = optind + 1; i < argc; ++i){
+            curl_easy_reset(curl);
+            bool success = get_single(slow5curl, argv[i], argv, meta, user_opts.fmt_out, press_out, benchmark, user_opts.f_out, curl);
+            if (!success) {
+                if(skip_flag) continue;
+                ERROR("Could not fetch records.%s","");
+                return EXIT_FAILURE;
+            }
+        }
+        curl_easy_cleanup(curl);
     }
 
     if (benchmark == false) {

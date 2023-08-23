@@ -10,7 +10,7 @@ extern enum slow5_log_level_opt  slow5_log_level;
 int s5curl_get(
     slow5_curl_t *s5c,
     CURL *curl, 
-    char *read_id,
+    const char *read_id,
     slow5_rec_t *read
 ) {
     struct slow5_rec_idx read_index;
