@@ -9,19 +9,18 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 set(SOURCES
     include/slow5curl/s5curl.h
-    src/main.c
     src/fetch.c
     src/fetch.h
     src/s5curl.c
     src/get.c
     src/index.c
+    src_tool/main.c
     src_tool/thread.h
     src_tool/error.h
     src_tool/cmd.h
     src_tool/misc.h
     src_tool/misc.c
     src_tool/get.c
-    src_tool/main.c
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

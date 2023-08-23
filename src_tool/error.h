@@ -19,7 +19,7 @@ extern "C" {
 #define LOG_DEBUG   5
 #define LOG_TRACE   6
 
-int slow5tools_verbosity_level = LOG_VERBOSE;
+extern int slow5tools_verbosity_level;
 
 #define STDERR_PREFIX "[%s] "
 #define VERBOSE_PREFIX "[%s] "
