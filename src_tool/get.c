@@ -330,7 +330,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         MALLOC_CHK(db.read_record);
 
         db.curl_multi = curl_multi_init();
-        db.curl_multi = s5curl_open_conns(core.num_thread);
+        db.conns = s5curl_open_conns(core.num_thread);
         MALLOC_CHK(db.curl_multi);
         MALLOC_CHK(db.conns);
 
