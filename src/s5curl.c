@@ -45,6 +45,7 @@ conn_stack_t *s5curl_open_conns(
         }
     }
     conn_stack->top = n_conns-1;
+    conn_stack->n_conns = n_conns;
 }
 
 void s5curl_close_conns(
@@ -196,7 +197,7 @@ slow5_curl_t *s5curl_open_with(
 		0,
 		BLOW5_HDR_META_SIZE
 	);
-	if (ret != 0) {
+	if (ret < 0) {
 		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(ret));
 		return NULL;
 	}
@@ -225,7 +226,7 @@ slow5_curl_t *s5curl_open_with(
 		0,
 		header_size+BLOW5_HDR_META_SIZE
 	);
-	if (ret != 0) {
+	if (ret < 0) {
 		SLOW5_ERROR("Reading file header of '%s' failed: %s.", url, curl_easy_strerror(ret));
 		return NULL;
 	}

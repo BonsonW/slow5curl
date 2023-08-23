@@ -193,7 +193,7 @@ static int s5curl_idx_read(
     curl_off_t file_size = 0;
     curl_easy_reset(curl);
     CURLcode ret = fetch_file_size(curl, &file_size, url);
-    if (ret != 0) {
+    if (ret < 0) {
         SLOW5_ERROR("Fetching file size of '%s' failed: %s.", url, curl_easy_strerror(ret));
     }
     uint64_t file_offt_max = file_size;
@@ -223,7 +223,7 @@ static int s5curl_idx_read(
                 file_offt,
                 DOWNLOAD_SIZE
             );
-            if (ret != 0) {
+            if (ret < 0) {
                 SLOW5_ERROR("Fetching index data of '%s' failed: %s.", url, curl_easy_strerror(ret));
             }
             fseek(index->fp, 0, SEEK_SET);
@@ -340,7 +340,7 @@ slow5_idx_t *slow5_idx_init_from_url(
 		0,
 		DOWNLOAD_SIZE
 	);
-	if (ret != 0) {
+	if (ret < 0) {
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
 		return NULL;
 	}
@@ -351,7 +351,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     // todo: verify that the idx file is up to date
 
     ret = s5curl_idx_read(index, index->pathname, curl);
-    if (ret != 0) {
+    if (ret < 0) {
         SLOW5_ERROR("Error reading idx %s.", strerror(ret));
         slow5_idx_free(index);
         return NULL;
