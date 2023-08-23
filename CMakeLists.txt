@@ -17,9 +17,11 @@ set(SOURCES
     src/index.c
     src_tool/thread.h
     src_tool/error.h
-    src_tool/misc.h
     src_tool/cmd.h
+    src_tool/misc.h
+    src_tool/misc.c
     src_tool/get.c
+    src_tool/main.c
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

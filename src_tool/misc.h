@@ -18,12 +18,14 @@
 #include <unistd.h>
 
 #include <slow5/slow5.h>
-#include "../slow5lib/src/slow5_extra.h"
+#include "slow5_extra.h"
 #include "error.h"
+#include "cmd.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 //Parsing
 enum slow5_press_method name_to_slow5_press_method(const char *name);
 
@@ -131,7 +133,7 @@ int parse_arg_lossless(opt_t *opt, int argc, char **argv, struct program_meta *m
 int parse_arg_dump_all(opt_t *opt, int argc, char **argv, struct program_meta *meta);
 int parse_batch_size(opt_t *opt, int argc, char **arg);
 int parse_format_args(opt_t *opt, int argc, char **argv, struct program_meta *meta);
-int auto_detect_formats(opt_t *opt);
+int auto_detect_formats(opt_t *opt, int set_default_output_format);
 int parse_compression_opts(opt_t *opt);
 
 #ifdef __cplusplus

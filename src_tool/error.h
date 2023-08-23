@@ -7,6 +7,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define LOG_OFF     0
 #define LOG_ERR     1
 #define LOG_WARN    2
@@ -14,6 +18,8 @@
 #define LOG_VERBOSE 4
 #define LOG_DEBUG   5
 #define LOG_TRACE   6
+
+int slow5tools_verbosity_level = LOG_VERBOSE;
 
 #define STDERR_PREFIX "[%s] "
 #define VERBOSE_PREFIX "[%s] "
@@ -108,5 +114,9 @@ static inline void neg_chk(int ret, const char* func, const char* file,
         exit(EXIT_FAILURE);
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

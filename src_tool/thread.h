@@ -9,6 +9,11 @@
 #include <slow5/slow5.h>
 #include <slow5curl/s5curl.h>
 #include "error.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // #include <vector>
 // #include <string>
 
@@ -90,5 +95,9 @@ typedef struct {
 // void work_per_single_read(core_t* core,db_t* db, int32_t i);
 // /* process all reads in the given batch db */
 // void work_db(core_t* core, db_t* db, void (*func)(core_t*,db_t*,int));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef CMD_H
 #define CMD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SLOW5TOOLS_VERSION "1.1.0-dirty"
 
 #define DEFAULT_NUM_THREADS 8
@@ -85,6 +89,8 @@ struct command {
     int (*main)(int, char **, struct program_meta *);
 };
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

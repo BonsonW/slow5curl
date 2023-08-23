@@ -35,8 +35,6 @@
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
-extern int slow5tools_verbosity_level;
-
 void get_batch(core_t *core, db_t *db) {
     slow5_rec_t **reads = calloc(db->n_batch, sizeof *reads);
 
@@ -111,7 +109,7 @@ void get_batch(core_t *core, db_t *db) {
 int get_main(int argc, char **argv, struct program_meta *meta) {
 
     // Debug: print arguments
-    print_args(argc,argv);
+    print_args(argc, argv);
 
     // No arguments given
     if (argc <= 1) {
@@ -221,7 +219,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
-    if(auto_detect_formats(&user_opts) < 0){
+    if(auto_detect_formats(&user_opts, 1) < 0){
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
