@@ -84,7 +84,7 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
     int len = 0;
     slow5_rec_t *record=NULL;
 
-    len = s5curl_get(s5c, curl, read_id, record);
+    len = s5curl_get(s5c, curl, read_id, &record);
 
     if (record == NULL || len < 0) {
         success = false;

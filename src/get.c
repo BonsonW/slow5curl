@@ -11,10 +11,10 @@ int s5curl_get(
     slow5_curl_t *s5c,
     CURL *curl, 
     const char *read_id,
-    slow5_rec_t *read
+    slow5_rec_t **read
 ) {
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) != 0) {
+	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
@@ -23,7 +23,7 @@ int s5curl_get(
 	// exclude meta data before copying record
 	response_t resp = {0};
 
-	CURLcode res = fetch_bytes_into_resp(
+	int res = fetch_bytes_into_resp(
         curl,
 	    &resp,
 		s5c->url, 
@@ -37,9 +37,16 @@ int s5curl_get(
 		return slow5_errno;
 	}
 
-    int decoded = slow5_decode((void *)&resp.data, &resp.size, &read, s5c->s5p);
+    res = slow5_decode((void *)&resp.data, &resp.size, read, s5c->s5p);
     response_free(&resp);
-    return decoded;
+
+    if (res < 0) {
+		SLOW5_ERROR("Decoding read %s failed.", read_id);
+        slow5_errno = SLOW5_ERR_OTH;
+		return slow5_errno;
+	}
+
+    return EXIT_SUCCESS;
 }
 
 static int add_transfer(
@@ -57,7 +64,7 @@ static int add_transfer(
     }
 
     struct slow5_rec_idx read_index;
-	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) != 0) {
+	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
