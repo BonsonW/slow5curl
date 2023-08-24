@@ -36,12 +36,12 @@
     HELP_FORMATS_METHODS
 
 void get_batch(core_t *core, db_t *db) {
-    slow5_rec_t **reads = calloc(db->n_batch, sizeof *reads);
+    slow5_rec_t **records = calloc(db->n_batch, sizeof *records);
 
-    s5curl_get_batch( core->s5c, db->conns, db->curl_multi, db->n_batch, db->read_id, reads);
+    s5curl_get_batch( core->s5c, db->conns, db->curl_multi, db->n_batch, db->read_id, records);
 
     for (size_t i = 0; i < db->n_batch; ++i) {
-        slow5_rec_t *record = reads[i];
+        slow5_rec_t *record = records[i];
 
         // todo: does not check len of record read (check this, may not be relevant)
         if (record == NULL) {
@@ -64,7 +64,7 @@ void get_batch(core_t *core, db_t *db) {
         }
         free(db->read_id[i]);
     }
-    free(reads);
+    free(records);
 }
 
 bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
@@ -73,7 +73,7 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
     bool success = true;
 
     int len = 0;
-    slow5_rec_t *record=NULL;
+    slow5_rec_t *record = NULL;
 
     len = s5curl_get(s5c, curl, read_id, &record);
 

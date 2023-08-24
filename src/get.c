@@ -11,7 +11,7 @@ int s5curl_get(
     slow5_curl_t *s5c,
     CURL *curl, 
     const char *read_id,
-    slow5_rec_t **read
+    slow5_rec_t **record
 ) {
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
@@ -37,7 +37,7 @@ int s5curl_get(
 		return slow5_errno;
 	}
 
-    res = slow5_decode((void *)&resp.data, &resp.size, read, s5c->s5p);
+    res = slow5_decode((void *)&resp.data, &resp.size, record, s5c->s5p);
     response_free(&resp);
 
     if (res < 0) {
@@ -102,7 +102,7 @@ int s5curl_get_batch(
     CURLM *cm,
     uint64_t n_reads,
     char **read_ids,
-    slow5_rec_t **reads
+    slow5_rec_t **records
 ) {
     CURLMsg *msg;
     size_t transfers = 0;
@@ -136,12 +136,12 @@ int s5curl_get_batch(
                 if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) return -1;
                 size_t index = resp->id;
 
-                slow5_rec_t *read = NULL;
+                slow5_rec_t *record = NULL;
 
-                res = slow5_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
+                res = slow5_decode((void *)&resp->data, &resp->size, &record, s5c->s5p);
                 if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
 
-                reads[index] = read;
+                records[index] = record;
 
                 response_free(resp);
                 free(resp);
