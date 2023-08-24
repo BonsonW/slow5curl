@@ -15,16 +15,14 @@ int s5curl_get(
 ) {
     if (!curl) {
         SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
-        slow5_errno = SLOW5_ERR_OTH;
-        return slow5_errno;
+        return SLOW5_ERR_OTH;
     }
 
     // get offset and size
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-        slow5_errno = SLOW5_ERR_NOTFOUND;
-		return slow5_errno;
+		return SLOW5_ERR_NOTFOUND;
 	}
     
     // fetch
@@ -39,8 +37,7 @@ int s5curl_get(
 	);
 	if (res < 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
-		return slow5_errno;
+		return SLOW5_ERR_OTH;
 	}
 
     // decode
@@ -51,8 +48,7 @@ int s5curl_get(
 
     if (res < 0) {
 		SLOW5_ERROR("Decoding read %s failed.", read_id);
-        slow5_errno = SLOW5_ERR_OTH;
-		return slow5_errno;
+		return SLOW5_ERR_OTH;
 	}
 
     return EXIT_SUCCESS;
@@ -73,16 +69,14 @@ static int add_transfer(
 ) {
     if (!curl) {
         SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
-        slow5_errno = SLOW5_ERR_OTH;
-        return slow5_errno;
+        return SLOW5_ERR_OTH;
     }
     
     // get offset and size
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-        slow5_errno = SLOW5_ERR_NOTFOUND;
-		return slow5_errno;
+		return SLOW5_ERR_NOTFOUND;
 	}
 
     // queue transfer
@@ -98,8 +92,7 @@ static int add_transfer(
         curl_multi_add_handle(cm, curl)
     ) {
         SLOW5_ERROR("Initializing transfer for read %s failed.", read_id);
-        slow5_errno = SLOW5_ERR_OTH;
-        return slow5_errno;
+        return SLOW5_ERR_OTH;
     }
 
     (*left)++;
@@ -125,8 +118,7 @@ int s5curl_get_batch(
     res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
     if (res < 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
-        return slow5_errno;
+        return SLOW5_ERR_OTH;
     }
     
     // queue initial transfers
@@ -167,8 +159,7 @@ int s5curl_get_batch(
                 res = curl_multi_remove_handle(cm, e);
                 if (res < 0) { 
                     SLOW5_ERROR("Removing connection handle failed: %s.", curl_easy_strerror(res));
-                    slow5_errno = SLOW5_ERR_OTH;
-                    return slow5_errno;
+                    return SLOW5_ERR_OTH;
                 }
                 
                 // push connection back to stack
@@ -180,8 +171,7 @@ int s5curl_get_batch(
                 }
             } else {
                 SLOW5_ERROR("%s", "Error fetching bytes for read.");
-                slow5_errno = SLOW5_ERR_OTH;
-                return slow5_errno;
+                return SLOW5_ERR_OTH;
             }
 
             // queue transfers
