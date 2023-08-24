@@ -14,13 +14,13 @@ typedef struct response {
     uint32_t id;
 } response_t;
 
-int response_free(response_t *resp);
+response_t *response_init();
 
-CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+void response_cleanup(response_t *resp);
+
+CURLcode resp_byte_fetch_init(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
 
 CURLcode fetch_bytes_into_fb(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
-
-CURLcode queue_fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size, CURLM *cm);
 
 CURLcode fetch_file_size(CURL *curl, curl_off_t *file_size, const char *url);
 

@@ -13,8 +13,8 @@
 extern enum slow5_log_level_opt  slow5_log_level;
 enum slow5_exit_condition_opt slow5_exit_condition = SLOW5_EXIT_OFF;
 
-const size_t BLOW5_HDR_META_SIZE = 68;
-const size_t BLOW5_MAX_HDR_SIZE = (32 * 1024 * 1024); // 32MB max header size
+#define BLOW5_HDR_META_SIZE (68)
+#define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
 conn_stack_t *s5curl_open_conns(
     size_t n_conns
@@ -133,7 +133,7 @@ struct slow5_file *s5curl_init(
         return NULL;
     }
 
-    struct slow5_file *s5p = (struct slow5_file *) calloc(1, sizeof *s5p);
+    struct slow5_file *s5p = (struct slow5_file *)calloc(1, sizeof *s5p);
     if (!s5p) {
         SLOW5_MALLOC_ERROR();
         slow5_hdr_free(header);
@@ -188,27 +188,37 @@ slow5_curl_t *s5curl_open_with(
     }
     
     // get header meta data
-    response_t hdr_meta = {0};
+    response_t *hdr_meta = response_init();
 
     curl_easy_reset(curl);
-	CURLcode ret = fetch_bytes_into_resp(
+	CURLcode res = resp_byte_fetch_init(
         curl,
-	    &hdr_meta,
+	    hdr_meta,
 		url, 
 		0,
 		BLOW5_HDR_META_SIZE
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(ret));
+    if (res < 0) {
+		SLOW5_ERROR("Initializing fetch for file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
+		return NULL;
+	}
+
+    curl_easy_perform(curl);
+	if (res < 0) {
+		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
 	
 	// get header size
 	uint32_t header_size = 0;
-	memcpy((void *)&header_size, hdr_meta.data + 64, 4);
+	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
 	
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
         SLOW5_ERROR("File '%s' has exceeded the max header size.", url);
+        slow5_errno = SLOW5_ERR_OTH;
+        return NULL;
     }
 	
 	// get rest of header data
@@ -220,15 +230,16 @@ slow5_curl_t *s5curl_open_with(
     }
     
     curl_easy_reset(curl);
-	ret = fetch_bytes_into_fb(
+	res = fetch_bytes_into_fb(
         curl,
 	    fp,
 		url, 
 		0,
 		header_size+BLOW5_HDR_META_SIZE
 	);
-	if (ret < 0) {
-		SLOW5_ERROR("Reading file header of '%s' failed: %s.", url, curl_easy_strerror(ret));
+	if (res < 0) {
+		SLOW5_ERROR("Fetching file header of '%s' failed: %s.", url, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
 	fseek(fp, 0, SEEK_SET);
@@ -245,7 +256,7 @@ slow5_curl_t *s5curl_open_with(
     }
     
     // cleanup
-    response_free(&hdr_meta);
+    response_cleanup(hdr_meta);
 
     slow5_curl_t *s5c = (slow5_curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);

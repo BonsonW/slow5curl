@@ -5,9 +5,14 @@
 
 #include "fetch.h"
 
-int response_free(response_t *resp) {
+response_t *response_init() {
+    response_t *resp = calloc(1, sizeof *resp);
+    return resp;
+}
+
+void response_cleanup(response_t *resp) {
     free(resp->data);
-    return 0;
+    free(resp);
 }
 
 // adapted from https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
@@ -45,7 +50,7 @@ static CURLcode construct_byte_range(
     return CURLE_OK;
 }
 
-CURLcode fetch_bytes_into_resp(
+CURLcode resp_byte_fetch_init(
     CURL *curl,
     response_t *resp,
     const char *url,
@@ -53,7 +58,6 @@ CURLcode fetch_bytes_into_resp(
     uint64_t size
 ) {
     if (!curl) return CURLE_FAILED_INIT;
-
     CURLcode res;
 
     // write into response
@@ -78,9 +82,6 @@ CURLcode fetch_bytes_into_resp(
         return res;
     }
     free(range);
-    
-    res = curl_easy_perform(curl);
-    if (res != CURLE_OK) return res;
     
     return CURLE_OK;
 }
@@ -120,48 +121,6 @@ CURLcode fetch_bytes_into_fb(
     free(range);
     
     res = curl_easy_perform(curl);
-    if (res != CURLE_OK) return res;
-
-    return CURLE_OK;
-}
-
-CURLcode queue_fetch_bytes_into_resp(
-    CURL *curl,
-    response_t *resp,
-    const char *url,
-    uint64_t begin,
-    uint64_t size,
-    CURLM *cm
-) {
-    if (!curl) return CURLE_FAILED_INIT;
-    CURLcode res;
-    
-    // write into response
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-    if (res != CURLE_OK) return res;
-    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-    if (res != CURLE_OK) return res;
-    res = curl_easy_setopt(curl, CURLOPT_PRIVATE, resp);
-    if (res != CURLE_OK) return res;
-    
-    // construct range field
-    char *range;
-    res = construct_byte_range(&range, begin, size);
-    if (res != CURLE_OK) return res;
-    
-    res = curl_easy_setopt(curl, CURLOPT_URL, url);
-    if (res != CURLE_OK) {
-        free(range);
-        return res;
-    }
-    res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
-    if (res != CURLE_OK) {
-        free(range);
-        return res;
-    }
-    free(range);
-
-    res = curl_multi_add_handle(cm, curl);
     if (res != CURLE_OK) return res;
 
     return CURLE_OK;

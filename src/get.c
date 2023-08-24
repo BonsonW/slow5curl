@@ -19,26 +19,31 @@ int s5curl_get(
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
 	}
-	
-	// exclude meta data before copying record
-	response_t resp = {0};
 
-	int res = fetch_bytes_into_resp(
+	response_t *resp = response_init();
+
+	int res = resp_byte_fetch_init(
         curl,
-	    &resp,
+	    resp,
 		s5c->url, 
 		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size - sizeof(slow5_rec_size_t)
 	);
+    if (res < 0) {
+		SLOW5_ERROR("Initializing fetch for read %s failed: %s.", read_id, curl_easy_strerror(res));
+        slow5_errno = SLOW5_ERR_OTH;
+		return slow5_errno;
+	}
 
+    curl_easy_perform(curl);
 	if (res < 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
 		return slow5_errno;
 	}
 
-    res = slow5_decode((void *)&resp.data, &resp.size, record, s5c->s5p);
-    response_free(&resp);
+    res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
+    response_cleanup(resp);
 
     if (res < 0) {
 		SLOW5_ERROR("Decoding read %s failed.", read_id);
@@ -75,17 +80,12 @@ static int add_transfer(
     resp->size = 0;
     resp->id = transfer;
 
-    CURLcode res = queue_fetch_bytes_into_resp(
-        curl,
-        resp,
-        s5c->url,
-        read_index.offset + sizeof(slow5_rec_size_t),
-        read_index.size - sizeof(slow5_rec_size_t),
-        cm
-    );
-
-    if (res < 0) {
-        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(res));
+    if (
+        resp_byte_fetch_init(curl, resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
+        curl_easy_setopt(curl, CURLOPT_PRIVATE, resp) ||
+        curl_multi_add_handle(cm, curl)
+    ) {
+        SLOW5_ERROR("Initializing transfer for read %s failed.", read_id);
         slow5_errno = SLOW5_ERR_OTH;
         return slow5_errno;
     }
@@ -95,7 +95,6 @@ static int add_transfer(
     return EXIT_SUCCESS;
 }
 
-// todo: do not exit on fail, continue trying to transfer the next read
 int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,
@@ -109,6 +108,7 @@ int s5curl_get_batch(
     int msgs_left = -1;
     int left = 0;
     int res;
+    
     res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
     if (res < 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
@@ -143,8 +143,7 @@ int s5curl_get_batch(
 
                 records[index] = record;
 
-                response_free(resp);
-                free(resp);
+                response_cleanup(resp);
                 
                 res = curl_multi_remove_handle(cm, e);
                 if (res < 0) { 
