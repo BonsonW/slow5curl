@@ -192,7 +192,7 @@ static int s5curl_idx_read(
     // get file size
     curl_off_t file_size = 0;
     curl_easy_reset(curl);
-    CURLcode ret = fetch_file_size(curl, &file_size, url);
+    int ret = fetch_file_size(curl, &file_size, url);
     if (ret < 0) {
         SLOW5_ERROR("Fetching file size of '%s' failed: %s.", url, curl_easy_strerror(ret));
     }
