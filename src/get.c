@@ -22,20 +22,13 @@ int s5curl_get(
 
 	response_t *resp = response_init();
 
-	int res = resp_byte_fetch_init(
+	int res = fetch_bytes_into_resp(
         curl,
 	    resp,
 		s5c->url, 
 		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size - sizeof(slow5_rec_size_t)
 	);
-    if (res < 0) {
-		SLOW5_ERROR("Initializing fetch for read %s failed: %s.", read_id, curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
-		return slow5_errno;
-	}
-
-    curl_easy_perform(curl);
 	if (res < 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
@@ -81,7 +74,7 @@ static int add_transfer(
     resp->id = transfer;
 
     if (
-        resp_byte_fetch_init(curl, resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
+        byte_fetch_init_resp(curl, resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
         curl_easy_setopt(curl, CURLOPT_PRIVATE, resp) ||
         curl_multi_add_handle(cm, curl)
     ) {

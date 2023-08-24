@@ -18,7 +18,9 @@ response_t *response_init();
 
 void response_cleanup(response_t *resp);
 
-CURLcode resp_byte_fetch_init(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+CURLcode byte_fetch_init_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+
+CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
 
 CURLcode fetch_bytes_into_fb(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
 

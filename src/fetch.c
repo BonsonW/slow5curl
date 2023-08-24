@@ -50,7 +50,7 @@ static CURLcode construct_byte_range(
     return CURLE_OK;
 }
 
-CURLcode resp_byte_fetch_init(
+CURLcode byte_fetch_init_resp(
     CURL *curl,
     response_t *resp,
     const char *url,
@@ -84,6 +84,19 @@ CURLcode resp_byte_fetch_init(
     free(range);
     
     return CURLE_OK;
+}
+
+CURLcode fetch_bytes_into_resp(
+    CURL *curl,
+    response_t *resp,
+    const char *url,
+    uint64_t begin,
+    uint64_t size
+) {
+    CURLcode res;
+    res = byte_fetch_init_resp(curl, resp, url, begin, size);
+    if (res != CURLE_OK) return res;
+    return curl_easy_perform(curl);
 }
 
 CURLcode fetch_bytes_into_fb(

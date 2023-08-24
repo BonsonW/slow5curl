@@ -191,20 +191,13 @@ slow5_curl_t *s5curl_open_with(
     response_t *hdr_meta = response_init();
 
     curl_easy_reset(curl);
-	CURLcode res = resp_byte_fetch_init(
+	CURLcode res = fetch_bytes_into_resp(
         curl,
 	    hdr_meta,
 		url, 
 		0,
 		BLOW5_HDR_META_SIZE
 	);
-    if (res < 0) {
-		SLOW5_ERROR("Initializing fetch for file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
-		return NULL;
-	}
-
-    curl_easy_perform(curl);
 	if (res < 0) {
 		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
