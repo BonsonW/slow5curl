@@ -38,16 +38,7 @@
 void get_batch(core_t *core, db_t *db) {
     slow5_rec_t **reads = calloc(db->n_batch, sizeof *reads);
 
-    int res = s5curl_get_batch(
-        core->s5c,
-        db->conns,
-        db->curl_multi,
-        db->n_batch,
-        db->read_id,
-        reads
-    );
-
-    // TODO: print errors for get batch, or maybe just skip it and have it return reads??
+    s5curl_get_batch( core->s5c, db->conns, db->curl_multi, db->n_batch, db->read_id, reads);
 
     for (size_t i = 0; i < db->n_batch; ++i) {
         slow5_rec_t *record = reads[i];

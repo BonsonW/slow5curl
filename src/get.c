@@ -139,10 +139,7 @@ int s5curl_get_batch(
                 slow5_rec_t *read = NULL;
 
                 res = slow5_decode((void *)&resp->data, &resp->size, &read, s5c->s5p);
-                if (res < 0) { 
-                    SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
-                    return res;
-                }
+                if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
 
                 reads[index] = read;
 

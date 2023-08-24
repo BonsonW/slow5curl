@@ -72,6 +72,7 @@ int s5curl_conns_push(
 ) {
     if (conns->top == conns->n_conns - 1) return -1;
     conns->curls[++conns->top] = curl;
+    return 0;
 }
 
 void s5curl_close(
