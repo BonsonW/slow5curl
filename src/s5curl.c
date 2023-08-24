@@ -190,7 +190,7 @@ slow5_curl_t *s5curl_open_with(
     response_t *hdr_meta = response_init();
 
     curl_easy_reset(curl);
-	CURLcode res = fetch_bytes_into_resp(
+	int res = fetch_bytes_into_resp(
         curl,
 	    hdr_meta,
 		url, 

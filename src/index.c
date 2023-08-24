@@ -275,15 +275,34 @@ static int s5curl_idx_read(
         }
 
         size_t bytes_read;
+        long prev = ftell(index->fp);
         bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp);
 
         // check if the file offset is over the file size
         if ((file_offt - DOWNLOAD_SIZE) + (uint64_t)ftell(index->fp) > file_offt_max) {
+            fprintf(stderr, "checking eof\n");
             free(read_id);
-            // todo: check EOF
-            break;
 
-            return slow5_errno;
+            // check eof
+            const char eof[] = SLOW5_INDEX_EOF;
+            size_t n = sizeof eof;
+            char *buf_eof = (char *) malloc(sizeof *eof * n);
+            SLOW5_MALLOC_CHK(buf_eof);
+            
+            fseek(index->fp, (real_size-(file_offt-file_offt_max))-n, SEEK_SET);
+            size_t itms_read = fread(buf_eof, sizeof *eof, n, index->fp);
+            if (itms_read == n) {
+                if (memcmp(eof, buf_eof, sizeof *eof * n) == 0) { /* eof marker found */
+                    free(buf_eof);
+                    break;
+                } else {
+                    free(buf_eof);
+                    return SLOW5_ERR_IO;
+                }
+            } else {
+                free(buf_eof);
+                return SLOW5_ERR_IO;
+            }
         }
         read_id[read_id_len] = '\0'; // Add null byte
 
@@ -333,7 +352,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     
     // get first part of index file
     curl_easy_reset(curl);
-	CURLcode ret = fetch_bytes_into_fb(
+	int ret = fetch_bytes_into_fb(
         curl,
 	    index_fp,
 		index->pathname, 
@@ -352,7 +371,7 @@ slow5_idx_t *slow5_idx_init_from_url(
 
     ret = s5curl_idx_read(index, index->pathname, curl);
     if (ret < 0) {
-        SLOW5_ERROR("Error reading idx %s.", strerror(ret));
+        SLOW5_ERROR("Reading idx failed: %s.", strerror(ret));
         slow5_idx_free(index);
         return NULL;
     }
