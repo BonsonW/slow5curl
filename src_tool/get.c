@@ -43,7 +43,6 @@ void get_batch(core_t *core, db_t *db) {
     for (size_t i = 0; i < db->n_batch; ++i) {
         slow5_rec_t *record = records[i];
 
-        // todo: does not check len of record read (check this, may not be relevant)
         if (record == NULL) {
             ++db->n_err;
             db->read_record[i].buffer = NULL;

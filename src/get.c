@@ -13,13 +13,21 @@ int s5curl_get(
     const char *read_id,
     slow5_rec_t **record
 ) {
+    if (!curl) {
+        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
+        slow5_errno = SLOW5_ERR_OTH;
+        return slow5_errno;
+    }
+
+    // get offset and size
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
         slow5_errno = SLOW5_ERR_NOTFOUND;
 		return slow5_errno;
 	}
-
+    
+    // fetch
 	response_t *resp = response_init();
 
 	int res = fetch_bytes_into_resp(
@@ -35,7 +43,10 @@ int s5curl_get(
 		return slow5_errno;
 	}
 
+    // decode
     res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
+
+    // cleanup
     response_cleanup(resp);
 
     if (res < 0) {
@@ -65,7 +76,8 @@ static int add_transfer(
         slow5_errno = SLOW5_ERR_OTH;
         return slow5_errno;
     }
-
+    
+    // get offset and size
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
@@ -73,10 +85,11 @@ static int add_transfer(
 		return slow5_errno;
 	}
 
+    // queue transfer
     indexed_resp_t *resp_i = malloc(sizeof *resp_i);
     resp_i->resp = response_init();
     resp_i->index = transfer;
-
+    
     if (
         byte_fetch_init(curl, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback) ||
@@ -108,13 +121,15 @@ int s5curl_get_batch(
     int left = 0;
     int res;
     
+    // init multi_stack
     res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
     if (res < 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
         return slow5_errno;
     }
- 
+    
+    // queue initial transfers
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
         res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
         if (res < 0) {
@@ -122,13 +137,14 @@ int s5curl_get_batch(
             return res;
         }
     }
-
+    
     do {
         int still_alive = 1;
         curl_multi_perform(cm, &still_alive);
 
         while((msg = curl_multi_info_read(cm, &msgs_left))) {
             if (msg->msg == CURLMSG_DONE) {
+                // get response
                 indexed_resp_t *resp_i;
                 CURL *e = msg->easy_handle;
                 
@@ -137,14 +153,17 @@ int s5curl_get_batch(
 
                 slow5_rec_t *record = NULL;
 
+                // decode
                 res = slow5_decode((void *)&resp_i->resp->data, &resp_i->resp->size, &record, s5c->s5p);
                 if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
 
                 records[index] = record;
 
+                // cleanup
                 response_cleanup(resp_i->resp);
                 free(resp_i);
                 
+                // dequeue from multi_stack
                 res = curl_multi_remove_handle(cm, e);
                 if (res < 0) { 
                     SLOW5_ERROR("Removing connection handle failed: %s.", curl_easy_strerror(res));
@@ -152,6 +171,7 @@ int s5curl_get_batch(
                     return slow5_errno;
                 }
                 
+                // push connection back to stack
                 left--;
                 res = s5curl_conns_push(conns, e);
                 if (res < 0) { 
@@ -164,6 +184,7 @@ int s5curl_get_batch(
                 return slow5_errno;
             }
 
+            // queue transfers
             if (transfers < n_reads) {
                 res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
                 if (res < 0) {

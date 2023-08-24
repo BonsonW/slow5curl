@@ -9,7 +9,7 @@
 #include <slow5curl/s5curl.h>
 #include "fetch.h"
 
-#define SLOW5_FSTREAM_BUFF_SIZE (131072)  /* buffer size for freads and fwrites */
+#define SLOW5_FSTREAM_BUFF_SIZE (131072) // buffer size for freads and fwrites
 extern enum slow5_log_level_opt  slow5_log_level;
 enum slow5_exit_condition_opt slow5_exit_condition = SLOW5_EXIT_OFF;
 
@@ -93,14 +93,14 @@ struct slow5_file *s5curl_init(
     const char *pathname,
     enum slow5_fmt format
 ) {
-    /* pathname allowed to be NULL at this point */
+    // pathname allowed to be NULL at this point
     if (!fp) {
         SLOW5_ERROR("Argument '%s' cannot be NULL.", SLOW5_TO_STR(fp));
         slow5_errno = SLOW5_ERR_ARG;
         return NULL;
     }
 
-    // Attempt to determine format from pathname
+    // determine format from pathname
     if (format == SLOW5_FORMAT_UNKNOWN &&
             (format = slow5_path_get_fmt(pathname)) == SLOW5_FORMAT_UNKNOWN) {
         SLOW5_ERROR("Unknown slow5 format for file '%s'. Extension must be '%s' or '%s'.",
@@ -120,8 +120,7 @@ struct slow5_file *s5curl_init(
         SLOW5_WARNING("Could not set a large buffer for file stream of '%s': %s.", pathname, strerror(errno));
         free(fread_buff);
         fread_buff = NULL;
-    }
-    else {
+    } else {
         SLOW5_LOG_DEBUG("Buffer for file stream of '%s' was set to %d.", pathname, SLOW5_FSTREAM_BUFF_SIZE);
     }
 
@@ -203,8 +202,7 @@ slow5_curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
-	
-	// get header size
+
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
 	
@@ -214,7 +212,7 @@ slow5_curl_t *s5curl_open_with(
         return NULL;
     }
 	
-	// get rest of header data
+	// get rest of header
 	FILE *fp = fmemopen(NULL, header_size+BLOW5_HDR_META_SIZE+1, "r+");
 	if (!fp) {
         SLOW5_ERROR_EXIT("Error opening file '%s': %s.", url, strerror(errno));
@@ -247,13 +245,13 @@ slow5_curl_t *s5curl_open_with(
     } else {
         s5p->meta.mode = mode;
     }
-    
-    // cleanup
-    response_cleanup(hdr_meta);
 
     slow5_curl_t *s5c = (slow5_curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
+    
+    // cleanup
+    response_cleanup(hdr_meta);
 
     return s5c;
 }

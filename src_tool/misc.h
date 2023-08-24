@@ -1,5 +1,3 @@
-// Miscellaneous definitions and functions
-
 #ifndef _MISC_H_
 #define _MISC_H_
 
@@ -26,7 +24,7 @@
 extern "C" {
 #endif
 
-//Parsing
+// Parsing
 enum slow5_press_method name_to_slow5_press_method(const char *name);
 
 struct parse_fmt_meta {

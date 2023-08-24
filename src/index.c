@@ -125,8 +125,6 @@ slow5_idx_t *slow5_idx_init_from_path(
     
     index->fp = index_fp;
     
-    // todo: verify that the idx file is up to date
-    
     if (slow5_idx_read(index) != 0) {
         slow5_idx_free(index);
         return NULL;
@@ -347,8 +345,6 @@ slow5_idx_t *slow5_idx_init_from_url(
 	fseek(index_fp, 0, SEEK_SET);
     
     index->fp = index_fp;
-    
-    // todo: verify that the idx file is up to date
 
     ret = s5curl_idx_read(index, index->pathname, curl);
     if (ret < 0) {
