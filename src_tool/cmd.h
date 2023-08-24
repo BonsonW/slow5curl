@@ -31,11 +31,11 @@ extern "C" {
 #define HELP_MSG_LOSSLESS \
     "        --lossless                retain information in auxiliary fields during the conversion [true]\n"
 
-//except for view
+// except for view
 #define HELP_MSG_OUTPUT_FORMAT \
     "        --to FORMAT               specify output file format [blow5, auto detected using extension if -o FILE is provided]\n"
 
-//for view
+// for view
 #define HELP_MSG_OUTPUT_FORMAT_VIEW \
     "        --to FORMAT               specify output file format [slow5, auto detected using extension if -o FILE is provided]\n"
 
@@ -52,13 +52,13 @@ extern "C" {
 #define HELP_MSG_BATCH \
     "    -K, --batchsize INT           number of records loaded to the memory at once [" TO_STR(DEFAULT_BATCH_SIZE) "]\n"
 
-//for f2s
+// for f2s
 #define HELP_MSG_RETAIN_DIR_STRUCTURE \
     "        --retain                  retain the same directory structure in the converted output as the input (experimental)\n"
-//for f2s
+// for f2s
 #define HELP_MSG_CONTINUE_F2S    \
     "    -a, --allow                   allow run id mismatches in a multi-fast5 file or in a single-fast5 directory\n" \
-//for merge
+// for merge
 #define HELP_MSG_CONTINUE_MERGE \
     "    -a, --allow                   allow merging despite attribute differences in the same run_id\n"
 

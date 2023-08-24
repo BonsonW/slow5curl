@@ -37,19 +37,18 @@ typedef struct{
 
 /* data structure for a batch of reads */
 typedef struct {
-    int64_t n_batch;    // number of records in this batch
-    int64_t n_err;      // number of errors in this batch
-    raw_record_t *read_record; // the list of read records (output) //change to whatever the data type
+    int64_t n_batch;                // number of records in this batch
+    int64_t n_err;                  // number of errors in this batch
+    raw_record_t *read_record;      // the list of read records (output) //change to whatever the data type
     // for get
-    char **read_id;     // the list of read ids (input)
+    char **read_id;                 // the list of read ids (input)
+    conn_stack_t *conns;            // stack of reusable connections (curl easy handles)
+    CURLM *curl_multi;              // curl multi handle
     // for view
-    char **mem_records; // list of slow5_get_next_mem() records
-    size_t *mem_bytes; // lengths of slow5_get_next_mem() records
+    char **mem_records;             // list of slow5_get_next_mem() records
+    size_t *mem_bytes;              // lengths of slow5_get_next_mem() records
     // for split
     uint32_t *read_group_vector;
-    // for networking
-    conn_stack_t *conns;
-    CURLM *curl_multi;
 } db_t;
 
 #ifdef __cplusplus

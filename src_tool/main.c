@@ -143,7 +143,7 @@ int main(const int argc, char **argv){
                     exit(EXIT_SUCCESS);
                     // ret = EXIT_SUCCESS;
                     // break_flag = true;
-                    //break;
+                    // break;
                 case 'v':
                     slow5tools_verbosity_level = atoi(optarg);
                     print_args(argc,argv);
@@ -172,7 +172,6 @@ int main(const int argc, char **argv){
         }
 
         if (!break_flag) {
-
             // Reset optind for future use
             const int optind_copy = optind;
             optind = 0;
