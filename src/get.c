@@ -47,6 +47,11 @@ int s5curl_get(
     return EXIT_SUCCESS;
 }
 
+typedef struct indexed_resp {
+    response_t *resp;
+    uint32_t index;
+} indexed_resp_t;
+
 static int add_transfer(
     CURL *curl,
     slow5_curl_t *s5c,
@@ -68,16 +73,15 @@ static int add_transfer(
 		return slow5_errno;
 	}
 
-    response_t *resp = (response_t *)malloc(sizeof(response_t));
-    resp->data = NULL;
-    resp->size = 0;
-    resp->id = transfer;
+    indexed_resp_t *resp_i = malloc(sizeof *resp_i);
+    resp_i->resp = response_init();
+    resp_i->index = transfer;
 
     if (
         byte_fetch_init(curl, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback) ||
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp) ||
-        curl_easy_setopt(curl, CURLOPT_PRIVATE, resp) ||
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp_i->resp) ||
+        curl_easy_setopt(curl, CURLOPT_PRIVATE, resp_i) ||
         curl_multi_add_handle(cm, curl)
     ) {
         SLOW5_ERROR("Initializing transfer for read %s failed.", read_id);
@@ -125,20 +129,21 @@ int s5curl_get_batch(
 
         while((msg = curl_multi_info_read(cm, &msgs_left))) {
             if (msg->msg == CURLMSG_DONE) {
-                response_t *resp;
+                indexed_resp_t *resp_i;
                 CURL *e = msg->easy_handle;
                 
-                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp) != CURLE_OK) return -1;
-                size_t index = resp->id;
+                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp_i) != CURLE_OK) return -1;
+                size_t index = resp_i->index;
 
                 slow5_rec_t *record = NULL;
 
-                res = slow5_decode((void *)&resp->data, &resp->size, &record, s5c->s5p);
+                res = slow5_decode((void *)&resp_i->resp->data, &resp_i->resp->size, &record, s5c->s5p);
                 if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
 
                 records[index] = record;
 
-                response_cleanup(resp);
+                response_cleanup(resp_i->resp);
+                free(resp_i);
                 
                 res = curl_multi_remove_handle(cm, e);
                 if (res < 0) { 

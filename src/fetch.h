@@ -11,7 +11,6 @@ extern "C" {
 typedef struct response {
     char *data;
     size_t size;
-    uint32_t id;
 } response_t;
 
 size_t resp_callback(void *data, size_t size, size_t nmemb, void *clientp);

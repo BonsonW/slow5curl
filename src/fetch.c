@@ -95,7 +95,6 @@ CURLcode fetch_bytes_into_resp(
     if (res != CURLE_OK) return res;
 
     res = byte_fetch_init(curl, url, begin, size);
-    if (res != CURLE_OK) return res;
     
     return curl_easy_perform(curl);
 }
