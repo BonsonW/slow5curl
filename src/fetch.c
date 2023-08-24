@@ -16,7 +16,7 @@ void response_cleanup(response_t *resp) {
 }
 
 // adapted from https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
-static size_t callback(
+size_t resp_callback(
     void *data,
     size_t size,
     size_t nmemb,
@@ -50,21 +50,13 @@ static CURLcode construct_byte_range(
     return CURLE_OK;
 }
 
-CURLcode byte_fetch_init_resp(
+CURLcode byte_fetch_init(
     CURL *curl,
-    response_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size
 ) {
-    if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
-
-    // write into response
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
-    if (res != CURLE_OK) return res;
-    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
-    if (res != CURLE_OK) return res;
     
     // construct range field
     char *range;
@@ -93,9 +85,18 @@ CURLcode fetch_bytes_into_resp(
     uint64_t begin,
     uint64_t size
 ) {
+    if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
-    res = byte_fetch_init_resp(curl, resp, url, begin, size);
+
+    // write into response
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
     if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+    if (res != CURLE_OK) return res;
+
+    res = byte_fetch_init(curl, url, begin, size);
+    if (res != CURLE_OK) return res;
+    
     return curl_easy_perform(curl);
 }
 
@@ -107,7 +108,6 @@ CURLcode fetch_bytes_into_fb(
     uint64_t size
 ) {
     if (!curl) return CURLE_FAILED_INIT;
-    
     CURLcode res;
 
     // write into file pointer
@@ -116,27 +116,9 @@ CURLcode fetch_bytes_into_fb(
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
     if (res != CURLE_OK) return res;
     
-    // construct range field
-    char *range;
-    res = construct_byte_range(&range, begin, size);
-    if (res != CURLE_OK) return res;
+    res = byte_fetch_init(curl, url, begin, size);
     
-    res = curl_easy_setopt(curl, CURLOPT_URL, url);
-    if (res != CURLE_OK) {
-        free(range);
-        return res;
-    }
-    res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
-    if (res != CURLE_OK) {
-        free(range);
-        return res;
-    }
-    free(range);
-    
-    res = curl_easy_perform(curl);
-    if (res != CURLE_OK) return res;
-
-    return CURLE_OK;
+    return curl_easy_perform(curl);
 }
 
 CURLcode fetch_file_size(

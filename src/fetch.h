@@ -14,11 +14,13 @@ typedef struct response {
     uint32_t id;
 } response_t;
 
+size_t resp_callback(void *data, size_t size, size_t nmemb, void *clientp);
+
 response_t *response_init();
 
 void response_cleanup(response_t *resp);
 
-CURLcode byte_fetch_init_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+CURLcode byte_fetch_init(CURL *curl, const char *url, uint64_t begin, uint64_t size);
 
 CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
 

@@ -74,7 +74,9 @@ static int add_transfer(
     resp->id = transfer;
 
     if (
-        byte_fetch_init_resp(curl, resp, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
+        byte_fetch_init(curl, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback) ||
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp) ||
         curl_easy_setopt(curl, CURLOPT_PRIVATE, resp) ||
         curl_multi_add_handle(cm, curl)
     ) {
