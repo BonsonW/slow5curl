@@ -128,7 +128,7 @@ CURLcode fetch_file_size(
     if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
 
-    // get 
+    // fetch file info 
     res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_URL, url);
