@@ -24,17 +24,17 @@ size_t resp_callback(
 ) {
     size_t realsize = size * nmemb;
     struct response *mem = (struct response *)clientp;
-    
+
     char *ptr = realloc(mem->data, mem->size + realsize + 1);
     if (ptr == NULL) {
         return 0;
     }
-    
+
     mem->data = ptr;
     memcpy(&(mem->data[mem->size]), data, realsize);
     mem->size += realsize;
     mem->data[mem->size] = 0;
-    
+
     return realsize;
 }
 
@@ -57,12 +57,12 @@ CURLcode byte_fetch_init(
     uint64_t size
 ) {
     CURLcode res;
-    
+
     // construct range field
     char *range;
     res = construct_byte_range(&range, begin, size);
     if (res != CURLE_OK) return res;
-    
+
     res = curl_easy_setopt(curl, CURLOPT_URL, url);
     if (res != CURLE_OK) {
         free(range);
@@ -74,7 +74,7 @@ CURLcode byte_fetch_init(
         return res;
     }
     free(range);
-    
+
     return CURLE_OK;
 }
 
@@ -95,7 +95,7 @@ CURLcode fetch_bytes_into_resp(
     if (res != CURLE_OK) return res;
 
     res = byte_fetch_init(curl, url, begin, size);
-    
+
     return curl_easy_perform(curl);
 }
 
@@ -114,9 +114,9 @@ CURLcode fetch_bytes_into_fb(
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
     if (res != CURLE_OK) return res;
-    
+
     res = byte_fetch_init(curl, url, begin, size);
-    
+
     return curl_easy_perform(curl);
 }
 
@@ -128,18 +128,18 @@ CURLcode fetch_file_size(
     if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
 
-    // fetch file info 
+    // fetch file info
     res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_URL, url);
     if (res != CURLE_OK) return res;
-    
+
     res = curl_easy_perform(curl);
     if (res != CURLE_OK) return res;
 
     // return length
-    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
+    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, file_size);
     if (res != CURLE_OK) return res;
-    
+
     return CURLE_OK;
 }

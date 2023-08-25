@@ -11,7 +11,7 @@
 
 #define SLOW5_FSTREAM_BUFF_SIZE (131072) // buffer size for freads and fwrites
 extern enum slow5_log_level_opt  slow5_log_level;
-enum slow5_exit_condition_opt slow5_exit_condition = SLOW5_EXIT_OFF;
+extern enum slow5_exit_condition_opt slow5_exit_condition;
 
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
@@ -185,7 +185,7 @@ slow5_curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_ARG;
         return NULL;
     }
-    
+
     // get header meta data
     response_t *hdr_meta = response_init();
 
@@ -193,7 +193,7 @@ slow5_curl_t *s5curl_open_with(
 	int res = fetch_bytes_into_resp(
         curl,
 	    hdr_meta,
-		url, 
+		url,
 		0,
 		BLOW5_HDR_META_SIZE
 	);
@@ -205,13 +205,13 @@ slow5_curl_t *s5curl_open_with(
 
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
-	
+
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
         SLOW5_ERROR("File '%s' has exceeded the max header size.", url);
         slow5_errno = SLOW5_ERR_OTH;
         return NULL;
     }
-	
+
 	// get rest of header
 	FILE *fp = fmemopen(NULL, header_size+BLOW5_HDR_META_SIZE+1, "r+");
 	if (!fp) {
@@ -219,12 +219,12 @@ slow5_curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_IO;
         return NULL;
     }
-    
+
     curl_easy_reset(curl);
 	res = fetch_bytes_into_fb(
         curl,
 	    fp,
-		url, 
+		url,
 		0,
 		header_size+BLOW5_HDR_META_SIZE
 	);
@@ -249,7 +249,7 @@ slow5_curl_t *s5curl_open_with(
     slow5_curl_t *s5c = (slow5_curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
-    
+
     // cleanup
     response_cleanup(hdr_meta);
 
