@@ -46,6 +46,8 @@ conn_stack_t *s5curl_open_conns(
     }
     conn_stack->top = n_conns-1;
     conn_stack->n_conns = n_conns;
+
+    return conn_stack;
 }
 
 void s5curl_close_conns(

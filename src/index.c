@@ -205,7 +205,7 @@ static int s5curl_idx_read(
         slow5_rid_len_t read_id_len;
 
         // download next part
-        if ((uint64_t)ftell(index->fp) + (uint64_t)(read_id_len + (sizeof(uint64_t) * 2)) > real_size) {
+        if ((uint64_t)ftell(index->fp) + sizeof(slow5_rid_len_t) > real_size) {
             // copy rest of buf into start
             uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
             char *rest = malloc(rest_size);
@@ -274,10 +274,7 @@ static int s5curl_idx_read(
             file_offt += DOWNLOAD_SIZE;
         }
 
-        size_t bytes_read;
-        long prev = ftell(index->fp);
-        bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp);
-
+        fread(read_id, sizeof *read_id, read_id_len, index->fp);
         // check if the file offset is over the file size
         if ((file_offt - DOWNLOAD_SIZE) + (uint64_t)ftell(index->fp) > file_offt_max) {
             fprintf(stderr, "checking eof\n");
