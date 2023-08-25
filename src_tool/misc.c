@@ -308,3 +308,48 @@ int check_aux_fields_in_header(slow5_hdr_t *slow5_header, const char *attr, int 
     }
     return 0;
 }
+
+double slow5_realtime(void) {
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    return tp.tv_sec + tp.tv_usec * 1e-6;
+}
+
+
+// From minimap2/misc
+double slow5_cputime(void) {
+    struct rusage r;
+    getrusage(RUSAGE_SELF, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
+
+// From minimap2
+long slow5_peakrss(void) {
+	struct rusage r;
+	getrusage(RUSAGE_SELF, &r);
+#ifdef __linux__
+	return r.ru_maxrss * 1024;
+#else
+	return r.ru_maxrss;
+#endif
+
+}
+
+double slow5_cputime_child(void) {
+    struct rusage r;
+    getrusage(RUSAGE_CHILDREN, &r);
+    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
+           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
+}
+
+long slow5_peakrss_child(void) {
+	struct rusage r;
+	getrusage(RUSAGE_CHILDREN, &r);
+#ifdef __linux__
+	return r.ru_maxrss * 1024;
+#else
+	return r.ru_maxrss;
+#endif
+
+}

@@ -76,49 +76,15 @@ enum slow5_fmt parse_path_to_fmt(const char *fname);
 int check_aux_fields_in_header(slow5_hdr_t *slow5_header, const char *attr, int verbose, uint32_t* i);
 // Timing
 // From minimap2/misc
-static inline double slow5_realtime(void) {
-    struct timeval tp;
-    gettimeofday(&tp, NULL);
-    return tp.tv_sec + tp.tv_usec * 1e-6;
-}
+double slow5_realtime(void);
 
 // From minimap2/misc
-static inline double slow5_cputime(void) {
-    struct rusage r;
-    getrusage(RUSAGE_SELF, &r);
-    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
-           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
-}
-
+double slow5_cputime(void);
 // From minimap2
-static inline long slow5_peakrss(void) {
-	struct rusage r;
-	getrusage(RUSAGE_SELF, &r);
-#ifdef __linux__
-	return r.ru_maxrss * 1024;
-#else
-	return r.ru_maxrss;
-#endif
+long slow5_peakrss(void);
 
-}
-
-static inline double slow5_cputime_child(void) {
-    struct rusage r;
-    getrusage(RUSAGE_CHILDREN, &r);
-    return r.ru_utime.tv_sec + r.ru_stime.tv_sec +
-           1e-6 * (r.ru_utime.tv_usec + r.ru_stime.tv_usec);
-}
-
-static inline long slow5_peakrss_child(void) {
-	struct rusage r;
-	getrusage(RUSAGE_CHILDREN, &r);
-#ifdef __linux__
-	return r.ru_maxrss * 1024;
-#else
-	return r.ru_maxrss;
-#endif
-
-}
+double slow5_cputime_child(void);
+long slow5_peakrss_child(void);
 
 void print_args(int argc, char **argv);
 
