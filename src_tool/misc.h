@@ -78,8 +78,7 @@ int check_aux_fields_in_header(slow5_hdr_t *slow5_header, const char *attr, int 
 // From minimap2/misc
 static inline double slow5_realtime(void) {
     struct timeval tp;
-    struct timezone tzp;
-    gettimeofday(&tp, &tzp);
+    gettimeofday(&tp, NULL);
     return tp.tv_sec + tp.tv_usec * 1e-6;
 }
 
