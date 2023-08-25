@@ -4,6 +4,8 @@
  * @author Hiruna Samarakoon (h.samarakoon@garvan.org.au) Sasha Jenner (jenner.sasha@gmail.com), Hasindu Gamaarachchi (hasindu@garvan.org.au)
  * @date 27/02/2021
  */
+
+#define _XOPEN_SOURCE 700
 #include <getopt.h>
 #include <stdio.h>
 
@@ -265,7 +267,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     char *f_in_name = argv[optind];
-    
+
     curl_global_init(CURL_GLOBAL_ALL);
 
     slow5_curl_t *slow5curl = s5curl_open(f_in_name);

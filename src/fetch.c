@@ -2,8 +2,10 @@
 #include <string.h>
 
 #include <curl/curl.h>
-
+#include <slow5curl/s5curl.h>
 #include "fetch.h"
+
+extern enum slow5_log_level_opt  slow5_log_level;
 
 response_t *response_init() {
     response_t *resp = calloc(1, sizeof *resp);
@@ -90,7 +92,11 @@ CURLcode fetch_bytes_into_resp(
 
     // write into response
     res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
-    if (res != CURLE_OK) return res;
+    if (res != CURLE_OK){
+        SLOW5_ERROR("Error in curl_easy_setopt: %s", curl_easy_strerror(res));
+        return res;
+    }
+
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;
 

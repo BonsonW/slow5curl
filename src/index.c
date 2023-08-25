@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
 #include "fetch.h"
@@ -110,7 +111,7 @@ slow5_idx_t *slow5_idx_init_from_path(
     if (!index) {
         return NULL;
     }
-    
+
     index->pathname = strdup(path);
 
     FILE *index_fp;
@@ -122,16 +123,16 @@ slow5_idx_t *slow5_idx_init_from_path(
         index->fp = NULL;
         return NULL;
     }
-    
+
     index->fp = index_fp;
-    
+
     // todo: verify that the idx file is up to date
-    
+
     if (slow5_idx_read(index) != 0) {
         slow5_idx_free(index);
         return NULL;
     }
-    
+
     if (index->version.major != s5p->header->version.major ||
             index->version.minor != s5p->header->version.minor ||
             index->version.patch != s5p->header->version.patch) {
@@ -172,7 +173,7 @@ static int s5curl_idx_read(
         fprintf(stderr, "%s\n", buf_magic);
         return SLOW5_ERR_MAGIC;
     }
-    
+
     if (fread(&index->version.major, sizeof index->version.major, 1, index->fp) != 1 ||
         fread(&index->version.minor, sizeof index->version.minor, 1, index->fp) != 1 ||
         fread(&index->version.patch, sizeof index->version.patch, 1, index->fp) != 1) {
@@ -219,7 +220,7 @@ static int s5curl_idx_read(
             ret = fetch_bytes_into_fb(
                 curl,
                 index->fp,
-                url, 
+                url,
                 file_offt,
                 DOWNLOAD_SIZE
             );
@@ -232,7 +233,7 @@ static int s5curl_idx_read(
             real_size = DOWNLOAD_SIZE + rest_size;
             file_offt += DOWNLOAD_SIZE;
         }
-        
+
         if (fread(&read_id_len, sizeof read_id_len, 1, index->fp) != 1) {
             SLOW5_ERROR("Malformed slow5 index. Failed to read the read ID length.%s", feof(index->fp) ? " Missing index end of file marker." : "");
             if (feof(index->fp)) {
@@ -260,7 +261,7 @@ static int s5curl_idx_read(
             ret = fetch_bytes_into_fb(
                 curl,
                 index->fp,
-                url, 
+                url,
                 file_offt,
                 DOWNLOAD_SIZE
             );
@@ -285,7 +286,7 @@ static int s5curl_idx_read(
             size_t n = sizeof eof;
             char *buf_eof = (char *) malloc(sizeof *eof * n);
             SLOW5_MALLOC_CHK(buf_eof);
-            
+
             fseek(index->fp, (real_size-(file_offt-file_offt_max))-n, SEEK_SET);
             size_t itms_read = fread(buf_eof, sizeof *eof, n, index->fp);
             if (itms_read == n) {
@@ -330,7 +331,7 @@ slow5_idx_t *slow5_idx_init_from_url(
         return NULL;
     }
     slow5_file_t *s5p = s5c->s5p;
-    
+
     index->pathname = malloc(strlen(s5c->url)+5);
     if (!index->pathname) {
         slow5_idx_free(index);
@@ -341,18 +342,18 @@ slow5_idx_t *slow5_idx_init_from_url(
 
     FILE *index_fp = fmemopen(NULL, MAX_BUF_SIZE, "r+");
     if (index_fp == NULL) {
-        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname); 
+        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
         slow5_idx_free(index);
         index->fp = NULL;
         return NULL;
     }
-    
+
     // get first part of index file
     curl_easy_reset(curl);
 	int ret = fetch_bytes_into_fb(
         curl,
 	    index_fp,
-		index->pathname, 
+		index->pathname,
 		0,
 		DOWNLOAD_SIZE
 	);
@@ -361,9 +362,9 @@ slow5_idx_t *slow5_idx_init_from_url(
 		return NULL;
 	}
 	fseek(index_fp, 0, SEEK_SET);
-    
+
     index->fp = index_fp;
-    
+
     // todo: verify that the idx file is up to date
 
     ret = s5curl_idx_read(index, index->pathname, curl);
@@ -372,7 +373,7 @@ slow5_idx_t *slow5_idx_init_from_url(
         slow5_idx_free(index);
         return NULL;
     }
-    
+
     if (index->version.major != s5p->header->version.major ||
             index->version.minor != s5p->header->version.minor ||
             index->version.patch != s5p->header->version.patch) {
