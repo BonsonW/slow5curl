@@ -13,7 +13,7 @@ BINARY = slow5curl_get
 OBJ_BIN = $(BUILD_DIR)/main.o \
 			$(BUILD_DIR)/misc.o \
 			$(BUILD_DIR)/error.o \
-			$(BUILD_DIR)/get.o \
+			$(BUILD_DIR)/get_main.o \
 			$(BUILD_DIR)/fetch.o \
 			$(BUILD_DIR)/index.o \
 			$(BUILD_DIR)/s5curl.o \
@@ -57,7 +57,7 @@ $(BUILD_DIR)/error.o: src_tool/error.c src_tool/error.h
 $(BUILD_DIR)/misc.o: src_tool/misc.c src_tool/error.h src_tool/cmd.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/get.o: src_tool/get.c src_tool/thread.h src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h
+$(BUILD_DIR)/get_main.o: src_tool/get.c src_tool/thread.h src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 $(BUILD_DIR)/main.o: src_tool/main.c src_tool/error.h src_tool/cmd.h src_tool/misc.h

@@ -38,7 +38,7 @@
 void get_batch(core_t *core, db_t *db) {
     slow5_rec_t **records = calloc(db->n_batch, sizeof *records);
 
-    s5curl_get_batch( core->s5c, db->conns, db->curl_multi, db->n_batch, db->read_id, records);
+    s5curl_get_batch(core->s5c, db->conns, db->curl_multi, db->conns->n_conns, db->n_batch, db->read_id, records);
 
     for (size_t i = 0; i < db->n_batch; ++i) {
         slow5_rec_t *record = records[i];

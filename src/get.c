@@ -104,6 +104,7 @@ int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,
     CURLM *cm,
+    long max_conns,
     uint64_t n_reads,
     char **read_ids,
     slow5_rec_t **records
@@ -115,7 +116,7 @@ int s5curl_get_batch(
     int res;
     
     // init multi_stack
-    res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, (long)conns->n_conns);
+    res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, max_conns);
     if (res < 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
         return SLOW5_ERR_OTH;
