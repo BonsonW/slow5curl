@@ -200,7 +200,7 @@ slow5_curl_t *s5curl_open_with(
 		0,
 		BLOW5_HDR_META_SIZE
 	);
-	if (res < 0) {
+	if (res != 0) {
 		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
@@ -231,7 +231,7 @@ slow5_curl_t *s5curl_open_with(
 		0,
 		header_size+BLOW5_HDR_META_SIZE
 	);
-	if (res < 0) {
+	if (res != 0) {
 		SLOW5_ERROR("Fetching file header of '%s' failed: %s.", url, curl_easy_strerror(res));
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;

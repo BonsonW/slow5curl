@@ -194,10 +194,10 @@ static int s5curl_idx_read(
     curl_off_t file_size = 0;
     curl_easy_reset(curl);
     int ret = fetch_file_size(curl, &file_size, url);
-    if (ret < 0) {
+    if (ret != 0) {
         SLOW5_ERROR("Fetching file size of '%s' failed: %s.", url, curl_easy_strerror(ret));
     }
-    uint64_t file_offt_max = file_size;
+    uint64_t file_offt_max = (uint64_t)file_size;
 
     uint64_t real_size = DOWNLOAD_SIZE;
     uint64_t file_offt = DOWNLOAD_SIZE;
@@ -206,11 +206,13 @@ static int s5curl_idx_read(
         slow5_rid_len_t read_id_len;
 
         // download next part
-        if ((uint64_t)ftell(index->fp) + sizeof(slow5_rid_len_t) > real_size) {
+        if ((uint64_t)ftell(index->fp) + (uint64_t)sizeof(slow5_rid_len_t) > real_size) {
             // copy rest of buf into start
             uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
             char *rest = malloc(rest_size);
-            fread(rest, sizeof(char), rest_size, index->fp);
+            if ((uint64_t)fread(rest, sizeof(char), rest_size, index->fp) != rest_size) {
+                SLOW5_ERROR("%s", "Failed to read remaining buffer.");
+            }
             fseek(index->fp, 0, SEEK_SET);
             fwrite(rest, sizeof(char), rest_size, index->fp);
             free(rest);
@@ -224,7 +226,7 @@ static int s5curl_idx_read(
                 file_offt,
                 DOWNLOAD_SIZE
             );
-            if (ret < 0) {
+            if (ret != 0) {
                 SLOW5_ERROR("Fetching index data of '%s' failed: %s.", url, curl_easy_strerror(ret));
             }
             fseek(index->fp, 0, SEEK_SET);
@@ -251,7 +253,9 @@ static int s5curl_idx_read(
             // copy rest of buf into start
             uint64_t rest_size = real_size - (uint64_t)ftell(index->fp);
             char *rest = malloc(rest_size);
-            fread(rest, sizeof(char), rest_size, index->fp);
+            if ((uint64_t) fread(rest, sizeof(char), rest_size, index->fp) != rest_size) {
+                SLOW5_ERROR("%s", "Failed to read remaining buffer.");
+            }
             fseek(index->fp, 0, SEEK_SET);
             fwrite(rest, sizeof(char), rest_size, index->fp);
             free(rest);
@@ -265,7 +269,7 @@ static int s5curl_idx_read(
                 file_offt,
                 DOWNLOAD_SIZE
             );
-            if (ret < 0) {
+            if (ret != 0) {
                 SLOW5_ERROR("Fetching index data of '%s' failed: %s.", url, curl_easy_strerror(ret));
             }
             fseek(index->fp, 0, SEEK_SET);
@@ -275,10 +279,10 @@ static int s5curl_idx_read(
             file_offt += DOWNLOAD_SIZE;
         }
 
-        fread(read_id, sizeof *read_id, read_id_len, index->fp);
+        size_t bytes_read = fread(read_id, sizeof *read_id, read_id_len, index->fp);
+        
         // check if the file offset is over the file size
-        if ((file_offt - DOWNLOAD_SIZE) + (uint64_t)ftell(index->fp) > file_offt_max) {
-            fprintf(stderr, "checking eof\n");
+        if (bytes_read != (size_t)read_id_len || (file_offt - DOWNLOAD_SIZE) + (uint64_t)(ftell(index->fp)) + (uint64_t)(sizeof(uint64_t) * 2) >= file_offt_max) {
             free(read_id);
 
             // check eof
@@ -357,7 +361,7 @@ slow5_idx_t *slow5_idx_init_from_url(
 		0,
 		DOWNLOAD_SIZE
 	);
-	if (ret < 0) {
+	if (ret != 0) {
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
 		return NULL;
 	}

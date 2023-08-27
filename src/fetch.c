@@ -144,7 +144,7 @@ CURLcode fetch_file_size(
     if (res != CURLE_OK) return res;
 
     // return length
-    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, file_size);
+    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
     if (res != CURLE_OK) return res;
 
     return CURLE_OK;

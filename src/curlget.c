@@ -35,7 +35,7 @@ int s5curl_get(
 		read_index.offset + sizeof(slow5_rec_size_t),
 		read_index.size - sizeof(slow5_rec_size_t)
 	);
-	if (res < 0) {
+	if (res != 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
 		return SLOW5_ERR_OTH;
 	}
@@ -117,7 +117,7 @@ int s5curl_get_batch(
     
     // init multi_stack
     res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, max_conns);
-    if (res < 0) {
+    if (res != 0) {
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
         return SLOW5_ERR_OTH;
     }
@@ -125,7 +125,7 @@ int s5curl_get_batch(
     // queue initial transfers
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
         res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-        if (res < 0) {
+        if (res != 0) {
             SLOW5_ERROR("%s", "Queuing transfer failed.");
             return res;
         }
@@ -158,7 +158,7 @@ int s5curl_get_batch(
                 
                 // dequeue from multi_stack
                 res = curl_multi_remove_handle(cm, e);
-                if (res < 0) { 
+                if (res != 0) { 
                     SLOW5_ERROR("Removing connection handle failed: %s.", curl_easy_strerror(res));
                     return SLOW5_ERR_OTH;
                 }
@@ -166,7 +166,7 @@ int s5curl_get_batch(
                 // push connection back to stack
                 left--;
                 res = s5curl_conns_push(conns, e);
-                if (res < 0) { 
+                if (res != 0) { 
                     SLOW5_ERROR("%s\n", "Pushing to connection stack failed.");
                     return res;
                 }
@@ -178,7 +178,7 @@ int s5curl_get_batch(
             // queue transfers
             if (transfers < n_reads) {
                 res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
-                if (res < 0) {
+                if (res != 0) {
                     SLOW5_ERROR("%s", "Queuing transfer failed.");
                     return res;
                 }
