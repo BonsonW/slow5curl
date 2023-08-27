@@ -82,6 +82,8 @@ void s5curl_close(
     slow5_curl_t *s5c
 ) {
     slow5_close(s5c->s5p);
+    free(s5c->url);
+    free(s5c);
 }
 
 void s5curl_idx_unload(
