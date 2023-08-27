@@ -78,13 +78,12 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
 
     len = s5curl_get(s5c, curl, read_id, &record);
 
-    if (record == NULL || len < 0) {
+    if (record == NULL || len != 0) {
         success = false;
-
     } else {
         if (benchmark == false){
             struct slow5_press* compress = slow5_press_init(press_method);
-            if(!compress){
+            if (!compress) {
                 ERROR("Could not initialize the slow5 compression method%s","");
                 exit(EXIT_FAILURE);
             }
@@ -98,7 +97,6 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
 }
 
 int get_main(int argc, char **argv, struct program_meta *meta) {
-
     // Debug: print arguments
     print_args(argc, argv);
 
@@ -191,36 +189,36 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         }
     }
 
-    if(skip_flag){
+    if (skip_flag) {
         WARNING("Will skip records that are not found%s","");
         slow5_set_exit_condition(SLOW5_EXIT_OFF);
     }
 
-    if(parse_num_threads(&user_opts,argc,argv,meta) < 0){
+    if (parse_num_threads(&user_opts,argc,argv,meta) < 0) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
 
-    if(parse_batch_size(&user_opts,argc,argv) < 0){
+    if (parse_batch_size(&user_opts,argc,argv) < 0) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
 
-    if(parse_format_args(&user_opts,argc,argv,meta) < 0){
+    if (parse_format_args(&user_opts,argc,argv,meta) < 0) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
-    if(auto_detect_formats(&user_opts, 1) < 0){
-        EXIT_MSG(EXIT_FAILURE, argv, meta);
-        return EXIT_FAILURE;
-    }
-
-    if(parse_compression_opts(&user_opts) < 0){
+    if (auto_detect_formats(&user_opts, 1) < 0) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
 
-    if(benchmark && user_opts.arg_fname_out){
+    if (parse_compression_opts(&user_opts) < 0) {
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
+
+    if (benchmark && user_opts.arg_fname_out) {
         ERROR("Benchmark does not support writing records out%s", "");
         return EXIT_FAILURE;
     }
@@ -258,7 +256,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     FILE* read_list_in = stdin;
-    if(read_list_file_in){
+    if (read_list_file_in) {
         read_list_in = fopen(read_list_file_in, "r");
         if (!read_list_in) {
             ERROR("Output file %s could not be opened - %s.", read_list_file_in, strerror(errno));
@@ -278,14 +276,14 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
 
-    if(benchmark == false){
+    if (benchmark == false) {
         if(slow5_hdr_fwrite(user_opts.f_out, slow5curl->s5p->header, user_opts.fmt_out, press_out) == -1){
             ERROR("Could not write the output header%s\n", "");
             return EXIT_FAILURE;
         }
     }
 
-    if(slow5_index == NULL){
+    if (slow5_index == NULL) {
         int ret_idx = s5curl_idx_load(slow5curl);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s\n", f_in_name);
@@ -366,7 +364,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             VERBOSE("Fetched %ld reads of %ld", num_ids - db.n_err, num_ids);
 
             // Print records
-            if(benchmark == false){
+            if (benchmark == false) {
                 for (int64_t i = 0; i < num_ids; ++ i) {
                     void *buffer = db.read_record[i].buffer;
                     int len = db.read_record[i].len;
@@ -405,13 +403,14 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     if (benchmark == false) {
         if (user_opts.fmt_out == SLOW5_FORMAT_BINARY) {
-                slow5_eof_fwrite(user_opts.f_out);
-            }
+            slow5_eof_fwrite(user_opts.f_out);
+        }
     }
 
     s5curl_idx_unload(slow5curl);
     s5curl_close(slow5curl);
     fclose(read_list_in);
+    fclose(user_opts.f_out);
 
     curl_global_cleanup();
 

@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 typedef struct slow5_curl {
-    const char *url;
+    char *url;
     slow5_file_t *s5p;
 } slow5_curl_t;
 
