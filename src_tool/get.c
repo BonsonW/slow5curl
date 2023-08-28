@@ -292,7 +292,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
-        int ret_idx = slow5_idx_load_from_path(slow5curl->s5p, slow5_index);
+        int ret_idx = slow5_idx_load_with(slow5curl->s5p, slow5_index);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -369,7 +369,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                     void *buffer = db.read_record[i].buffer;
                     int len = db.read_record[i].len;
                     if (buffer == NULL || len < 0) {
-                        if(skip_flag) continue;
+                        if (skip_flag) continue;
                         ERROR("Could not write the fetched read.%s", "");
                         return EXIT_FAILURE;
                     } else {
@@ -410,7 +410,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     s5curl_idx_unload(slow5curl);
     s5curl_close(slow5curl);
     fclose(read_list_in);
-    fclose(user_opts.f_out);
+    if (user_opts.arg_fname_out != NULL) fclose(user_opts.f_out);
 
     curl_global_cleanup();
 
