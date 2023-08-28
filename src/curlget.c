@@ -41,8 +41,15 @@ int s5curl_get(
 		return SLOW5_ERR_OTH;
 	}
 
+    long response_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+    if (response_code != 206) {
+        SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, response_code);
+    }
+
     // decode
     res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
+    if (res < 0) SLOW5_ERROR("Error decoding read %s.", read_id);
 
     // cleanup
     response_cleanup(resp);
@@ -159,7 +166,7 @@ int s5curl_get_batch(
                 long response_code;
                 curl_easy_getinfo(e, CURLINFO_RESPONSE_CODE, &response_code);
                 if (response_code != 206) {
-                    SLOW5_ERROR("Fetching read %s failed with error code: %li\n", read_ids[index], response_code);
+                    SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_ids[index], response_code);
                 }
 
                 // decode
