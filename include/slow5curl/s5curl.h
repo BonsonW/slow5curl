@@ -36,7 +36,7 @@ void s5curl_idx_unload(slow5_curl_t *s5c);
 
 int s5curl_get(slow5_curl_t *s5c, CURL *curl, const char *read_id, slow5_rec_t **record);
 
-int s5curl_get_batch(slow5_curl_t *s5c, conn_stack_t *conns, CURLM *cm, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records);
+int s5curl_get_batch(slow5_curl_t *s5c, conn_stack_t *conns, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records);
 
 // temp idx load
 

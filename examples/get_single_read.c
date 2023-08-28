@@ -15,6 +15,7 @@ int main(){
     curl_global_init(CURL_GLOBAL_ALL);
 
     // initialize a connection
+    // to be re-used across s5curl_get(s)
     CURL *curl = curl_easy_init();
     if (!curl) {
         fprintf(stderr, "Error initializing connection.\n");

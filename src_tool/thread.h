@@ -43,7 +43,6 @@ typedef struct {
     // for get
     char **read_id;                 // the list of read ids (input)
     conn_stack_t *conns;            // stack of reusable connections (curl easy handles)
-    CURLM *curl_multi;              // curl multi handle
     // for view
     char **mem_records;             // list of slow5_get_next_mem() records
     size_t *mem_bytes;              // lengths of slow5_get_next_mem() records

@@ -14,9 +14,10 @@ int s5curl_get(
     slow5_rec_t **record
 ) {
     if (!curl) {
-        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
+        SLOW5_ERROR("Get single read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
         return SLOW5_ERR_OTH;
     }
+    curl_easy_reset(curl);
 
     // get offset and size
     struct slow5_rec_idx read_index;
@@ -62,13 +63,13 @@ typedef struct indexed_resp {
 static int add_transfer(
     CURL *curl,
     slow5_curl_t *s5c,
-    CURLM *cm,
+    CURLM *curl_multi,
     char *read_id,
     uint32_t transfer,
     int *left
 ) {
     if (!curl) {
-        SLOW5_ERROR("Transfer for read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
+        SLOW5_ERROR("Queueing read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
         return SLOW5_ERR_OTH;
     }
     
@@ -89,7 +90,7 @@ static int add_transfer(
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback) ||
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp_i->resp) ||
         curl_easy_setopt(curl, CURLOPT_PRIVATE, resp_i) ||
-        curl_multi_add_handle(cm, curl)
+        curl_multi_add_handle(curl_multi, curl)
     ) {
         SLOW5_ERROR("Initializing transfer for read %s failed.", read_id);
         return SLOW5_ERR_OTH;
@@ -103,12 +104,17 @@ static int add_transfer(
 int s5curl_get_batch(
     slow5_curl_t *s5c,
     conn_stack_t *conns,
-    CURLM *cm,
     long max_conns,
     uint64_t n_reads,
     char **read_ids,
     slow5_rec_t **records
 ) {
+    CURLM *curl_multi = curl_multi_init();
+    if (!curl_multi) {
+        SLOW5_ERROR("Get multi read failed: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+        return SLOW5_ERR_OTH;
+    }
+
     CURLMsg *msg;
     size_t transfers = 0;
     int msgs_left = -1;
@@ -116,16 +122,18 @@ int s5curl_get_batch(
     int res;
     
     // init multi_stack
-    res = curl_multi_setopt(cm, CURLMOPT_MAXCONNECTS, max_conns);
+    res = curl_multi_setopt(curl_multi, CURLMOPT_MAXCONNECTS, max_conns);
     if (res != 0) {
+        curl_multi_cleanup(curl_multi);
         SLOW5_ERROR("Setting connection limit failed: %s.", curl_easy_strerror(res));
         return SLOW5_ERR_OTH;
     }
     
     // queue initial transfers
     for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
-        res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+        res = add_transfer(s5curl_conns_pop(conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
         if (res != 0) {
+            curl_multi_cleanup(curl_multi);
             SLOW5_ERROR("%s", "Queuing transfer failed.");
             return res;
         }
@@ -133,9 +141,9 @@ int s5curl_get_batch(
     
     do {
         int still_alive = 1;
-        curl_multi_perform(cm, &still_alive);
+        curl_multi_perform(curl_multi, &still_alive);
 
-        while((msg = curl_multi_info_read(cm, &msgs_left))) {
+        while((msg = curl_multi_info_read(curl_multi, &msgs_left))) {
             if (msg->msg == CURLMSG_DONE) {
                 // get response
                 indexed_resp_t *resp_i;
@@ -157,8 +165,9 @@ int s5curl_get_batch(
                 free(resp_i);
                 
                 // dequeue from multi_stack
-                res = curl_multi_remove_handle(cm, e);
-                if (res != 0) { 
+                res = curl_multi_remove_handle(curl_multi, e);
+                if (res != 0) {
+                    curl_multi_cleanup(curl_multi);
                     SLOW5_ERROR("Removing connection handle failed: %s.", curl_easy_strerror(res));
                     return SLOW5_ERR_OTH;
                 }
@@ -166,19 +175,22 @@ int s5curl_get_batch(
                 // push connection back to stack
                 left--;
                 res = s5curl_conns_push(conns, e);
-                if (res != 0) { 
+                if (res != 0) {
+                    curl_multi_cleanup(curl_multi);
                     SLOW5_ERROR("%s\n", "Pushing to connection stack failed.");
                     return res;
                 }
             } else {
+                curl_multi_cleanup(curl_multi);
                 SLOW5_ERROR("%s", "Error fetching bytes for read.");
                 return SLOW5_ERR_OTH;
             }
 
             // queue transfers
             if (transfers < n_reads) {
-                res = add_transfer(s5curl_conns_pop(conns), s5c, cm, read_ids[transfers], transfers, &left);
+                res = add_transfer(s5curl_conns_pop(conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
                 if (res != 0) {
+                    curl_multi_cleanup(curl_multi);
                     SLOW5_ERROR("%s", "Queuing transfer failed.");
                     return res;
                 }
@@ -188,9 +200,11 @@ int s5curl_get_batch(
         }
 
         if (left) {
-            curl_multi_wait(cm, NULL, 0, 1000, NULL);
+            curl_multi_wait(curl_multi, NULL, 0, 1000, NULL);
         }
     } while(left);
+
+    curl_multi_cleanup(curl_multi);
 
     return EXIT_SUCCESS;
 }
