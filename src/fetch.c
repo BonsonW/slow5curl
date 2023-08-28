@@ -60,16 +60,14 @@ CURLcode byte_fetch_init(
 ) {
     CURLcode res;
 
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) return res;
+
     // construct range field
     char *range;
     res = construct_byte_range(&range, begin, size);
     if (res != CURLE_OK) return res;
 
-    res = curl_easy_setopt(curl, CURLOPT_URL, url);
-    if (res != CURLE_OK) {
-        free(range);
-        return res;
-    }
     res = curl_easy_setopt(curl, CURLOPT_RANGE, range);
     if (res != CURLE_OK) {
         free(range);
@@ -103,7 +101,29 @@ CURLcode fetch_bytes_into_resp(
     res = byte_fetch_init(curl, url, begin, size);
     if (res != CURLE_OK) return res;
 
-    // todo check for error codes
+    return curl_easy_perform(curl);
+}
+
+CURLcode fetch_into_resp(
+    CURL *curl,
+    response_t *resp,
+    const char *url
+) {
+    if (!curl) return CURLE_FAILED_INIT;
+    CURLcode res;
+
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) return res;
+
+    // follow redirects
+    res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    if (res != CURLE_OK) return res;
+
+    // write into response
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
+    if (res != CURLE_OK) return res;
 
     return curl_easy_perform(curl);
 }
@@ -131,31 +151,5 @@ CURLcode fetch_bytes_into_fb(
     res = byte_fetch_init(curl, url, begin, size);
     if (res != CURLE_OK) return res;
 
-    // todo check for error codes
-
     return curl_easy_perform(curl);
-}
-
-CURLcode fetch_file_size(
-    CURL *curl,
-    curl_off_t *file_size,
-    const char *url
-) {
-    if (!curl) return CURLE_FAILED_INIT;
-    CURLcode res;
-
-    // fetch file info
-    res = curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-    if (res != CURLE_OK) return res;
-    res = curl_easy_setopt(curl, CURLOPT_URL, url);
-    if (res != CURLE_OK) return res;
-
-    res = curl_easy_perform(curl);
-    if (res != CURLE_OK) return res;
-
-    // return length
-    res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, file_size);
-    if (res != CURLE_OK) return res;
-
-    return CURLE_OK;
 }
