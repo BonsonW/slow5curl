@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <slow5/slow5.h>
 #include <slow5curl/s5curl.h>
 #include <curl/curl.h>
 
