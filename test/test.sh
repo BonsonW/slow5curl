@@ -1,8 +1,8 @@
 #!/bin/bash
 
-URL="https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5"
+URL="https://github.com/BonsonW/slow5curl/raw/main/test/raw/reads_10.blow5"
 IDX="test/raw/reads_10.blow5.idx"
-OUT="test/reads.blow5.idx"
+OUT="test/reads_10.blow5"
 READ_LIST="test/raw/reads_10.txt"
 
 # terminate script
@@ -26,7 +26,7 @@ ex() {
     fi
 }
 
-./slow5curl get -i ${IDX} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28"  || die "Running the tool failed"
-diff -q test/exp/reads_10.blow5 ${OUT} || die "diff failed"
+./slow5curl get ${URL} --index ${IDX} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed"
+diff -q test/exp/single.blow5 ${OUT} || die "diff failed"
 
 echo "Test passed"

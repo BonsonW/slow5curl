@@ -90,17 +90,20 @@ CURLcode fetch_bytes_into_resp(
     if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
 
+    // follow redirects
+    res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    if (res != CURLE_OK) return res;
+
     // write into response
     res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
-    if (res != CURLE_OK){
-        SLOW5_ERROR("Error in curl_easy_setopt: %s", curl_easy_strerror(res));
-        return res;
-    }
-
+    if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;
 
     res = byte_fetch_init(curl, url, begin, size);
+    if (res != CURLE_OK) return res;
+
+    // todo check for error codes
 
     return curl_easy_perform(curl);
 }
@@ -115,6 +118,10 @@ CURLcode fetch_bytes_into_fb(
     if (!curl) return CURLE_FAILED_INIT;
     CURLcode res;
 
+    // follow redirects
+    res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    if (res != CURLE_OK) return res;
+
     // write into file pointer
     res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
     if (res != CURLE_OK) return res;
@@ -122,6 +129,9 @@ CURLcode fetch_bytes_into_fb(
     if (res != CURLE_OK) return res;
 
     res = byte_fetch_init(curl, url, begin, size);
+    if (res != CURLE_OK) return res;
+
+    // todo check for error codes
 
     return curl_easy_perform(curl);
 }

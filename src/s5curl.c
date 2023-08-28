@@ -207,12 +207,12 @@ slow5_curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
-
+    
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
 
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
-        SLOW5_ERROR("File '%s' has exceeded the max header size.", url);
+        SLOW5_ERROR("File '%s' with header size %u has exceeded the max header size.", url, header_size);
         slow5_errno = SLOW5_ERR_OTH;
         return NULL;
     }
