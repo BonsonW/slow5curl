@@ -65,7 +65,7 @@ void get_batch(core_t *core, db_t *db) {
             if (core->benchmark == false) {
                 size_t record_size;
                 struct slow5_press* compress = slow5_press_init(core->press_method);
-                if(!compress){
+                if (!compress) {
                     ERROR("Could not initialize the slow5 compression method%s","");
                     exit(EXIT_FAILURE);
                 }

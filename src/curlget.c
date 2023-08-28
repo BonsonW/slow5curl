@@ -83,13 +83,15 @@ static int add_transfer(
     // queue transfer
     indexed_resp_t *resp_i = malloc(sizeof *resp_i);
     resp_i->resp = response_init();
+    SLOW5_MALLOC_CHK(resp_i->resp);
     resp_i->index = transfer;
     
     if (
-        byte_fetch_init(curl, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L) ||
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback) ||
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp_i->resp) ||
         curl_easy_setopt(curl, CURLOPT_PRIVATE, resp_i) ||
+        byte_fetch_init(curl, s5c->url, read_index.offset + sizeof(slow5_rec_size_t), read_index.size - sizeof(slow5_rec_size_t)) ||
         curl_multi_add_handle(curl_multi, curl)
     ) {
         SLOW5_ERROR("Initializing transfer for read %s failed.", read_id);
@@ -149,10 +151,16 @@ int s5curl_get_batch(
                 indexed_resp_t *resp_i;
                 CURL *e = msg->easy_handle;
                 
-                if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resp_i) != CURLE_OK) return -1;
+                if (curl_easy_getinfo(e, CURLINFO_PRIVATE, &resp_i) != CURLE_OK) return -1;
                 size_t index = resp_i->index;
 
                 slow5_rec_t *record = NULL;
+
+                long response_code;
+                curl_easy_getinfo(e, CURLINFO_RESPONSE_CODE, &response_code);
+                if (response_code != 206) {
+                    SLOW5_ERROR("Fetching read %s failed with error code: %li\n", read_ids[index], response_code);
+                }
 
                 // decode
                 res = slow5_decode((void *)&resp_i->resp->data, &resp_i->resp->size, &record, s5c->s5p);

@@ -29,8 +29,6 @@ void print_args(int argc, char **argv){
 }
 
 void init_opt(opt_t *opt){
-
-
     // Input arguments
     opt->arg_fname_in = NULL;
     opt->arg_fname_out = NULL;

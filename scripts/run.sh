@@ -8,4 +8,4 @@ READ_LIST="test/raw/reads_100.txt"
 # ./slow5curl get -h
 # ./slow5curl get ${URL} --index ${IDX} -o reads.blow5 "00002194-fea5-433c-ba89-1eb6b60f0f28"
 # ./slow5curl get ${URL} --index ${IDX} -t 32 -K 50 -o reads.blow5 --list ${READ_LIST}
-valgrind ./slow5curl get ${URL} -t 32 -K 50 --index ${IDX} -o reads.blow5 --list ${READ_LIST}
+./slow5curl get ${URL} -t 32 -K 50 --index ${IDX} -o reads.blow5 --list ${READ_LIST}
