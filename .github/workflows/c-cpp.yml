@@ -31,5 +31,7 @@ jobs:
         submodules: recursive
     - name: build
       run: make
-    # - name: test
-    #   run: make test
+    - name: test
+      run: make test
+    - name: test valgrind
+      run: ./test/test.sh mem
