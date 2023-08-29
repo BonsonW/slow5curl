@@ -12,7 +12,7 @@ set(SOURCES
     src/fetch.c
     src/fetch.h
     src/s5curl.c
-    src/get.c
+    src/curlget.c
     src/index.c
     src_tool/main.c
     src_tool/thread.h
