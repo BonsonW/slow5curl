@@ -3,7 +3,7 @@
 RAW="test/data/raw/"
 EXP="test/data/exp/"
 
-URL="https://github.com/BonsonW/slow5curl/raw/main/test/raw/reads_10.blow5"
+URL="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
 IDX="${RAW}reads_10.blow5.idx"
 OUT="test/data/reads.blow5"
 READ_LIST="${RAW}reads_10.txt"
