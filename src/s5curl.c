@@ -18,16 +18,22 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
 conn_stack_t *s5curl_open_conns(
-    size_t n_conns
+    int32_t n_conns
 ) {
-    conn_stack_t *conn_stack = (conn_stack_t *)malloc(sizeof *conn_stack);
+    if (n_conns <= 0) {
+        SLOW5_ERROR("%s", "Connection size must be a positive number.");
+        slow5_errno = SLOW5_ERR_OTH;
+        return NULL;
+    }
+
+    conn_stack_t *conn_stack = calloc(1, sizeof *conn_stack);
     if (!conn_stack) {
         SLOW5_MALLOC_ERROR();
         slow5_errno = SLOW5_ERR_MEM;
         return NULL;
     }
 
-    conn_stack->curls = malloc(n_conns * sizeof *conn_stack->curls);
+    conn_stack->curls = calloc(n_conns, sizeof *conn_stack->curls);
     if (!conn_stack->curls) {
         SLOW5_MALLOC_ERROR();
         free(conn_stack);
@@ -44,6 +50,7 @@ conn_stack_t *s5curl_open_conns(
             slow5_errno = SLOW5_ERR_OTH;
             return NULL;
         }
+        curl_easy_reset(conn_stack->curls[i]);
     }
     conn_stack->top = n_conns-1;
     conn_stack->n_conns = n_conns;
@@ -73,7 +80,7 @@ int s5curl_conns_push(
     conn_stack_t *conns,
     CURL *curl
 ) {
-    if (conns->top == conns->n_conns - 1) return -1;
+    if (conns->top + 1 >= conns->n_conns) return -1;
     conns->curls[++conns->top] = curl;
     return 0;
 }

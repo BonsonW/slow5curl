@@ -167,11 +167,11 @@ int s5curl_get_batch(
                 curl_easy_getinfo(e, CURLINFO_RESPONSE_CODE, &response_code);
                 if (response_code != 206) {
                     SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_ids[index], response_code);
+                } else {
+                    // decode
+                    res = slow5_decode((void *)&resp_i->resp->data, &resp_i->resp->size, &record, s5c->s5p);
+                    if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
                 }
-
-                // decode
-                res = slow5_decode((void *)&resp_i->resp->data, &resp_i->resp->size, &record, s5c->s5p);
-                if (res < 0) SLOW5_ERROR("Error decoding read %s.\n", read_ids[index]);
 
                 records[index] = record;
 

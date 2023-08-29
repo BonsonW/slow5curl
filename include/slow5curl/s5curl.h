@@ -14,11 +14,11 @@ typedef struct slow5_curl {
 
 typedef struct conn_stack {
     CURL **curls;
-    size_t top;
-    size_t n_conns;
+    int32_t top;
+    int32_t n_conns;
 } conn_stack_t;
 
-conn_stack_t *s5curl_open_conns(size_t n_conns);
+conn_stack_t *s5curl_open_conns(int32_t n_conns);
 
 void s5curl_close_conns(conn_stack_t *conns);
 

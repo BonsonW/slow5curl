@@ -388,7 +388,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                     db.read_record = (raw_record_t*) realloc(db.read_record, cap_ids * sizeof *db.read_record);
                 }
                 db.read_id[num_ids] = curr_id;
-                ++ num_ids;
+                ++num_ids;
             }
 
             db.n_batch = num_ids;
