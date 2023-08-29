@@ -18,7 +18,7 @@ The argument *max_conns* defines the maximum amount of connections to be used fr
 
 The argument *n_reads* corresponds with the number of read IDs passed in the method.
 
-If **records* is set to NULL before the call, then `s5curl_get_batch()` will allocate a *slow5_rec_t* for storing the record. Each *slow5_rec_t* in **records* should be freed by the user program using `slow5_rec_free()`.
+**records* should have the appropriate memory allocated before `s5curl_get_batch()` is called. Each *slow5_rec_t* in **records* should be freed by the user program using `slow5_rec_free()`.
 
 The argument *s5c* points to a *slow5_file_t* opened using `s5curl_open()`. `s5curl_get_batch()` requires the SLOW index to be pre-loaded to *s5c* using `s5curl_idx_load()` or `s5curl_idx_load_with()`.
 
