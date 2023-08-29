@@ -173,3 +173,7 @@ int s5curl_idx_load(
         return -1;
     }
 }
+
+int s5curl_idx_load_with(slow5_curl_t *s5c, const char *path) {
+    return slow5_idx_load_with(s5c->s5p, path);
+}

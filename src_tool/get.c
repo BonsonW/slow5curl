@@ -11,7 +11,6 @@
 
 #include <curl/curl.h>
 
-#include <slow5/slow5.h>
 #include <slow5curl/s5curl.h>
 #include "thread.h"
 #include "cmd.h"
@@ -336,7 +335,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
-        int ret_idx = slow5_idx_load_with(slow5curl->s5p, slow5_index);
+        int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
