@@ -102,20 +102,3 @@ Please cite the following in your publications when using *SLOW5* file format:
   publisher={Nature Publishing Group}
 }
 ```
-
-Please cite the following in your publications when using slow5tools:
-
-> Samarakoon, H., Ferguson, J.M., Jenner, S.P. et al. Flexible and efficient handling of nanopore sequencing signal data with slow5tools. Genome Biol 24, 69 (2023). https://doi.org/10.1186/s13059-023-02910-3
-
-```
-@article{samarakoon2023flexible,
-  title={Flexible and efficient handling of nanopore sequencing signal data with slow5tools},
-  author={Samarakoon, Hiruna and Ferguson, James M and Jenner, Sasha P and Amos, Timothy G and Parameswaran, Sri and Gamaarachchi, Hasindu and Deveson, Ira W},
-  journal={Genome Biology},
-  volume={24},
-  number={1},
-  pages={69},
-  year={2023},
-  publisher={Springer}
-}
-```
