@@ -26,21 +26,21 @@ ex() {
     fi
 }
 
-# # test single thread
-# ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed"
-# diff -q test/exp/reads_1.blow5 ${OUT} || die "diff failed"
+# test single thread
+ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed"
+diff -q test/exp/reads_1.blow5 ${OUT} || die "diff failed"
 
-# # test single thread remote idx
-# ex ./slow5curl get ${URL} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed"
-# diff -q test/exp/reads_1.blow5 ${OUT} || die "diff failed"
+# test single thread remote idx
+ex ./slow5curl get ${URL} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed"
+diff -q test/exp/reads_1.blow5 ${OUT} || die "diff failed"
 
-# # test multi thread
-# ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed"
-# diff -q test/exp/reads_10.blow5 ${OUT} || die "diff failed"
+# test multi thread
+ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed"
+diff -q test/exp/reads_10.blow5 ${OUT} || die "diff failed"
 
-# # test multi thread remote idx
-# ex ./slow5curl get ${URL} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed"
-# diff -q test/exp/reads_10.blow5 ${OUT} || die "diff failed"
+# test multi thread remote idx
+ex ./slow5curl get ${URL} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed"
+diff -q test/exp/reads_10.blow5 ${OUT} || die "diff failed"
 
 # test multi thread w/ partitioned batches
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} -t 2 -K 5 || die "Running the tool failed"
