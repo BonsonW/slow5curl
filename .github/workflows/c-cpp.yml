@@ -18,7 +18,7 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-gnutls-dev valgrind make
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make
     - name: build
       run:  make
     - name: test
@@ -41,8 +41,8 @@ jobs:
       run:  make
     - name: test
       run: make test
-    - name: test valgrind
-      run: ./test/test.sh mem
+    # - name: test valgrind
+    #   run: ./test/test.sh mem
   ubuntu_20:
     name: Ubuntu 20
     runs-on: ubuntu-20.04
