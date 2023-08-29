@@ -8,7 +8,6 @@ IDX="${RAW}reads_10.blow5.idx"
 OUT="test/data/reads.blow5"
 READ_LIST="${RAW}reads_10.txt"
 
-# terminate script
 die() {
 	echo "$1" >&2
 	echo
