@@ -47,6 +47,8 @@ cd slow5curl
 make
 ```
 
+### Other building options
+
 ## Usage
 
 * Visit the [man page](https://hasindu2008.github.io/slow5tools/commands.html) for all the commands and options.
