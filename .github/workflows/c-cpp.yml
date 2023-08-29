@@ -18,7 +18,7 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-gnutls-dev valgrind make
     - name: build
       run:  make
     - name: test
