@@ -3,6 +3,7 @@
 
 #include "../slow5lib/src/slow5_idx.h"
 #include "fetch.h"
+#include "conns.h"
 #include <slow5curl/s5curl.h>
 
 extern enum slow5_log_level_opt  slow5_log_level;

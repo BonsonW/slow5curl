@@ -36,10 +36,6 @@ conn_stack_t *s5curl_open_conns(int32_t n_conns);
 
 void s5curl_close_conns(conn_stack_t *conns);
 
-CURL *s5curl_conns_pop(conn_stack_t *conns);
-
-int s5curl_conns_push(conn_stack_t *conns, CURL *curl);
-
 #ifdef __cplusplus
 }
 #endif
