@@ -41,7 +41,7 @@ To convert to and from ONT's new POD5 format, you use [blue_crab](https://github
 To build from GitHub:
 
 ```
-sudo apt-get install zlib1g-dev libcurl4-openssl-dev #install HDF5 and zlib development libraries and autotools
+sudo apt-get install zlib1g-dev libcurl4-openssl-dev
 git clone --recursive https://github.com/BonsonW/slow5curl
 cd slow5curl
 make
