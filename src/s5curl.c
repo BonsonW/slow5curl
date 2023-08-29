@@ -233,7 +233,7 @@ slow5_curl_t *s5curl_open_with(
     }
 
     curl_easy_reset(curl);
-	res = fetch_bytes_into_fb(
+	res = fetch_bytes_into_file(
         curl,
 	    fp,
 		url,

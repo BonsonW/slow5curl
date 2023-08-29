@@ -128,7 +128,7 @@ CURLcode fetch_into_resp(
     return curl_easy_perform(curl);
 }
 
-CURLcode fetch_bytes_into_fb(
+CURLcode fetch_bytes_into_file(
     CURL *curl,
     FILE *fp,
     const char *url,
@@ -142,13 +142,37 @@ CURLcode fetch_bytes_into_fb(
     res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     if (res != CURLE_OK) return res;
 
-    // write into file pointer
+    // write to file
     res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
     if (res != CURLE_OK) return res;
 
     res = byte_fetch_init(curl, url, begin, size);
+    if (res != CURLE_OK) return res;
+
+    return curl_easy_perform(curl);
+}
+
+CURLcode fetch_into_file(
+    CURL *curl,
+    FILE *fp,
+    const char *url
+) {
+    if (!curl) return CURLE_FAILED_INIT;
+    CURLcode res;
+
+    res = curl_easy_setopt(curl, CURLOPT_URL, url);
+    if (res != CURLE_OK) return res;
+
+    // follow redirects
+    res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    if (res != CURLE_OK) return res;
+
+    // write to file
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+    if (res != CURLE_OK) return res;
+    res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
     if (res != CURLE_OK) return res;
 
     return curl_easy_perform(curl);

@@ -21,11 +21,13 @@ void response_cleanup(response_t *resp);
 
 CURLcode byte_fetch_init(CURL *curl, const char *url, uint64_t begin, uint64_t size);
 
-CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
-
 CURLcode fetch_into_resp(CURL *curl, response_t *resp, const char *url);
 
-CURLcode fetch_bytes_into_fb(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
+CURLcode fetch_into_file(CURL *curl, FILE *fp, const char *url);
+
+CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+
+CURLcode fetch_bytes_into_file(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
 
 CURLcode fetch_file_size(CURL *curl, curl_off_t *file_size, const char *url);
 

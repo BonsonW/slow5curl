@@ -119,29 +119,25 @@ slow5_idx_t *slow5_idx_init_from_url(
     strcpy(index->pathname, s5c->url);
     strcat(index->pathname, ".idx");
 
-    // response containing index
-    response_t *resp = response_init();
+    FILE *index_fp = tmpfile();
+    if (index_fp == NULL) {
+        SLOW5_ERROR("Could not create temporary index file for '%s'.", index->pathname);
+        slow5_idx_free(index);
+        index->fp = NULL;
+        return NULL;
+    }
 
-    // get first part of index file
     curl_easy_reset(curl);
-	int ret = fetch_into_resp(
+	int ret = fetch_into_file(
         curl,
-	    resp,
+	    index_fp,
 		index->pathname
 	);
 	if (ret != 0) {
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
 		return NULL;
 	}
-
-    FILE *index_fp = fmemopen(resp->data, resp->size, "r");
-    if (index_fp == NULL) {
-        SLOW5_ERROR("Could not create buffer for '%s'.", index->pathname);
-        slow5_idx_free(index);
-        index->fp = NULL;
-        return NULL;
-    }
-	fseek(index_fp, 0, SEEK_SET);
+    fseek(index_fp, 0, SEEK_SET);
 
     index->fp = index_fp;
 
@@ -161,8 +157,6 @@ slow5_idx_t *slow5_idx_init_from_url(
         slow5_idx_free(index);
         return NULL;
     }
-
-    response_cleanup(resp);
 
     return index;
 }
