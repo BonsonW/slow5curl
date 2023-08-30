@@ -1,4 +1,4 @@
-# slow5tools
+# slow5curl
 
 Slow5curl is a library and toolkit for fetching reads from remote SLOW5 files.
 
