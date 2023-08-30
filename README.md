@@ -1,6 +1,6 @@
 # slow5curl
 
-Slow5curl is a library and toolkit for fetching reads from remote SLOW5 files.
+Slow5curl is a library and toolkit for fetching reads from remote SLOW5 files. This project is still under heavy development, only the C API is available.
 
 **About SLOW5 format:**<br/>
 SLOW5 is a new file format for storing signal data from Oxford Nanopore Technologies (ONT) devices. SLOW5 was developed to overcome inherent limitations in the standard FAST5 signal data format that prevent efficient, scalable analysis and cause many headaches for developers. SLOW5 can be encoded in human-readable ASCII format, or a more compact and efficient binary format (BLOW5) - this is analogous to the seminal SAM/BAM format for storing DNA sequence alignments. The BLOW5 binary format supports  *zlib* (DEFLATE) compression, or other compression methods (see [notes](https://github.com/hasindu2008/slow5tools#notes)), thereby minimising the data storage footprint while still permitting efficient parallel access. Detailed benchmarking experiments have shown that SLOW5 format is an order of magnitude faster and significantly smaller than FAST5.
