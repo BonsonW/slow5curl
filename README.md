@@ -23,10 +23,10 @@ To convert to and from ONT's new POD5 format, you use [blue_crab](https://github
     - [Building from GitHub](#building-from-github)
     - [Other building options](#other-building-options)
 - [Tool Usage](#tool-usage)
-    - [Examples](#examples)
+    - [Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
 - [Library Usage](#library-usage)
-    - [Examples](#examples)
+    - [Examples](#lib-examples)
 - [Notes](#notes)
 - [Acknowledgement](#acknowledgement)
 - [Citation](#citation)
@@ -80,6 +80,10 @@ Simply include `<slow5curl/s5curl.h>` in your C program and call the API functio
 For the documentation of the C API visit [here](https://hasindu2008.github.io/slow5lib/slow5_api/slow5.html) and for the Python API visit [here](https://hasindu2008.github.io/slow5lib/pyslow5_api/pyslow5.html).
 
 ### Examples
+
+Examples are provided under [examples](https://github.com/hasindu2008/slow5lib/tree/master/examples).
+- *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
+- *get_single_read.c* demonstrates how to fetch a singlefrom a remote blow5 file.
 
 ## Notes
 
