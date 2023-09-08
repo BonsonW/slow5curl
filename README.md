@@ -56,7 +56,7 @@ make
 * A guide on using BLOW5 for archiving and steps to verify if data integrity is preserved is [here](https://hasindu2008.github.io/slow5tools/archive.html).
 * A script for performing real-time FAST5 to BLOW5 conversion during sequencing is provided [here](https://github.com/hasindu2008/slow5tools/tree/master/scripts/realtime-f2s).
 
-### Examples
+### Tool Examples
 
 ```sh
 # fetch slow5 reads one at a time
@@ -79,7 +79,7 @@ Simply include `<slow5curl/s5curl.h>` in your C program and call the API functio
 
 For the documentation of the C API visit [here](https://hasindu2008.github.io/slow5lib/slow5_api/slow5.html) and for the Python API visit [here](https://hasindu2008.github.io/slow5lib/pyslow5_api/pyslow5.html).
 
-### Examples
+### Library Examples
 
 Examples are provided under [examples](https://github.com/BonsonW/slow5curl/tree/master/examples).
 - *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
