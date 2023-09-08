@@ -22,10 +22,11 @@ To convert to and from ONT's new POD5 format, you use [blue_crab](https://github
     - [Building a release](#building-a-release)
     - [Building from GitHub](#building-from-github)
     - [Other building options](#other-building-options)
-- [Usage](#usage)
+- [Tool Usage](#tool-usage)
     - [Examples](#examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
-- [Upcoming features and optimisations](#upcoming-features-and-optimisations)
+- [Library Usage](#library-usage)
+    - [Examples](#examples)
 - [Notes](#notes)
 - [Acknowledgement](#acknowledgement)
 - [Citation](#citation)
@@ -49,7 +50,7 @@ make
 
 ### Other building options
 
-## Usage
+## Tool Usage
 
 * Visit the [man page](https://hasindu2008.github.io/slow5tools/commands.html) for all the commands and options.
 * A guide on using BLOW5 for archiving and steps to verify if data integrity is preserved is [here](https://hasindu2008.github.io/slow5tools/archive.html).
@@ -72,15 +73,13 @@ Visit [here](https://hasindu2008.github.io/slow5tools/workflows.html) for exampl
 Visit the [frequently asked questions](https://hasindu2008.github.io/slow5tools/faq.html) or open an [issue](https://github.com/hasindu2008/slow5tools/issues).
 
 
-## Upcoming features and optimisations
+## Library Usage
 
-Following are some features and optimisations in our todo list which will be implemented based on the need. If anyone is interested please request [here](https://github.com/hasindu2008/slow5tools/issues). Contributions are welcome.
+Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions.
 
-- pipelining input, processing and output in *merge, get, etc.* (improved runtime upto 2X, please find the implementation [here](https://github.com/hasindu2008/slow5tools/tree/interleave_merge))
-- reading from stdin for *view*
-- binary releases for ARM64 processors on Linux and for MacOS
-- any other useful features
+For the documentation of the C API visit [here](https://hasindu2008.github.io/slow5lib/slow5_api/slow5.html) and for the Python API visit [here](https://hasindu2008.github.io/slow5lib/pyslow5_api/pyslow5.html).
 
+### Examples
 
 ## Notes
 
