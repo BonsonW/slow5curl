@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <slow5curl/s5curl.h>
 #include <curl/curl.h>
+#include <slow5curl/s5curl.h>
 
 #define URL "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5"
 
@@ -32,8 +32,8 @@ int main(){
 
     // load the SLOW5 index
     ret = s5curl_idx_load(s5c);
-    if (ret_idx < 0) {
-        ERROR("Error fetching index for %s\n", URL);
+    if (ret < 0) {
+        fprintf(stderr, "Error fetching index for %s\n", URL);
         exit(EXIT_FAILURE);
     }
 
@@ -57,10 +57,10 @@ int main(){
     slow5_rec_free(rec);
 
     // free the SLOW5 index
-    s5curl_idx_unload(slow5curl);
+    s5curl_idx_unload(s5c);
 
     // close the SLOW5 file
-    s5curl_close(slow5curl);
+    s5curl_close(s5c);
 
     // close connection
     curl_easy_cleanup(curl);

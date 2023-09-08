@@ -2,6 +2,7 @@
 #define S5CURL_H_
 
 #include <slow5/slow5.h>
+#include <curl/curl.h>
 
 #ifdef __cplusplus
 extern "C" {
