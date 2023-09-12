@@ -51,9 +51,9 @@ High-level API consists of following functions:
   &nbsp;&nbsp;&nbsp;&nbsp;frees up a connection stack
 
 ### Fetching
-* [slow5_get](slow5_get.md)<br/>
+* [s5curl_get](s5curl_get.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;fetches a record corresponding to a given read ID
-* [slow5_get_batch](slow5_get.md)<br/>
+* [s5curl_get_batch](s5curl_get_batch.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;fetches records coressponding to a list of read IDs
 
 ## CITATION
