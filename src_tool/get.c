@@ -47,7 +47,7 @@ void get_batch(core_t *core, db_t *db) {
     double end;
 
     start = slow5_realtime();
-    s5curl_get_batch(core->s5c, db->conns, db->conns->n_conns, db->n_batch, db->read_id, records);
+    s5curl_get_batch(core->s5c, db->s5curl_multi, db->s5curl_multi->conns->n_conns, db->n_batch, db->read_id, records);
     end = slow5_realtime();
     fetch_time = end - start;
     VERBOSE("fetch time = %.3f sec", fetch_time);
@@ -361,8 +361,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         MALLOC_CHK(db.read_id);
         MALLOC_CHK(db.read_record);
 
-        db.conns = s5curl_open_conns(core.num_thread);
-        MALLOC_CHK(db.conns);
+        db.s5curl_multi = s5curl_multi_open(core.num_thread);
+        MALLOC_CHK(db.s5curl_multi);
 
         bool end_of_file = false;
         while (!end_of_file) {
@@ -421,7 +421,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         free(db.read_id);
         free(db.read_record);
 
-        s5curl_close_conns(db.conns);
+        s5curl_multi_close(db.s5curl_multi);
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){

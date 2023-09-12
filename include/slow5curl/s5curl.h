@@ -19,6 +19,10 @@ typedef struct conn_stack {
     int32_t n_conns;
 } conn_stack_t;
 
+typedef struct s5curl_multi {
+    conn_stack_t *conns;
+} s5curl_multi_t;
+
 slow5_curl_t *s5curl_open(const char *url);
 
 void s5curl_close(slow5_curl_t *s5c);
@@ -31,11 +35,11 @@ void s5curl_idx_unload(slow5_curl_t *s5c);
 
 int s5curl_get(slow5_curl_t *s5c, CURL *curl, const char *read_id, slow5_rec_t **record);
 
-int s5curl_get_batch(slow5_curl_t *s5c, conn_stack_t *conns, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records);
+int s5curl_get_batch(slow5_curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records);
 
-conn_stack_t *s5curl_open_conns(int32_t n_conns);
+s5curl_multi_t *s5curl_multi_open(int32_t n_conns);
 
-void s5curl_close_conns(conn_stack_t *conns);
+void s5curl_multi_close(s5curl_multi_t *s5curl_multi);
 
 #ifdef __cplusplus
 }

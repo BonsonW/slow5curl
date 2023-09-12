@@ -113,7 +113,7 @@ static int add_transfer(
 
 int s5curl_get_batch(
     slow5_curl_t *s5c,
-    conn_stack_t *conns,
+    s5curl_multi_t *s5curl_multi,
     long max_conns,
     uint64_t n_reads,
     char **read_ids,
@@ -140,8 +140,8 @@ int s5curl_get_batch(
     }
     
     // queue initial transfers
-    for (transfers = 0; transfers < conns->n_conns && transfers < n_reads; transfers++) {
-        res = add_transfer(s5curl_conns_pop(conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
+    for (transfers = 0; transfers < s5curl_multi->conns->n_conns && transfers < n_reads; transfers++) {
+        res = add_transfer(s5curl_conns_pop(s5curl_multi->conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
         if (res != 0) {
             curl_multi_cleanup(curl_multi);
             SLOW5_ERROR("%s", "Queuing transfer failed.");
@@ -190,7 +190,7 @@ int s5curl_get_batch(
                 
                 // push connection back to stack
                 left--;
-                res = s5curl_conns_push(conns, e);
+                res = s5curl_conns_push(s5curl_multi->conns, e);
                 if (res != 0) {
                     curl_multi_cleanup(curl_multi);
                     SLOW5_ERROR("%s\n", "Pushing to connection stack failed.");
@@ -204,7 +204,7 @@ int s5curl_get_batch(
 
             // queue transfers
             if (transfers < n_reads) {
-                res = add_transfer(s5curl_conns_pop(conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
+                res = add_transfer(s5curl_conns_pop(s5curl_multi->conns), s5c, curl_multi, read_ids[transfers], transfers, &left);
                 if (res != 0) {
                     curl_multi_cleanup(curl_multi);
                     SLOW5_ERROR("%s", "Queuing transfer failed.");

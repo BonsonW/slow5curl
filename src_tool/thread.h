@@ -42,7 +42,7 @@ typedef struct {
     raw_record_t *read_record;      // the list of read records (output) //change to whatever the data type
     // for get
     char **read_id;                 // the list of read ids (input)
-    conn_stack_t *conns;            // stack of reusable connections (curl easy handles)
+    s5curl_multi_t *s5curl_multi;   // s5curl multi handle
     // for view
     char **mem_records;             // list of slow5_get_next_mem() records
     size_t *mem_bytes;              // lengths of slow5_get_next_mem() records

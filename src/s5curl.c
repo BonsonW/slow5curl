@@ -85,6 +85,33 @@ int s5curl_conns_push(
     return 0;
 }
 
+s5curl_multi_t *s5curl_multi_open(
+    int32_t n_conns
+) {
+    s5curl_multi_t *s5curl_multi = calloc(1, sizeof *s5curl_multi);
+    if (!s5curl_multi) {
+        SLOW5_MALLOC_ERROR();
+        slow5_errno = SLOW5_ERR_MEM;
+        return NULL;
+    }
+
+    s5curl_multi->conns = s5curl_open_conns(n_conns);
+    if (!s5curl_multi->conns) {
+        free(s5curl_multi);
+        SLOW5_MALLOC_ERROR();
+        return NULL;
+    }
+
+    return s5curl_multi;
+}
+
+void s5curl_multi_close(
+    s5curl_multi_t *s5curl_multi
+) {
+    s5curl_close_conns(s5curl_multi->conns);
+    free(s5curl_multi);
+}
+
 void s5curl_close(
     slow5_curl_t *s5c
 ) {
