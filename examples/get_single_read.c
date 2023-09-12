@@ -5,7 +5,7 @@
 #include <curl/curl.h>
 #include <slow5curl/s5curl.h>
 
-#define URL "https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA12878/raw/PGXXHX230142_reads.blow5"
+#define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
 
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
