@@ -45,10 +45,10 @@ High-level API consists of following functions:
   &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote SLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;unloads a SLOW5 index from the memory
-* [s5curl_open_conns](s5curl_open_conns.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a connection stack
-* [s5curl_close_conns](s5curl_close_conns.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;frees up a connection stack
+* [s5curl_open_conns](s5curl_multi_open.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;opens a resource for multithread operations
+* [s5curl_close_conns](s5curl_multi_close.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;frees up the resource for multithread operations
 
 ### Fetching
 * [s5curl_get](s5curl_get.md)<br/>

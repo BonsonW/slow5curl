@@ -6,7 +6,7 @@ s5curl_get_batch - fetches a list of record from a remote SLOW5 file correspondi
 
 ## SYNOPSYS
 
-`int s5curl_get_batch(slow5_curl_t *s5c, conn_stack_t *conns, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records)`
+`int s5curl_get_batch(slow5_curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records)`
 
 ## DESCRIPTION
 
@@ -14,7 +14,7 @@ s5curl_get_batch - fetches a list of record from a remote SLOW5 file correspondi
 
 The argument *read_ids* points to an array of read identifier strings.
 
-The argument *max_conns* defines the maximum amount of connections to be used from the *conn_stack_t*.
+The argument *max_conns* defines the maximum amount of connections to be used from the *s5curl_multi_t*.
 
 The argument *n_reads* corresponds with the number of read IDs passed in the method.
 
@@ -22,9 +22,9 @@ The argument *n_reads* corresponds with the number of read IDs passed in the met
 
 The argument *s5c* points to a *slow5_file_t* opened using `s5curl_open()`. `s5curl_get_batch()` requires the SLOW index to be pre-loaded to *s5c* using `s5curl_idx_load()` or `s5curl_idx_load_with()`.
 
-The argument *conns* points to an initialized *conn_stack_t*. This is done with `s5curl_open_conns`.
+The argument *s5curl_multi* points to an initialized *s5curl_multi_t*. This is done with `s5curl_multi_open`.
 
-`s5curl_get_batch()` can be called by multiple threads in parallel on the same *slow5_file_t* pointer, however it must have exclusive access to the *conn_stack_t* pointer.
+`s5curl_get_batch()` can be called by multiple threads in parallel on the same *slow5_file_t* pointer, however it must have exclusive access to the *s5curl_multi_t* pointer.
 
 ## RETURN VALUE
 
@@ -65,8 +65,8 @@ int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    conn_stack_t *conns = s5curl_open_conns(MAX_CONNECTS);
-    if (!conns) {
+    s5curl_multi_t *multi = s5curl_multi_open(MAX_CONNECTS);
+    if (!multi) {
         fprintf(stderr, "Error opening connections.\n");
         return EXIT_FAILURE;
     }
@@ -83,7 +83,7 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    ret = s5curl_get_batch(*s5c, conns, MAX_CONNECTS, N_READS, read_ids, records);
+    ret = s5curl_get_batch(*s5c, multi, MAX_CONNECTS, N_READS, read_ids, records);
 
     //...
 
@@ -91,11 +91,11 @@ int main () {
 
     s5curl_close(s5c);
 
-    s5curl_close_conns(conns);
+    s5curl_multi_close(multi);
 
     curl_global_cleanup();
 }
 ```
 
 ## SEE ALSO
-[s5curl_open_conns()](s5curl_open_conns.md)
+[s5curl_multi_open()](s5curl_multi_open.md)

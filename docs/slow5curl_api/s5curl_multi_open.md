@@ -1,18 +1,18 @@
-# s5curl_open_conns
+# s5curl_multi_open
 
 ## NAME
-s5curl_open_conns - initializes a stack of *CURL* handles
+s5curl_multi_open - initializes a resource for multithreaded operations
 
 ## SYNOPSYS
-`conn_stack_t s5curl_open_conns(int32_t n_conns)`
+`s5curl_multi_t s5curl_multi_open(int32_t n_conns)`
 
 ## DESCRIPTION
-`s5curl_open_conns()` initializes a stack of *CURL* handles to be used by multithreaded read fetches. This connection stack is not thread safe but can be reused throughout the program by multiple calls.
+`s5curl_multi_open()` initializes a resource to be used by multithreaded read fetches. This resource is not thread safe but can be reused throughout the program by multiple calls.
 
-This *conn_stack_t* should be freed by the user program using `s5curl_close_conns()`.
+This *s5curl_multi_t* should be freed by the user program using `s5curl_multi_close()`.
 
 ## RETURN VALUE
-Upon successful completion, `s5curl_open_conns()` returns a *conn_stack_t* pointer. Otherwise, NULL is returned and `slow5_errno` is set to indicate the error.
+Upon successful completion, `s5curl_multi_open()` returns a *s5curl_multi_t* pointer. Otherwise, NULL is returned and `slow5_errno` is set to indicate the error.
 
 ## NOTES
 `slow5_errno` will be set in future to indicate the type of error that occurred.
@@ -31,8 +31,8 @@ int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    conn_stack_t *conns = s5curl_open_conns(MAX_CONNECTS);
-    if (!conns) {
+    s5curl_multi_t *multi = s5curl_multi_open(MAX_CONNECTS);
+    if (!multi) {
         fprintf(stderr, "Error opening connections.\n");
         return EXIT_FAILURE;
     }
@@ -49,7 +49,7 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    ret = s5curl_get_batch(*s5c, conns, MAX_CONNECTS, N_READS, read_ids, records);
+    ret = s5curl_get_batch(*s5c, multi, MAX_CONNECTS, N_READS, read_ids, records);
 
     //...
 
@@ -57,7 +57,7 @@ int main () {
 
     s5curl_close(s5c);
 
-    s5curl_close_conns(conns);
+    s5curl_multi_close(multi);
 
     curl_global_cleanup();
 }
@@ -65,4 +65,4 @@ int main () {
 
 ## SEE ALSO
 
-[s5curl_get_batch()](s5curl_get_batch.md), [s5curl_close_conns()](s5curl_close_conns.md)
+[s5curl_get_batch()](s5curl_get_batch.md), [s5curl_multi_close()](s5curl_multi_close.md)

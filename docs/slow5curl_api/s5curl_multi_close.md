@@ -1,13 +1,13 @@
-# s5curl_close_conns
+# s5curl_multi_close
 
 ## NAME
-s5curl_close_conns - unloads a stack of *CURL* handles from memory
+s5curl_multi_close - unloads a the *s5curl_multi* resource from memory
 
 ## SYNOPSYS
-`void s5curl_close_conns(conn_stack_t *conns)`
+`void s5curl_multi_close(s5curl_multi_t *conns)`
 
 ## DESCRIPTION
-`s5curl_close_conns()` unloads a stack of *CURL* handles from memory pointed by *conns*, which must have been previously loaded using `s5curl_open_conns()`. Otherwise, or if *s5curl_close_conns(conns)* has already been called before, undefined behaviour occurs.
+`s5curl_multi_close()` unloads a the *s5curl_multi* resource from memory, which must have been previously loaded using `s5curl_multi_open()`. Otherwise, or if *s5curl_multi_close(conns)* has already been called before, undefined behaviour occurs.
 
 ## RETURN VALUE
 
@@ -29,8 +29,8 @@ int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    conn_stack_t *conns = s5curl_open_conns(MAX_CONNECTS);
-    if (!conns) {
+    s5curl_multi_t *multi = s5curl_multi_open(MAX_CONNECTS);
+    if (!multi) {
         fprintf(stderr, "Error opening connections.\n");
         return EXIT_FAILURE;
     }
@@ -47,15 +47,15 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    ret = s5curl_get_batch(*s5c, conns, MAX_CONNECTS, N_READS, read_ids, records);
+    ret = s5curl_get_batch(*s5c, multi, MAX_CONNECTS, N_READS, read_ids, records);
 
     //...
 
-    s5curl_close_conns(s5c);
+    s5curl_multi_close(s5c);
 
     s5curl_close(s5c);
 
-    s5curl_close_conns(conns);
+    s5curl_multi_close(multi);
 
     curl_global_cleanup();
 }
@@ -63,4 +63,4 @@ int main () {
 
 ## SEE ALSO
 
-[s5curl_get_batch()](s5curl_get_batch.md), [s5curl_open_conns()](s5curl_open_conns.md)
+[s5curl_get_batch()](s5curl_get_batch.md), [s5curl_multi_open()](s5curl_multi_open.md)
