@@ -6,6 +6,6 @@
 
 [Bash one-liners](oneliners.md)
 
-[SLOW5 tools](https://hasindu2008.github.io/slow5tools)
+[SLOW5curl API](docs/slow5curl.md)
 
 [SLOW5 specification](https://hasindu2008.github.io/slow5specs)
