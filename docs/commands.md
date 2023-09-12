@@ -43,3 +43,6 @@ slow5curl get [OPTIONS] file1.blow5 --list readids.txt
     Prints the help menu.
 *  `--cite`:<br/>
     Prints the citation information.
+
+## LIBRARY
+
