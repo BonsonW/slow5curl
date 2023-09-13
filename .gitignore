@@ -44,5 +44,6 @@ Thumbs.db
 /tool
 reads.blow5
 *.a
+*.out
 /slow5curl
 
