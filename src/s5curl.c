@@ -127,7 +127,7 @@ void s5curl_idx_unload(
     s5c->s5p->index = NULL;
 }
 
-struct slow5_file *s5curl_init(
+static struct slow5_file *s5curl_init(
     FILE *fp,
     const char *pathname,
     enum slow5_fmt format

@@ -63,10 +63,10 @@ int s5curl_get(
     return EXIT_SUCCESS;
 }
 
-typedef struct indexed_resp {
+typedef struct s5curl_indexed_resp {
     s5curl_resp_t *resp;
     uint32_t index;
-} indexed_resp_t;
+} s5curl_indexed_resp_t;
 
 static int add_transfer(
     CURL *curl,
@@ -89,7 +89,7 @@ static int add_transfer(
 	}
 
     // queue transfer
-    indexed_resp_t *resp_i = malloc(sizeof *resp_i);
+    s5curl_indexed_resp_t *resp_i = malloc(sizeof *resp_i);
     resp_i->resp = s5curl_resp_init();
     SLOW5_MALLOC_CHK(resp_i->resp);
     resp_i->index = transfer;
@@ -156,7 +156,7 @@ int s5curl_get_batch(
         while((msg = curl_multi_info_read(curl_multi, &msgs_left))) {
             if (msg->msg == CURLMSG_DONE) {
                 // get s5curl_resp
-                indexed_resp_t *resp_i;
+                s5curl_indexed_resp_t *resp_i;
                 CURL *e = msg->easy_handle;
                 
                 if (curl_easy_getinfo(e, CURLINFO_PRIVATE, &resp_i) != CURLE_OK) return -1;
