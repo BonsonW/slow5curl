@@ -128,7 +128,7 @@ slow5_idx_t *slow5_idx_init_from_url(
     }
 
     curl_easy_reset(curl);
-	int ret = fetch_into_file(
+	int ret = s5curl_fetch_into_file(
         curl,
 	    index_fp,
 		index->pathname

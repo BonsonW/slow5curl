@@ -8,28 +8,26 @@
 extern "C" {
 #endif
 
-typedef struct response {
+typedef struct s5curl_resp {
     char *data;
     size_t size;
-} response_t;
+} s5curl_resp_t;
 
-size_t resp_callback(void *data, size_t size, size_t nmemb, void *clientp);
+size_t s5curl_resp_callback(void *data, size_t size, size_t nmemb, void *clientp);
 
-response_t *response_init();
+s5curl_resp_t *s5curl_resp_init();
 
-void response_cleanup(response_t *resp);
+void s5curl_resp_cleanup(s5curl_resp_t *resp);
 
-CURLcode byte_fetch_init(CURL *curl, const char *url, uint64_t begin, uint64_t size);
+CURLcode s5curl_byte_fetch_init(CURL *curl, const char *url, uint64_t begin, uint64_t size);
 
-CURLcode fetch_into_resp(CURL *curl, response_t *resp, const char *url);
+CURLcode s5curl_fetch_into_resp(CURL *curl, s5curl_resp_t *resp, const char *url);
 
-CURLcode fetch_into_file(CURL *curl, FILE *fp, const char *url);
+CURLcode s5curl_fetch_into_file(CURL *curl, FILE *fp, const char *url);
 
-CURLcode fetch_bytes_into_resp(CURL *curl, response_t *resp, const char *url, uint64_t begin, uint64_t size);
+CURLcode s5curl_fetch_bytes_into_resp(CURL *curl, s5curl_resp_t *resp, const char *url, uint64_t begin, uint64_t size);
 
-CURLcode fetch_bytes_into_file(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
-
-CURLcode fetch_file_size(CURL *curl, curl_off_t *file_size, const char *url);
+CURLcode s5curl_fetch_bytes_into_file(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
 
 #ifdef __cplusplus
 }

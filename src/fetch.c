@@ -7,25 +7,25 @@
 
 extern enum slow5_log_level_opt  slow5_log_level;
 
-response_t *response_init() {
-    response_t *resp = calloc(1, sizeof *resp);
+s5curl_resp_t *s5curl_resp_init() {
+    s5curl_resp_t *resp = calloc(1, sizeof *resp);
     return resp;
 }
 
-void response_cleanup(response_t *resp) {
+void s5curl_resp_cleanup(s5curl_resp_t *resp) {
     free(resp->data);
     free(resp);
 }
 
 // adapted from https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
-size_t resp_callback(
+size_t s5curl_resp_callback(
     void *data,
     size_t size,
     size_t nmemb,
     void *clientp
 ) {
     size_t realsize = size * nmemb;
-    struct response *mem = (struct response *)clientp;
+    struct s5curl_resp *mem = (struct s5curl_resp *)clientp;
 
     char *ptr = realloc(mem->data, mem->size + realsize + 1);
     if (ptr == NULL) {
@@ -52,7 +52,7 @@ static CURLcode construct_byte_range(
     return CURLE_OK;
 }
 
-CURLcode byte_fetch_init(
+CURLcode s5curl_byte_fetch_init(
     CURL *curl,
     const char *url,
     uint64_t begin,
@@ -78,9 +78,9 @@ CURLcode byte_fetch_init(
     return CURLE_OK;
 }
 
-CURLcode fetch_bytes_into_resp(
+CURLcode s5curl_fetch_bytes_into_resp(
     CURL *curl,
-    response_t *resp,
+    s5curl_resp_t *resp,
     const char *url,
     uint64_t begin,
     uint64_t size
@@ -92,21 +92,21 @@ CURLcode fetch_bytes_into_resp(
     res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     if (res != CURLE_OK) return res;
 
-    // write into response
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
+    // write into s5curl_resp
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, s5curl_resp_callback);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;
 
-    res = byte_fetch_init(curl, url, begin, size);
+    res = s5curl_byte_fetch_init(curl, url, begin, size);
     if (res != CURLE_OK) return res;
 
     return curl_easy_perform(curl);
 }
 
-CURLcode fetch_into_resp(
+CURLcode s5curl_fetch_into_resp(
     CURL *curl,
-    response_t *resp,
+    s5curl_resp_t *resp,
     const char *url
 ) {
     if (!curl) return CURLE_FAILED_INIT;
@@ -119,8 +119,8 @@ CURLcode fetch_into_resp(
     res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     if (res != CURLE_OK) return res;
 
-    // write into response
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, resp_callback);
+    // write into s5curl_resp
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, s5curl_resp_callback);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;
@@ -128,7 +128,7 @@ CURLcode fetch_into_resp(
     return curl_easy_perform(curl);
 }
 
-CURLcode fetch_bytes_into_file(
+CURLcode s5curl_fetch_bytes_into_file(
     CURL *curl,
     FILE *fp,
     const char *url,
@@ -148,13 +148,13 @@ CURLcode fetch_bytes_into_file(
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)fp);
     if (res != CURLE_OK) return res;
 
-    res = byte_fetch_init(curl, url, begin, size);
+    res = s5curl_byte_fetch_init(curl, url, begin, size);
     if (res != CURLE_OK) return res;
 
     return curl_easy_perform(curl);
 }
 
-CURLcode fetch_into_file(
+CURLcode s5curl_fetch_into_file(
     CURL *curl,
     FILE *fp,
     const char *url

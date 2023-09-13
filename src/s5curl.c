@@ -17,7 +17,7 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
-conn_stack_t *s5curl_open_conns(
+static conn_stack_t *s5curl_open_conns(
     int32_t n_conns
 ) {
     if (n_conns <= 0) {
@@ -58,7 +58,7 @@ conn_stack_t *s5curl_open_conns(
     return conn_stack;
 }
 
-void s5curl_close_conns(
+static void s5curl_close_conns(
     conn_stack_t *conns
 ) {
     for (size_t i = 0; i < conns->n_conns; ++i) {
@@ -226,10 +226,10 @@ slow5_curl_t *s5curl_open_with(
     }
 
     // get header meta data
-    response_t *hdr_meta = response_init();
+    s5curl_resp_t *hdr_meta = s5curl_resp_init();
 
     curl_easy_reset(curl);
-	int res = fetch_bytes_into_resp(
+	int res = s5curl_fetch_bytes_into_resp(
         curl,
 	    hdr_meta,
 		url,
@@ -260,7 +260,7 @@ slow5_curl_t *s5curl_open_with(
     }
 
     curl_easy_reset(curl);
-	res = fetch_bytes_into_file(
+	res = s5curl_fetch_bytes_into_file(
         curl,
 	    fp,
 		url,
@@ -290,7 +290,7 @@ slow5_curl_t *s5curl_open_with(
     s5c->s5p = s5p;
 
     // cleanup
-    response_cleanup(hdr_meta);
+    s5curl_resp_cleanup(hdr_meta);
 
     return s5c;
 }
