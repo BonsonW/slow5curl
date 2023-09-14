@@ -39,7 +39,7 @@ except ImportError:
 sources=['python/pys5curl.pyx',
             'src/s5curl.c', 'src/curlget.c', 'src/fetch.c', 'src/index.c',]
 depends=['python/pys5curl.pxd', 'python/pys5curl.h',
-            'src/fetch.h', 'include/slow5curl/s5curl.h', 'src/fetch.h', 'src/conns.h',
+            'src/fetch.h', 'include/slow5curl/s5curl.h', 'src/fetch.h',
             'slow5lib/src/slow5_idx.h', 'slow5lib/src/slow5_extra.h', 
             'slow5lib/include/slow5/slow5.h']
 extra_compile_args = ['-g', '-Wall', '-O2', '-std=c99', '-DSLOW5_ENABLE_MT=1' ]
