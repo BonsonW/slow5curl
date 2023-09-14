@@ -23,8 +23,6 @@ jobs:
       run:  make
     - name: test
       run: make test
-    # - name: test valgrind
-    #   run: ./test/test.sh mem
   ubuntu_18:
     name: Ubuntu 18
     runs-on: ubuntu-22.04
@@ -41,8 +39,6 @@ jobs:
       run:  make
     - name: test
       run: make test
-    # - name: test valgrind
-    #   run: ./test/test.sh mem
   ubuntu_20:
     name: Ubuntu 20
     runs-on: ubuntu-20.04
@@ -56,8 +52,6 @@ jobs:
       run:  make
     - name: test
       run: make test
-    - name: test valgrind
-      run: ./test/test.sh mem
   ubuntu_22:
     name: Ubuntu 22
     runs-on: ubuntu-22.04
@@ -71,8 +65,10 @@ jobs:
       run:  make
     - name: test
       run: make test
-    - name: test valgrind
-      run: ./test/test.sh mem
+    - name: mem
+      run: make mem
+    - name: examples
+      run: make examples
   os_x:
     name: OSX
     runs-on: macos-latest
@@ -86,4 +82,5 @@ jobs:
       run: make
     - name: test
       run: make test
-
+    - name: examples
+      run: make examples
