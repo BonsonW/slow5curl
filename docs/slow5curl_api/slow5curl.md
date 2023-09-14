@@ -27,7 +27,7 @@ typedef struct {
 } slow5_curl_t;
 ```
 
-The *conn_stack_t* structure is a stack of connections intended to be used by multi-threaded fetches:
+The *s5curl_multi* is a resource intended to be used by multi-threaded fetches.
 
 ### High-level API
 

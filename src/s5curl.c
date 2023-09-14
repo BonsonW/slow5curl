@@ -17,7 +17,7 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
-static conn_stack_t *s5curl_open_conns(
+static s5curl_conn_stack_t *s5curl_open_conns(
     int32_t n_conns
 ) {
     if (n_conns <= 0) {
@@ -26,40 +26,40 @@ static conn_stack_t *s5curl_open_conns(
         return NULL;
     }
 
-    conn_stack_t *conn_stack = calloc(1, sizeof *conn_stack);
-    if (!conn_stack) {
+    s5curl_conn_stack_t *s5curl_conn_stack = calloc(1, sizeof *s5curl_conn_stack);
+    if (!s5curl_conn_stack) {
         SLOW5_MALLOC_ERROR();
         slow5_errno = SLOW5_ERR_MEM;
         return NULL;
     }
 
-    conn_stack->curls = calloc(n_conns, sizeof *conn_stack->curls);
-    if (!conn_stack->curls) {
+    s5curl_conn_stack->curls = calloc(n_conns, sizeof *s5curl_conn_stack->curls);
+    if (!s5curl_conn_stack->curls) {
         SLOW5_MALLOC_ERROR();
-        free(conn_stack);
+        free(s5curl_conn_stack);
         slow5_errno = SLOW5_ERR_MEM;
         return NULL;
     }
 
     for (size_t i = 0; i < n_conns; ++i) {
-        conn_stack->curls[i] = curl_easy_init();
-        if (!conn_stack->curls[i]) {
+        s5curl_conn_stack->curls[i] = curl_easy_init();
+        if (!s5curl_conn_stack->curls[i]) {
             SLOW5_ERROR("Error initializing connection: %s", curl_easy_strerror(CURLE_FAILED_INIT));
-            free(conn_stack);
-            free(conn_stack->curls);
+            free(s5curl_conn_stack);
+            free(s5curl_conn_stack->curls);
             slow5_errno = SLOW5_ERR_OTH;
             return NULL;
         }
-        curl_easy_reset(conn_stack->curls[i]);
+        curl_easy_reset(s5curl_conn_stack->curls[i]);
     }
-    conn_stack->top = n_conns-1;
-    conn_stack->n_conns = n_conns;
+    s5curl_conn_stack->top = n_conns-1;
+    s5curl_conn_stack->n_conns = n_conns;
 
-    return conn_stack;
+    return s5curl_conn_stack;
 }
 
 static void s5curl_close_conns(
-    conn_stack_t *conns
+    s5curl_conn_stack_t *conns
 ) {
     for (size_t i = 0; i < conns->n_conns; ++i) {
         curl_easy_cleanup(conns->curls[i]);
@@ -69,7 +69,7 @@ static void s5curl_close_conns(
 }
 
 CURL *s5curl_conns_pop(
-    conn_stack_t *conns
+    s5curl_conn_stack_t *conns
 ) {
     if (conns->top < 0) return NULL;
     curl_easy_reset(conns->curls[conns->top]);
@@ -77,7 +77,7 @@ CURL *s5curl_conns_pop(
 }
 
 int s5curl_conns_push(
-    conn_stack_t *conns,
+    s5curl_conn_stack_t *conns,
     CURL *curl
 ) {
     if (conns->top + 1 >= conns->n_conns) return -1;

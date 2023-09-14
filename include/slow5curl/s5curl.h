@@ -8,19 +8,22 @@
 extern "C" {
 #endif
 
+typedef struct s5curl_conn_stack {
+    CURL **curls;
+    int32_t top;
+    int32_t n_conns;
+} s5curl_conn_stack_t;
+
+CURL *s5curl_conns_pop(s5curl_conn_stack_t *conns);
+int s5curl_conns_push(s5curl_conn_stack_t *conns, CURL *curl);
+
 typedef struct slow5_curl {
     char *url;
     slow5_file_t *s5p;
 } slow5_curl_t;
 
-typedef struct conn_stack {
-    CURL **curls;
-    int32_t top;
-    int32_t n_conns;
-} conn_stack_t;
-
 typedef struct s5curl_multi {
-    conn_stack_t *conns;
+    s5curl_conn_stack_t *conns;
 } s5curl_multi_t;
 
 slow5_curl_t *s5curl_open(const char *url);

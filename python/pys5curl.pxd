@@ -11,11 +11,11 @@ cdef extern from "pys5curl.h":
         char *url;
         slow5_file_t *s5p;
 
-    ctypedef struct conn_stack_t:
+    ctypedef struct s5curl_conn_stack_t:
         pass
 
     ctypedef struct s5curl_multi_t:
-        conn_stack_t *conns;
+        s5curl_conn_stack_t *conns;
     
 
     # methods

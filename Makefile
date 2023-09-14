@@ -50,7 +50,7 @@ $(BUILD_DIR)/index.o: src/index.c include/slow5curl/s5curl.h slow5lib/src/slow5_
 $(BUILD_DIR)/s5curl.o: src/s5curl.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h slow5lib/src/slow5_misc.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/curlget.o: src/curlget.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h src/conns.h
+$(BUILD_DIR)/curlget.o: src/curlget.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 # tool
