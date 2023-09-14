@@ -79,9 +79,9 @@ distclean: clean
 test: $(BINARY)
 	./test/test.sh
 
-# make mem with run a simple memory test using valgrind
+# make test with run a simple memory test using valgrind
 mem: $(BINARY)
-	./test/mem.sh mem
+	./test/test.sh mem
 
 examples: $(BINARY)
 	./examples/build.sh
