@@ -1,0 +1,1 @@
+#include <slow5curl/s5curl.h>
