@@ -77,11 +77,12 @@ distclean: clean
 
 # make test with run a simple test
 test: $(BINARY)
-	./test/test.sh
+	./test/test.sh blow5
+	./test/test.sh slow5
 
 # make test with run a simple memory test using valgrind
 mem: $(BINARY)
-	./test/test.sh mem
+	./test/test.sh blow5 mem
 
 examples: $(BINARY)
 	./examples/build.sh
