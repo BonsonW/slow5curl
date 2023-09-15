@@ -1,6 +1,6 @@
 # slow5curl
 
-Slow5curl is a library and toolkit for fetching reads from remote SLOW5 files. This project is still under heavy development, only the C API is available.
+Slow5curl is a library and toolkit for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and libcurl. This project is still under heavy development, only the C API is available.
 
 [![CI](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml)
 
@@ -8,7 +8,6 @@ Full documentation: https://BonsonW.github.io/slow5curl<br/>
 Publication (SLOW5 format): https://www.nature.com/articles/s41587-021-01147-4<br/>
 SLOW5 specification: https://hasindu2008.github.io/slow5specs<br/>
 slow5 ecosystem: https://hasindu2008.github.io/slow5<br/>
-
 
 ## Quick start
 
