@@ -3,9 +3,9 @@
 RAW="test/data/raw/"
 EXP="test/data/exp/"
 
-URL="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
-IDX="${RAW}reads_10.blow5.idx"
-OUT="test/data/reads.blow5"
+URL="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.${1}"
+IDX="${RAW}reads_10.${1}.idx"
+OUT="test/data/reads.${1}"
 READ_LIST="${RAW}reads_10.txt"
 
 die() {
@@ -14,7 +14,7 @@ die() {
 	exit 1
 }
 
-if [ "$1" = 'mem' ]; then
+if [ "$2" = 'mem' ]; then
     mem=1
 else
     mem=0
@@ -35,29 +35,29 @@ echo_test_name() {
 TESTCASE_NAME="singlethread_singleread_localindex"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="singlethread_singleread_remoteindex"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} -o ${OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="multithread_multiread_localindex"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="multithread_multiread_remoteindex"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="multithread_multiread_localindex_multibatch"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} -K 5 || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="multithread_multiread_localindex_multibatch_oneconnection"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} -t 1 -K 5 || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.${1} ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
