@@ -14,7 +14,7 @@ int main(){
     curl_global_init(CURL_GLOBAL_ALL);
 
     // initialize a connection
-    // to be re-used across s5curl_get(s)
+    // to be re-used across s5curl_get(s) in a single thread
     CURL *curl = curl_easy_init();
     if (!curl) {
         fprintf(stderr, "Error initializing connection.\n");
@@ -51,7 +51,7 @@ int main(){
         printf("\n");
     }
 
-    //..... fetch any other read using slow5_get (as above)
+    //..... fetch any other read using s5curl_get (as above)
 
     // free the SLOW5 record
     slow5_rec_free(rec);
