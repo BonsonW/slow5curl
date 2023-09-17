@@ -36,13 +36,10 @@
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
-void work_per_single_read_get(core_t *core, db_t *db, int32_t i) {
-
+void work_per_single_read_get(core_t *core, db_t *db, int32_t i, int32_t tid) {
     char *read_id = db->read_id[i];
-    CURL *curl = db->curl;
-
-    bool success = true;
-
+    CURL *curl = core->curl[tid];
+    
     int len = 0;
     slow5_rec_t *record = NULL;
 
@@ -60,7 +57,7 @@ void work_per_single_read_get(core_t *core, db_t *db, int32_t i) {
                 ERROR("Could not initialize the slow5 compression method%s","");
                 exit(EXIT_FAILURE);
             }
-            db->read_record[i].buffer = slow5_rec_to_mem(record, core->fp->header->aux_meta, core->format_out, compress, &record_size);
+            db->read_record[i].buffer = slow5_rec_to_mem(record, core->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
             db->read_record[i].len = record_size;
             slow5_press_free(compress);
         }
@@ -339,6 +336,12 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         core.format_out = user_opts.fmt_out;
         core.press_method = press_out;
         core.benchmark = benchmark;
+        
+        core.curl = calloc(core.num_thread, sizeof *core.curl);
+        for (size_t i = 0; i < core.num_thread; ++i) {
+            core.curl[i] = curl_easy_init();
+            MALLOC_CHK(core.curl[i]);
+        }
 
         db_t db = { 0 };
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
@@ -346,9 +349,6 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         db.read_record = (raw_record_t*) malloc(cap_ids * sizeof(raw_record_t));
         MALLOC_CHK(db.read_id);
         MALLOC_CHK(db.read_record);
-
-        db.curl = curl_easy_init();
-        MALLOC_CHK(db.curl);
 
         bool end_of_file = false;
         while (!end_of_file) {
@@ -407,8 +407,11 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         // Free everything
         free(db.read_id);
         free(db.read_record);
-
-        s5curl_multi_close(db.s5curl_multi);
+        
+        for (size_t i = 0; i < core.num_thread; ++i) {
+            curl_easy_cleanup(core.curl[i]);
+        }
+        free(core.curl);
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){

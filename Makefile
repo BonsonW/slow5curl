@@ -16,6 +16,7 @@ LIBRARY = libslow5curl.a
 OBJ_BIN = $(BUILD_DIR)/main.o \
 			$(BUILD_DIR)/misc.o \
 			$(BUILD_DIR)/get.o \
+			$(BUILD_DIR)/thread.o \
 
 OBJ_LIB = $(BUILD_DIR)/fetch.o \
 			$(BUILD_DIR)/index.o \
@@ -54,6 +55,9 @@ $(BUILD_DIR)/curlget.o: src/curlget.c include/slow5curl/s5curl.h src/fetch.h slo
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 # tool
+$(BUILD_DIR)/thread.o: src_tool/thread.c src_tool/thread.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
+
 $(BUILD_DIR)/misc.o: src_tool/misc.c src_tool/error.h src_tool/cmd.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
@@ -77,13 +81,11 @@ distclean: clean
 
 # make test with run a simple test
 test: $(BINARY)
-	./test/test.sh blow5
-	./test/test.sh slow5
+	./test/test.sh
 
 # make test with run a simple memory test using valgrind
 mem: $(BINARY)
-	./test/test.sh blow5 mem
-	./test/test.sh slow5 mem
+	./test/test.sh mem
 
 examples: $(BINARY)
 	./examples/build.sh
