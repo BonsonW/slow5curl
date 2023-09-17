@@ -326,6 +326,10 @@ slow5_curl_t *s5curl_open(
     const char *url
 ) {
     CURL *curl = curl_easy_init();
+    if (!curl) {
+        SLOW5_ERROR("Failed to initialize connection for file '%s'.", url);
+        return NULL;
+    }
     slow5_curl_t *ret = s5curl_open_with(url, curl, "r");
     curl_easy_cleanup(curl);
     return ret;
