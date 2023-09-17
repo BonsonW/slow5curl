@@ -36,51 +36,37 @@
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
-void get_batch(core_t *core, db_t *db) {
-    slow5_rec_t **records = calloc(db->n_batch, sizeof *records);
+void work_per_single_read_get(core_t *core, db_t *db, int32_t i) {
 
-    // Time stamps
-    double fetch_time = 0;
-    double compress_time = 0;
+    char *read_id = db->read_id[i];
+    CURL *curl = db->curl;
 
-    double start;
-    double end;
+    bool success = true;
 
-    start = slow5_realtime();
-    s5curl_get_batch(core->s5c, db->s5curl_multi, db->s5curl_multi->conns->n_conns, db->n_batch, db->read_id, records);
-    end = slow5_realtime();
-    fetch_time = end - start;
-    VERBOSE("fetch time = %.3f sec", fetch_time);
+    int len = 0;
+    slow5_rec_t *record = NULL;
 
-    start = slow5_realtime();
-    for (size_t i = 0; i < db->n_batch; ++i) {
-        slow5_rec_t *record = records[i];
+    len = s5curl_get(core->s5c, curl, read_id, &record);
 
-        if (record == NULL) {
-            ++db->n_err;
-            db->read_record[i].buffer = NULL;
-            db->read_record[i].len = -1;
-        } else {
-            if (core->benchmark == false) {
-                size_t record_size;
-                struct slow5_press* compress = slow5_press_init(core->press_method);
-                if (!compress) {
-                    ERROR("Could not initialize the slow5 compression method%s","");
-                    exit(EXIT_FAILURE);
-                }
-                db->read_record[i].buffer = slow5_rec_to_mem(record, core->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
-                db->read_record[i].len = record_size;
-                slow5_press_free(compress);
+    if (record == NULL || len != 0) {
+        ++db->n_err;
+        db->read_record[i].buffer = NULL;
+        db->read_record[i].len = -1;
+    } else {
+        if (core->benchmark == false) {
+            struct slow5_press* compress = slow5_press_init(core->press_method);
+            size_t record_size;
+            if (!compress) {
+                ERROR("Could not initialize the slow5 compression method%s","");
+                exit(EXIT_FAILURE);
             }
-            slow5_rec_free(record);
+            db->read_record[i].buffer = slow5_rec_to_mem(record, core->fp->header->aux_meta, core->format_out, compress, &record_size);
+            db->read_record[i].len = record_size;
+            slow5_press_free(compress);
         }
-        free(db->read_id[i]);
+        slow5_rec_free(record);
     }
-    end = slow5_realtime();
-    compress_time = end - start;
-    VERBOSE("compression time = %.3f sec", compress_time);
-
-    free(records);
+    free(read_id);
 }
 
 bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
@@ -361,8 +347,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         MALLOC_CHK(db.read_id);
         MALLOC_CHK(db.read_record);
 
-        db.s5curl_multi = s5curl_multi_open(core.num_thread);
-        MALLOC_CHK(db.s5curl_multi);
+        db.curl = curl_easy_init();
+        MALLOC_CHK(db.curl);
 
         bool end_of_file = false;
         while (!end_of_file) {
@@ -394,7 +380,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
-            get_batch(&core, &db);
+            // Fetch records for read ids in the batch
+            work_db(&core, &db, work_per_single_read_get);
             end = slow5_realtime();
             read_time += end - start;
 
