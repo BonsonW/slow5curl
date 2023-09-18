@@ -12,7 +12,6 @@
 #include <curl/curl.h>
 
 #include <slow5curl/s5curl.h>
-#include "thread.h"
 #include "cmd.h"
 #include "misc.h"
 
@@ -35,36 +34,6 @@
     "    --index [FILE]                path to a custom slow5 index (experimental).\n" \
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
-
-void work_per_single_read_get(core_t *core, db_t *db, int32_t i, int32_t tid) {
-    char *read_id = db->read_id[i];
-    CURL *curl = core->curl[tid];
-    
-    int len = 0;
-    slow5_rec_t *record = NULL;
-
-    len = s5curl_get(core->s5c, curl, read_id, &record);
-
-    if (record == NULL || len != 0) {
-        ++db->n_err;
-        db->read_record[i].buffer = NULL;
-        db->read_record[i].len = -1;
-    } else {
-        if (core->benchmark == false) {
-            struct slow5_press* compress = slow5_press_init(core->press_method);
-            size_t record_size;
-            if (!compress) {
-                ERROR("Could not initialize the slow5 compression method%s","");
-                exit(EXIT_FAILURE);
-            }
-            db->read_record[i].buffer = slow5_rec_to_mem(record, core->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
-            db->read_record[i].len = record_size;
-            slow5_press_free(compress);
-        }
-        slow5_rec_free(record);
-    }
-    free(read_id);
-}
 
 bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
                   slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer, CURL *curl) {
@@ -330,25 +299,13 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     if (read_stdin) {
         // Setup multithreading structures
-        core_t core;
-        core.num_thread = user_opts.num_threads;
-        core.s5c = slow5curl;
-        core.format_out = user_opts.fmt_out;
-        core.press_method = press_out;
-        core.benchmark = benchmark;
-        
-        core.curl = calloc(core.num_thread, sizeof *core.curl);
-        for (size_t i = 0; i < core.num_thread; ++i) {
-            core.curl[i] = curl_easy_init();
-            MALLOC_CHK(core.curl[i]);
-        }
-
-        db_t db = { 0 };
+        s5curl_mt_t *core = s5curl_init_mt(user_opts.num_threads, slow5curl);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
-        db.read_id = (char **) malloc(cap_ids * sizeof(char*));
-        db.read_record = (raw_record_t*) malloc(cap_ids * sizeof(raw_record_t));
-        MALLOC_CHK(db.read_id);
-        MALLOC_CHK(db.read_record);
+        s5curl_batch_t *db = s5curl_init_batch(cap_ids);
+        
+        // todo, move the writing stuff to a callback
+        // core->format_out = user_opts.fmt_out;
+        // core->press_method = press_out;
 
         bool end_of_file = false;
         while (!end_of_file) {
@@ -369,29 +326,27 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 if (num_ids >= cap_ids) {
                     // Double read id list capacity
                     cap_ids *= 2;
-                    db.read_id = (char **) realloc(db.read_id, cap_ids * sizeof *db.read_id);
-                    db.read_record = (raw_record_t*) realloc(db.read_record, cap_ids * sizeof *db.read_record);
+                    db->rid = realloc(db->rid, cap_ids * sizeof *db->rid);
+                    db->raw_rec = realloc(db->raw_rec, cap_ids * sizeof *db->raw_rec);
                 }
-                db.read_id[num_ids] = curr_id;
+                db->rid[num_ids] = curr_id;
                 ++num_ids;
             }
-
-            db.n_batch = num_ids;
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
             // Fetch records for read ids in the batch
-            work_db(&core, &db, work_per_single_read_get);
+            s5curl_get_batch(core, db, db->rid, num_ids);
             end = slow5_realtime();
             read_time += end - start;
 
-            VERBOSE("Fetched %ld reads of %ld", num_ids - db.n_err, num_ids);
+            VERBOSE("Fetched %ld reads of %ld", num_ids - db->n_err, num_ids);
 
             // Print records
             if (benchmark == false) {
                 for (int64_t i = 0; i < num_ids; ++ i) {
-                    void *buffer = db.read_record[i].buffer;
-                    int len = db.read_record[i].len;
+                    void *buffer = db->raw_rec[i].buffer;
+                    int len = db->raw_rec[i].len;
                     if (buffer == NULL || len < 0) {
                         if (skip_flag) continue;
                         ERROR("Could not write the fetched read.%s", "");
@@ -404,14 +359,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             }
         }
         
-        // Free everything
-        free(db.read_id);
-        free(db.read_record);
-        
-        for (size_t i = 0; i < core.num_thread; ++i) {
-            curl_easy_cleanup(core.curl[i]);
-        }
-        free(core.curl);
+        s5curl_free_mt(core);
+        s5curl_free_batch(db);
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){

@@ -32,11 +32,31 @@ SOFTWARE.
 extern "C" {
 #endif
 
-typedef struct slow5_curl {
+typedef struct {
     char *url;
     slow5_file_t *s5p;
 } s5curl_t;
 
+typedef struct {
+    int32_t num_thread;
+    s5curl_t *s5c;
+    enum slow5_fmt format_out;
+    slow5_press_method_t press_method;
+    CURL **curl;
+} s5curl_mt_t;
+
+typedef struct{
+    int len;
+    void *buffer;
+} raw_record_t;
+
+typedef struct {
+    int32_t capacity_rec;
+    int32_t n_rec;
+    int32_t n_err;
+    raw_record_t *raw_rec;
+    char **rid;
+} s5curl_batch_t;
 
 s5curl_t *s5curl_open(const char *url);
 
@@ -49,6 +69,16 @@ int s5curl_idx_load_with(s5curl_t *s5c, const char *path);
 void s5curl_idx_unload(s5curl_t *s5c);
 
 int s5curl_get(s5curl_t *s5c, CURL *curl, const char *read_id, slow5_rec_t **record);
+
+int s5curl_get_batch(s5curl_mt_t *core, s5curl_batch_t *db, char **rid, int num_rid);
+
+s5curl_batch_t *s5curl_init_batch(int batch_capacity);
+
+void s5curl_free_batch(s5curl_batch_t *db);
+
+s5curl_mt_t *s5curl_init_mt(int num_thread, s5curl_t *s5c);
+
+void s5curl_free_mt(s5curl_mt_t *core);
 
 #ifdef __cplusplus
 }
