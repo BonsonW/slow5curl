@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <curl/curl.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
