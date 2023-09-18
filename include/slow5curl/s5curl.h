@@ -40,8 +40,6 @@ typedef struct {
 typedef struct {
     int32_t num_thread;
     s5curl_t *s5c;
-    enum slow5_fmt format_out;
-    slow5_press_method_t press_method;
     CURL **curl;
 } s5curl_mt_t;
 
