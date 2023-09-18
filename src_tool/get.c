@@ -9,8 +9,6 @@
 #include <getopt.h>
 #include <stdio.h>
 
-#include <curl/curl.h>
-
 #include <slow5curl/s5curl.h>
 #include "cmd.h"
 #include "misc.h"
@@ -300,8 +298,10 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     if (read_stdin) {
         // Setup multithreading structures
         s5curl_mt_t *core = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
-        s5curl_batch_t *db = s5curl_init_batch(cap_ids);
+        char **rid = malloc(cap_ids * sizeof *rid);
+        int64_t rid_real_size = 0;
         
         // todo, move the writing stuff to a callback
         // core->format_out = user_opts.fmt_out;
@@ -310,6 +310,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         bool end_of_file = false;
         while (!end_of_file) {
             int64_t num_ids = 0;
+            
             while (num_ids < user_opts.read_id_batch_capacity) {
                 char *buf = NULL;
                 size_t cap_buf = 0;
@@ -326,27 +327,29 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 if (num_ids >= cap_ids) {
                     // Double read id list capacity
                     cap_ids *= 2;
-                    db->rid = realloc(db->rid, cap_ids * sizeof *db->rid);
-                    db->raw_rec = realloc(db->raw_rec, cap_ids * sizeof *db->raw_rec);
+                    rid= realloc(rid, cap_ids * sizeof *rid);
                 }
-                db->rid[num_ids] = curr_id;
+                rid[num_ids] = curr_id;
                 ++num_ids;
+            }
+            if (num_ids > rid_real_size) {
+                rid_real_size = num_ids;
             }
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
             // Fetch records for read ids in the batch
-            s5curl_get_batch(core, db, db->rid, num_ids);
+            s5curl_get_batch(core, db, rid, num_ids);
             end = slow5_realtime();
             read_time += end - start;
 
-            VERBOSE("Fetched %ld reads of %ld", num_ids - db->n_err, num_ids);
+            VERBOSE("Fetched %ld reads.", num_ids);
 
             // Print records
             if (benchmark == false) {
                 for (int64_t i = 0; i < num_ids; ++ i) {
-                    void *buffer = db->raw_rec[i].buffer;
-                    int len = db->raw_rec[i].len;
+                    void *buffer = db->mem_records[i];
+                    int len = db->mem_bytes[i];
                     if (buffer == NULL || len < 0) {
                         if (skip_flag) continue;
                         ERROR("Could not write the fetched read.%s", "");
@@ -355,12 +358,15 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                         fwrite(buffer, 1, len, user_opts.f_out);
                         free(buffer);
                     }
+                    free(rid[i]);
                 }
             }
         }
         
         s5curl_free_mt(core);
-        s5curl_free_batch(db);
+        slow5_free_batch(db);
+
+        free(rid);
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){

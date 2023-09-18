@@ -26,6 +26,7 @@ SOFTWARE.
 #define S5CURL_H_
 
 #include <slow5/slow5.h>
+#include <slow5/slow5_mt.h>
 #include <curl/curl.h>
 
 #ifdef __cplusplus
@@ -43,19 +44,6 @@ typedef struct {
     CURL **curl;
 } s5curl_mt_t;
 
-typedef struct{
-    int len;
-    void *buffer;
-} raw_record_t;
-
-typedef struct {
-    int32_t capacity_rec;
-    int32_t n_rec;
-    int32_t n_err;
-    raw_record_t *raw_rec;
-    char **rid;
-} s5curl_batch_t;
-
 s5curl_t *s5curl_open(const char *url);
 
 void s5curl_close(s5curl_t *s5c);
@@ -68,11 +56,7 @@ void s5curl_idx_unload(s5curl_t *s5c);
 
 int s5curl_get(s5curl_t *s5c, CURL *curl, const char *read_id, slow5_rec_t **record);
 
-int s5curl_get_batch(s5curl_mt_t *core, s5curl_batch_t *db, char **rid, int num_rid);
-
-s5curl_batch_t *s5curl_init_batch(int batch_capacity);
-
-void s5curl_free_batch(s5curl_batch_t *db);
+int s5curl_get_batch(s5curl_mt_t *core, slow5_batch_t *db, char **rid, int num_rid);
 
 s5curl_mt_t *s5curl_init_mt(int num_thread, s5curl_t *s5c);
 

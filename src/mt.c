@@ -38,44 +38,16 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 
 typedef struct {
 	s5curl_mt_t *core;
-	s5curl_batch_t *db;
+	slow5_batch_t *db;
 	int32_t starti;
 	int32_t endi;
-	void (*func)(s5curl_mt_t *, s5curl_batch_t *, int32_t, int32_t);
+	void (*func)(s5curl_mt_t *, slow5_batch_t *, int32_t, int32_t);
 	int32_t thread_index;
 	int32_t curl_index;
 #ifdef WORK_STEAL
     void *all_pthread_args;
 #endif
 } pthread_arg_t;
-
-s5curl_batch_t *s5curl_init_batch(
-	int batch_capacity
-) {
-	s5curl_batch_t *db  = calloc(1, sizeof *db);
-    SLOW5_MALLOC_CHK_EXIT(db);
-
-    db->capacity_rec = batch_capacity;
-    db->n_rec = 0;
-    db->n_err = 0;
-
-    db->rid = malloc(batch_capacity * sizeof(char*));
-	SLOW5_MALLOC_CHK_EXIT(db->rid);
-	
-    db->raw_rec = malloc(batch_capacity * sizeof(raw_record_t));
-    SLOW5_MALLOC_CHK_EXIT(db->raw_rec);
-
-    return db;
-}
-
-void s5curl_free_batch(
-	s5curl_batch_t *db
-) {
-    free(db->raw_rec);
-    
-    free(db->rid);
-    free(db);
-}
 
 s5curl_mt_t *s5curl_init_mt(
 	int num_thread,
@@ -131,7 +103,7 @@ static void *pthread_single(
 ) {
 	int32_t i;
 	pthread_arg_t *args = (pthread_arg_t *)voidargs;
-	s5curl_batch_t *db = args->db;
+	slow5_batch_t *db = args->db;
 	s5curl_mt_t *core = args->core;
 
 #ifndef WORK_STEAL
@@ -159,8 +131,8 @@ static void *pthread_single(
 
 static void pthread_db(
 	s5curl_mt_t *core,
-	s5curl_batch_t *db,
-	void (*func)(s5curl_mt_t *, s5curl_batch_t *, int32_t, int32_t)
+	slow5_batch_t *db,
+	void (*func)(s5curl_mt_t *, slow5_batch_t *, int32_t, int32_t)
 ) {
 	// create threads
 	pthread_t tids[core->num_thread];
@@ -215,8 +187,8 @@ static void pthread_db(
 /* process all reads in the given batch db */
 static void work_db(
 	s5curl_mt_t *core,
-	s5curl_batch_t *db,
-	void (*func)(s5curl_mt_t *, s5curl_batch_t *, int32_t, int32_t)
+	slow5_batch_t *db,
+	void (*func)(s5curl_mt_t *, slow5_batch_t *, int32_t, int32_t)
 ) {
 
 	if (core->num_thread == 1) {
@@ -233,7 +205,7 @@ static void work_db(
 
 static void work_per_single_read_get(
 	s5curl_mt_t *core,
-	s5curl_batch_t *db,
+	slow5_batch_t *db,
 	int32_t i,
 	int32_t tid
 ) {
@@ -247,9 +219,8 @@ static void work_per_single_read_get(
 	int len = s5curl_get(core->s5c, curl, read_id, &record);
 
 	if (record == NULL || len != 0) {
-		++db->n_err;
-		db->raw_rec[i].buffer = NULL;
-		db->raw_rec[i].len = -1;
+		db->mem_records[i] = NULL;
+		db->mem_bytes[i] = -1;
 	} else {
 		size_t record_size;
 		slow5_press_method_t press_out = {s5p->compress->record_press->method, s5p->compress->signal_press->method};
@@ -258,23 +229,22 @@ static void work_per_single_read_get(
             SLOW5_ERROR("Could not initialize the slow5 compression method %s.","");
             exit(EXIT_FAILURE);
         }
-        db->raw_rec[i].buffer = slow5_rec_to_mem(record, s5p->header->aux_meta, s5p->format, compress, &record_size);
-        db->raw_rec[i].len = record_size;
+        db->mem_records[i] = slow5_rec_to_mem(record, s5p->header->aux_meta, s5p->format, compress, &record_size);
+        db->mem_bytes[i] = record_size;
         slow5_press_free(compress);
         slow5_rec_free(record);
         
         // todo peform callback here
 	}
-	free(read_id);
 }
 
 int s5curl_get_batch(
 	s5curl_mt_t *core,
-	s5curl_batch_t *db,
+	slow5_batch_t *db,
 	char **rid,
 	int num_rid
 ) {
-	// db->rid = rid;
+	db->rid = rid;
 	db->n_rec = num_rid;
 	work_db(core, db, work_per_single_read_get);
 	SLOW5_LOG_DEBUG("loaded and parsed %d recs\n", num_rid);    
