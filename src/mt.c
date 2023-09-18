@@ -190,7 +190,6 @@ static void work_db(
 	slow5_batch_t *db,
 	void (*func)(s5curl_mt_t *, slow5_batch_t *, int32_t, int32_t)
 ) {
-
 	if (core->num_thread == 1) {
 		int32_t i = 0;
 		for (i = 0; i < db->n_rec; i++) {
@@ -209,33 +208,15 @@ static void work_per_single_read_get(
 	int32_t i,
 	int32_t tid
 ) {
-	slow5_file_t *s5p = core->s5c->s5p;
-	
-	char *read_id = db->rid[i];
 	CURL *curl = core->curl[tid];
+
+	int ret = s5curl_get(core->s5c, curl, db->rid[i], &db->slow5_rec[i]);
 	
-	slow5_rec_t *record = NULL;
-
-	int len = s5curl_get(core->s5c, curl, read_id, &record);
-
-	if (record == NULL || len != 0) {
-		db->mem_records[i] = NULL;
-		db->mem_bytes[i] = -1;
-	} else {
-		size_t record_size;
-		slow5_press_method_t press_out = {s5p->compress->record_press->method, s5p->compress->signal_press->method};
-        struct slow5_press* compress = slow5_press_init(press_out);
-        if (!compress) {
-            SLOW5_ERROR("Could not initialize the slow5 compression method %s.","");
-            exit(EXIT_FAILURE);
-        }
-        db->mem_records[i] = slow5_rec_to_mem(record, s5p->header->aux_meta, s5p->format, compress, &record_size);
-        db->mem_bytes[i] = record_size;
-        slow5_press_free(compress);
-        slow5_rec_free(record);
-        
-        // todo peform callback here
-	}
+	if (ret != 0) {
+        SLOW5_ERROR("Error when fetching the read %s\n", db->rid[i]);
+        exit(EXIT_FAILURE);
+    }
+	db->mem_bytes[i] = ret;
 }
 
 int s5curl_get_batch(
