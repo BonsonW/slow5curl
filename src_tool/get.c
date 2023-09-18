@@ -66,7 +66,7 @@ void work_per_single_read_get(core_t *core, db_t *db, int32_t i, int32_t tid) {
     free(read_id);
 }
 
-bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
+bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
                   slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer, CURL *curl) {
 
     bool success = true;
@@ -291,7 +291,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     curl_global_init(CURL_GLOBAL_ALL);
 
     start = slow5_realtime();
-    slow5_curl_t *slow5curl = s5curl_open(f_in_name);
+    s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
         ERROR("cannot open %s. \n", f_in_name);
         return EXIT_FAILURE;

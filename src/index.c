@@ -129,7 +129,7 @@ static inline struct slow5_idx *slow5_idx_init_empty(void) {
 }
 
 slow5_idx_t *slow5_idx_init_from_url(
-    slow5_curl_t *s5c,
+    s5curl_t *s5c,
     CURL *curl
 ) {
     slow5_idx_t *index = slow5_idx_init_empty();
@@ -189,7 +189,7 @@ slow5_idx_t *slow5_idx_init_from_url(
 }
 
 int s5curl_idx_load(
-    slow5_curl_t *s5c
+    s5curl_t *s5c
 ) {
     CURL *curl = curl_easy_init();
     s5c->s5p->index = slow5_idx_init_from_url(s5c, curl);
@@ -201,6 +201,6 @@ int s5curl_idx_load(
     }
 }
 
-int s5curl_idx_load_with(slow5_curl_t *s5c, const char *path) {
+int s5curl_idx_load_with(s5curl_t *s5c, const char *path) {
     return slow5_idx_load_with(s5c->s5p, path);
 }

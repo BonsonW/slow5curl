@@ -6,7 +6,7 @@ s5curl_get_batch - fetches a list of record from a remote SLOW5 file correspondi
 
 ## SYNOPSYS
 
-`int s5curl_get_batch(slow5_curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records)`
+`int s5curl_get_batch(s5curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records)`
 
 ## DESCRIPTION
 
@@ -71,7 +71,7 @@ int main () {
         return EXIT_FAILURE;
     }
 
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
        fprintf(stderr, "Error fetching slow5 file\n");
        exit(EXIT_FAILURE);

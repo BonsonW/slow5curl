@@ -18,7 +18,7 @@ extern "C" {
  */
 typedef struct {
   int32_t num_thread;
-  slow5_curl_t *s5c;
+  s5curl_t *s5c;
   enum slow5_fmt format_out;
   slow5_press_method_t press_method;
   // for view

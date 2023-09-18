@@ -46,7 +46,7 @@ int main(){
         return EXIT_FAILURE;
     }
 
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (!s5c) {
         fprintf(stderr, "Error fetching slow5 file %s.\n", URL);
         return EXIT_FAILURE;
