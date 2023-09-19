@@ -12,7 +12,7 @@ slow5curl is a library for fetching records from remote BLOW5 files. Compiling s
 
 ### Data Structures
 
-The *s5curl_t* structure stores the url, parsed SLOW5 header and other metadata of an opened SLOW5 file.
+The *s5curl_t* structure stores the url and the metadata of the remote BLOW5 file.
 Other struct members are private and not supposed to be directly accessed. This structure has the following form:
 
 ```
@@ -22,12 +22,25 @@ typedef struct {
        the order of the memebers in this struct can subject to change.
     */
 
-    char *url;                      // URL to the SLOW5 file
+    char *url;                      // URL to the BLOW5 file
 
 } s5curl_t;
 ```
 
-The *s5curl_mt_t* is a resource intended to be used by multi-threaded fetches.
+The *s5curl_mt_t* is a struct intended to be used by multi-threaded fetches.
+Other struct members are private and not supposed to be directly accessed. This structure has the following form:
+
+```
+typedef struct {
+
+    /* private struct members that are not supposed to be directly accessed are not shown.
+       the order of the memebers in this struct can subject to change.
+    */
+
+    int32_t num_thread;                      // number of threads dispatched pre batch call
+
+} s5curl_mt_t;
+```
 
 ### High-level API
 
