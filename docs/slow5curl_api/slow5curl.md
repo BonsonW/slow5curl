@@ -12,7 +12,7 @@ slow5curl is a library for fetching records from remote BLOW5 files. Compiling s
 
 ### Data Structures
 
-The *slow5_curl_t* structure stores the url, parsed SLOW5 header and other metadata of an opened SLOW5 file.
+The *s5curl_t* structure stores the url and the metadata of the remote BLOW5 file.
 Other struct members are private and not supposed to be directly accessed. This structure has the following form:
 
 ```
@@ -22,12 +22,25 @@ typedef struct {
        the order of the memebers in this struct can subject to change.
     */
 
-    char *url;                      // URL to the SLOW5 file
+    char *url;                      // URL to the BLOW5 file
 
-} slow5_curl_t;
+} s5curl_t;
 ```
 
-The *s5curl_multi* is a resource intended to be used by multi-threaded fetches.
+The *s5curl_mt_t* is a struct intended to be used by multi-threaded fetches.
+Other struct members are private and not supposed to be directly accessed. This structure has the following form:
+
+```
+typedef struct {
+
+    /* private struct members that are not supposed to be directly accessed are not shown.
+       the order of the memebers in this struct can subject to change.
+    */
+
+    int32_t num_thread;                      // number of threads dispatched pre batch call
+
+} s5curl_mt_t;
+```
 
 ### High-level API
 
@@ -36,19 +49,19 @@ High-level API consists of following functions:
 #### Resource Initialization
 
 * [s5curl_open](s5curl_open.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;opens a remote BLOW5 file
 * [s5curl_close](s5curl_close.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;closes a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;closes a remote BLOW5 file
 * [s5curl_idx_load](s5curl_idx_load.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;fetches and loads the index file for a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;fetches and loads the index file for a remote BLOW5 file
 * [s5curl_idx_load_with](s5curl_idx_load_with.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote BLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;unloads a SLOW5 index from the memory
-* [s5curl_open_conns](s5curl_multi_open.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a resource for multithread operations
-* [s5curl_close_conns](s5curl_multi_close.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;frees up the resource for multithread operations
+  &nbsp;&nbsp;&nbsp;&nbsp;unloads a BLOW5 index from the memory
+* [s5curl_init_mt](s5curl_init_mt.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;initializes a multithread struct
+* [s5curl_free_mt](s5curl_free_mt.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;frees a multithread struct from memory
 
 ### Fetching
 * [s5curl_get](s5curl_get.md)<br/>

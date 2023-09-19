@@ -1,10 +1,12 @@
-// an example programme that uses slow5curl to fetch a single record
+// an example programme that uses slow5curl to fetch a single record with a custom index file
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <curl/curl.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
+#define IDX "examples/reads_10.blow5.idx"
 
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
@@ -30,7 +32,7 @@ int main(){
     int ret = 0; // for return value
 
     // load the SLOW5 index
-    ret = s5curl_idx_load(s5c);
+    ret = s5curl_idx_load_with(s5c, IDX);
     if (ret < 0) {
         fprintf(stderr, "Error fetching index for %s\n", URL);
         exit(EXIT_FAILURE);

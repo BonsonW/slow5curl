@@ -1,13 +1,13 @@
 # s5curl_idx_load_with
 
 ## NAME
-s5curl_idx_load_with - loads a local index file for a remote SLOW5 file
+s5curl_idx_load_with - loads a local index file for a remote BLOW5 file
 
 ## SYNOPSYS
-`int s5curl_idx_load_with(slow5_curl_t *s5c, const char *path)`
+`int s5curl_idx_load_with(s5curl_t *s5c, const char *path)`
 
 ## DESCRIPTION
-`s5curl_idx_load_with()` loads a local index file for a remote SLOW5 file pointed by *s5c* to its URL and associates the index with *s5c*.
+`s5curl_idx_load_with()` loads a local index file for a remote BLOW5 file pointed by *s5c* to its URL and associates the index with *s5c*.
 
 `s5curl_idx_load_with()` should be called successfully before using `s5curl_get()` or `s5curl_get_batch()`.
 
@@ -31,7 +31,7 @@ int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
        fprintf(stderr, "Error fetching slow5 file\n");
        exit(EXIT_FAILURE);

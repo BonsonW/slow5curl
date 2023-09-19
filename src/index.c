@@ -1,3 +1,30 @@
+/*
+MIT License
+
+Copyright (c) 2020 Hasindu Gamaarachchi
+Copyright (c) 2020 Sasha Jenner
+Copyright (c) 2020 Hiruna Samarakoon
+Copyright (c) 2023 Bonson Wong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #define _XOPEN_SOURCE 700
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
@@ -101,8 +128,8 @@ static inline struct slow5_idx *slow5_idx_init_empty(void) {
     return index;
 }
 
-slow5_idx_t *slow5_idx_init_from_url(
-    slow5_curl_t *s5c,
+static slow5_idx_t *slow5_idx_init_from_url(
+    s5curl_t *s5c,
     CURL *curl
 ) {
     slow5_idx_t *index = slow5_idx_init_empty();
@@ -162,7 +189,7 @@ slow5_idx_t *slow5_idx_init_from_url(
 }
 
 int s5curl_idx_load(
-    slow5_curl_t *s5c
+    s5curl_t *s5c
 ) {
     CURL *curl = curl_easy_init();
     s5c->s5p->index = slow5_idx_init_from_url(s5c, curl);
@@ -174,6 +201,6 @@ int s5curl_idx_load(
     }
 }
 
-int s5curl_idx_load_with(slow5_curl_t *s5c, const char *path) {
+int s5curl_idx_load_with(s5curl_t *s5c, const char *path) {
     return slow5_idx_load_with(s5c->s5p, path);
 }

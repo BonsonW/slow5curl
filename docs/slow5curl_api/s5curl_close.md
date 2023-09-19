@@ -1,14 +1,14 @@
 # s5curl_close
 
 ## NAME
-s5curl_close - frees the *slow5_curl_t* struct and its resources from memory
+s5curl_close - frees the *s5curl_t* struct and its resources from memory
 
 ## SYNOPSYS
-`int s5curl_close(slow5_curl_t *s5c)`
+`int s5curl_close(s5curl_t *s5c)`
 
 ## DESCRIPTION
-`s5curl_close()` frees the *slow5_curl_t* struct and its resources from memory.
-The argument *s5p* is the *slow5_curl_t* pointer returned by a previous `s5curl_open()` call.
+`s5curl_close()` frees the *s5curl_t* struct and its resources from memory.
+The argument *s5p* is the *s5curl_t* pointer returned by a previous `s5curl_open()` call.
 
 The behaviour of `s5curl_close()` is undefined if the parameter is an illegal pointer, or if `s5curl_close()` has been previous invoked on the pointer.
 
@@ -38,7 +38,7 @@ int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
        fprintf(stderr, "Error fetching slow5 file\n");
        exit(EXIT_FAILURE);

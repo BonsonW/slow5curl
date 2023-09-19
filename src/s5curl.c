@@ -1,3 +1,30 @@
+/*
+MIT License
+
+Copyright (c) 2020 Hasindu Gamaarachchi
+Copyright (c) 2020 Sasha Jenner
+Copyright (c) 2020 Hiruna Samarakoon
+Copyright (c) 2023 Bonson Wong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #define _XOPEN_SOURCE 700
 #include <stdint.h>
 #include <string.h>
@@ -17,103 +44,8 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
-static s5curl_conn_stack_t *s5curl_open_conns(
-    int32_t n_conns
-) {
-    if (n_conns <= 0) {
-        SLOW5_ERROR("%s", "Connection size must be a positive number.");
-        slow5_errno = SLOW5_ERR_OTH;
-        return NULL;
-    }
-
-    s5curl_conn_stack_t *s5curl_conn_stack = calloc(1, sizeof *s5curl_conn_stack);
-    if (!s5curl_conn_stack) {
-        SLOW5_MALLOC_ERROR();
-        slow5_errno = SLOW5_ERR_MEM;
-        return NULL;
-    }
-
-    s5curl_conn_stack->curls = calloc(n_conns, sizeof *s5curl_conn_stack->curls);
-    if (!s5curl_conn_stack->curls) {
-        SLOW5_MALLOC_ERROR();
-        free(s5curl_conn_stack);
-        slow5_errno = SLOW5_ERR_MEM;
-        return NULL;
-    }
-
-    for (size_t i = 0; i < n_conns; ++i) {
-        s5curl_conn_stack->curls[i] = curl_easy_init();
-        if (!s5curl_conn_stack->curls[i]) {
-            SLOW5_ERROR("Error initializing connection: %s", curl_easy_strerror(CURLE_FAILED_INIT));
-            free(s5curl_conn_stack);
-            free(s5curl_conn_stack->curls);
-            slow5_errno = SLOW5_ERR_OTH;
-            return NULL;
-        }
-        curl_easy_reset(s5curl_conn_stack->curls[i]);
-    }
-    s5curl_conn_stack->top = n_conns-1;
-    s5curl_conn_stack->n_conns = n_conns;
-
-    return s5curl_conn_stack;
-}
-
-static void s5curl_close_conns(
-    s5curl_conn_stack_t *conns
-) {
-    for (size_t i = 0; i < conns->n_conns; ++i) {
-        curl_easy_cleanup(conns->curls[i]);
-    }
-    free(conns->curls);
-    free(conns);
-}
-
-CURL *s5curl_conns_pop(
-    s5curl_conn_stack_t *conns
-) {
-    if (conns->top < 0) return NULL;
-    curl_easy_reset(conns->curls[conns->top]);
-    return conns->curls[conns->top--];
-}
-
-int s5curl_conns_push(
-    s5curl_conn_stack_t *conns,
-    CURL *curl
-) {
-    if (conns->top + 1 >= conns->n_conns) return -1;
-    conns->curls[++conns->top] = curl;
-    return 0;
-}
-
-s5curl_multi_t *s5curl_multi_open(
-    int32_t n_conns
-) {
-    s5curl_multi_t *s5curl_multi = calloc(1, sizeof *s5curl_multi);
-    if (!s5curl_multi) {
-        SLOW5_MALLOC_ERROR();
-        slow5_errno = SLOW5_ERR_MEM;
-        return NULL;
-    }
-
-    s5curl_multi->conns = s5curl_open_conns(n_conns);
-    if (!s5curl_multi->conns) {
-        free(s5curl_multi);
-        SLOW5_MALLOC_ERROR();
-        return NULL;
-    }
-
-    return s5curl_multi;
-}
-
-void s5curl_multi_close(
-    s5curl_multi_t *s5curl_multi
-) {
-    s5curl_close_conns(s5curl_multi->conns);
-    free(s5curl_multi);
-}
-
 void s5curl_close(
-    slow5_curl_t *s5c
+    s5curl_t *s5c
 ) {
     slow5_close(s5c->s5p);
     free(s5c->url);
@@ -121,7 +53,7 @@ void s5curl_close(
 }
 
 void s5curl_idx_unload(
-    slow5_curl_t *s5c
+    s5curl_t *s5c
 ) {
     slow5_idx_free(s5c->s5p->index);
     s5c->s5p->index = NULL;
@@ -207,7 +139,7 @@ static struct slow5_file *s5curl_init(
     return s5p;
 }
 
-slow5_curl_t *s5curl_open_with(
+static s5curl_t *s5curl_open_with(
     const char *url,
     CURL *curl,
     const char *mode
@@ -285,7 +217,7 @@ slow5_curl_t *s5curl_open_with(
         s5p->meta.mode = mode;
     }
 
-    slow5_curl_t *s5c = (slow5_curl_t *)calloc(1, sizeof *s5c);
+    s5curl_t *s5c = (s5curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
 
@@ -295,11 +227,70 @@ slow5_curl_t *s5curl_open_with(
     return s5c;
 }
 
-slow5_curl_t *s5curl_open(
+s5curl_t *s5curl_open(
     const char *url
 ) {
     CURL *curl = curl_easy_init();
-    slow5_curl_t *ret = s5curl_open_with(url, curl, "r");
+    if (!curl) {
+        SLOW5_ERROR("Failed to initialize connection for file '%s'.", url);
+        return NULL;
+    }
+    s5curl_t *ret = s5curl_open_with(url, curl, "r");
     curl_easy_cleanup(curl);
     return ret;
+}
+
+int s5curl_get(
+    const char *read_id,
+    slow5_rec_t **record,
+    CURL *curl,
+    s5curl_t *s5c
+) {
+    if (!curl) {
+        SLOW5_ERROR("Get single read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
+        return SLOW5_ERR_OTH;
+    }
+    curl_easy_reset(curl);
+
+    // get offset and size
+    struct slow5_rec_idx read_index;
+	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
+		SLOW5_ERROR("Error getting index for read %s.", read_id);
+		return SLOW5_ERR_NOTFOUND;
+	}
+    
+    // fetch
+	s5curl_resp_t *resp = s5curl_resp_init();
+
+	int res = s5curl_fetch_bytes_into_resp(
+        curl,
+	    resp,
+		s5c->url, 
+		read_index.offset + sizeof(slow5_rec_size_t),
+		read_index.size - sizeof(slow5_rec_size_t)
+	);
+	if (res != 0) {
+		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
+		return SLOW5_ERR_OTH;
+	}
+
+    long s5curl_resp_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
+    if (s5curl_resp_code != 206) {
+        SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+    }
+
+    // decode
+    res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
+    if (res < 0) SLOW5_ERROR("Error decoding read %s.", read_id);
+
+    // cleanup
+    s5curl_resp_cleanup(resp);
+
+    if (res < 0) {
+		SLOW5_ERROR("Decoding read %s failed.", read_id);
+		return SLOW5_ERR_OTH;
+	}
+
+    return EXIT_SUCCESS;
 }

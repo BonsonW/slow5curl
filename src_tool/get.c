@@ -9,10 +9,7 @@
 #include <getopt.h>
 #include <stdio.h>
 
-#include <curl/curl.h>
-
 #include <slow5curl/s5curl.h>
-#include "thread.h"
 #include "cmd.h"
 #include "misc.h"
 
@@ -36,9 +33,20 @@
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
-void get_batch(core_t *core, db_t *db) {
-    slow5_rec_t **records = calloc(db->n_batch, sizeof *records);
+/* core data structure that has information that are global to all the threads */
+typedef struct {
+    enum slow5_fmt format_out;
+    slow5_press_method_t press_method;
+    bool benchmark;
+} core_t;
 
+void get_batch(
+    core_t *core,
+    s5curl_mt_t *mt,
+    slow5_batch_t *db,
+    char **rid,
+    int num_ids
+) {
     // Time stamps
     double fetch_time = 0;
     double compress_time = 0;
@@ -47,19 +55,16 @@ void get_batch(core_t *core, db_t *db) {
     double end;
 
     start = slow5_realtime();
-    s5curl_get_batch(core->s5c, db->s5curl_multi, db->s5curl_multi->conns->n_conns, db->n_batch, db->read_id, records);
+    s5curl_get_batch(mt, db, rid, num_ids);
     end = slow5_realtime();
     fetch_time = end - start;
-    VERBOSE("fetch time = %.3f sec", fetch_time);
+    VERBOSE("Fetch time = %.3f sec.", fetch_time);
 
     start = slow5_realtime();
-    for (size_t i = 0; i < db->n_batch; ++i) {
-        slow5_rec_t *record = records[i];
-
-        if (record == NULL) {
-            ++db->n_err;
-            db->read_record[i].buffer = NULL;
-            db->read_record[i].len = -1;
+    for (size_t i = 0; i < num_ids; ++i) {
+        if (db->slow5_rec[i] == NULL) {
+            db->mem_records[i] = NULL;
+            db->mem_bytes[i] = -1;
         } else {
             if (core->benchmark == false) {
                 size_t record_size;
@@ -68,22 +73,18 @@ void get_batch(core_t *core, db_t *db) {
                     ERROR("Could not initialize the slow5 compression method%s","");
                     exit(EXIT_FAILURE);
                 }
-                db->read_record[i].buffer = slow5_rec_to_mem(record, core->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
-                db->read_record[i].len = record_size;
+                db->mem_records[i] = slow5_rec_to_mem(db->slow5_rec[i], mt->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
+                db->mem_bytes[i] = record_size;
                 slow5_press_free(compress);
             }
-            slow5_rec_free(record);
         }
-        free(db->read_id[i]);
     }
     end = slow5_realtime();
     compress_time = end - start;
-    VERBOSE("compression time = %.3f sec", compress_time);
-
-    free(records);
+    VERBOSE("Compression time = %.3f sec.", compress_time);
 }
 
-bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
+bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
                   slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer, CURL *curl) {
 
     bool success = true;
@@ -99,10 +100,10 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
     double end;
 
     start = slow5_realtime();
-    len = s5curl_get(s5c, curl, read_id, &record);
+    len = s5curl_get(read_id, &record, curl, s5c);
     end = slow5_realtime();
     fetch_time = end - start;
-    VERBOSE("fetch time = %.3f sec", fetch_time);
+    VERBOSE("Fetch time = %.3f sec.", fetch_time);
 
     start = slow5_realtime();
     if (record == NULL || len != 0) {
@@ -121,7 +122,7 @@ bool get_single(slow5_curl_t *s5c, const char *read_id, char **argv, struct prog
     }
     end = slow5_realtime();
     compress_time = end - start;
-    VERBOSE("compression time = %.3f sec", compress_time);
+    VERBOSE("Compression time = %.3f sec.", compress_time);
 
     return success;
 }
@@ -300,21 +301,22 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     double read_time = 0;
     double write_time = 0;
     double idx_load_time = 0;
-    double file_load_time = 0;
+    double header_load_time = 0;
 
     double start;
     double end;
 
     curl_global_init(CURL_GLOBAL_ALL);
-
+    
+    VERBOSE("%s", "Loading remote BLOW5 file.");
     start = slow5_realtime();
-    slow5_curl_t *slow5curl = s5curl_open(f_in_name);
+    s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
         ERROR("cannot open %s. \n", f_in_name);
         return EXIT_FAILURE;
     }
     end = slow5_realtime();
-    file_load_time = end - start;
+    header_load_time = end - start;
 
     slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
 
@@ -324,7 +326,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             return EXIT_FAILURE;
         }
     }
-
+    
+    VERBOSE("%s", "Loading index.");
     start = slow5_realtime();
     if (slow5_index == NULL) {
         int ret_idx = s5curl_idx_load(slow5curl);
@@ -344,29 +347,27 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
     end = slow5_realtime();
     idx_load_time = end - start;
+    
+    VERBOSE("%s", "Fetching reads.");
 
     if (read_stdin) {
-        // Setup multithreading structures
+        // Setup core
         core_t core;
-        core.num_thread = user_opts.num_threads;
-        core.s5c = slow5curl;
         core.format_out = user_opts.fmt_out;
         core.press_method = press_out;
         core.benchmark = benchmark;
-
-        db_t db = { 0 };
+        
+        // Setup multithreading structures
+        s5curl_mt_t *mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
-        db.read_id = (char **) malloc(cap_ids * sizeof(char*));
-        db.read_record = (raw_record_t*) malloc(cap_ids * sizeof(raw_record_t));
-        MALLOC_CHK(db.read_id);
-        MALLOC_CHK(db.read_record);
-
-        db.s5curl_multi = s5curl_multi_open(core.num_thread);
-        MALLOC_CHK(db.s5curl_multi);
+        char **rid = malloc(cap_ids * sizeof *rid);
+        int64_t rid_real_size = 0;
 
         bool end_of_file = false;
         while (!end_of_file) {
             int64_t num_ids = 0;
+            
             while (num_ids < user_opts.read_id_batch_capacity) {
                 char *buf = NULL;
                 size_t cap_buf = 0;
@@ -383,45 +384,46 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 if (num_ids >= cap_ids) {
                     // Double read id list capacity
                     cap_ids *= 2;
-                    db.read_id = (char **) realloc(db.read_id, cap_ids * sizeof *db.read_id);
-                    db.read_record = (raw_record_t*) realloc(db.read_record, cap_ids * sizeof *db.read_record);
+                    rid= realloc(rid, cap_ids * sizeof *rid);
                 }
-                db.read_id[num_ids] = curr_id;
+                rid[num_ids] = curr_id;
                 ++num_ids;
             }
-
-            db.n_batch = num_ids;
+            if (num_ids > rid_real_size) {
+                rid_real_size = num_ids;
+            }
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
-            get_batch(&core, &db);
+            // Fetch records for read ids in the batch
+            get_batch(&core, mt, db, rid, num_ids);
             end = slow5_realtime();
             read_time += end - start;
 
-            VERBOSE("Fetched %ld reads of %ld", num_ids - db.n_err, num_ids);
+            VERBOSE("Fetched %ld reads.", num_ids);
 
             // Print records
             if (benchmark == false) {
                 for (int64_t i = 0; i < num_ids; ++ i) {
-                    void *buffer = db.read_record[i].buffer;
-                    int len = db.read_record[i].len;
+                    void *buffer = db->mem_records[i];
+                    int len = db->mem_bytes[i];
                     if (buffer == NULL || len < 0) {
                         if (skip_flag) continue;
-                        ERROR("Could not write the fetched read.%s", "");
+                        ERROR("Could not write the fetched read %s.", db->rid[i]);
                         return EXIT_FAILURE;
                     } else {
                         fwrite(buffer, 1, len, user_opts.f_out);
                         free(buffer);
                     }
+                    free(rid[i]);
                 }
             }
         }
         
-        // Free everything
-        free(db.read_id);
-        free(db.read_record);
+        s5curl_free_mt(mt);
+        slow5_free_batch(db);
 
-        s5curl_multi_close(db.s5curl_multi);
+        free(rid);
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){
@@ -432,23 +434,23 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
             if (!success) {
                 if(skip_flag) continue;
-                ERROR("Could not fetch records.%s","");
+                ERROR("%s","Could not fetch records.");
                 return EXIT_FAILURE;
             }
         }
         curl_easy_cleanup(curl);
     }
 
-    VERBOSE("file load time = %.3f sec", file_load_time);
-    VERBOSE("index load time = %.3f sec", idx_load_time);
-    VERBOSE("total read time = %.3f sec", read_time);
+    VERBOSE("Header load time = %.3f sec.", header_load_time);
+    VERBOSE("Index load time = %.3f sec.", idx_load_time);
+    VERBOSE("Total read time = %.3f sec.", read_time);
 
     if (benchmark == false) {
         if (user_opts.fmt_out == SLOW5_FORMAT_BINARY) {
             start = slow5_realtime();
             slow5_eof_fwrite(user_opts.f_out);
             end = slow5_realtime();
-            VERBOSE("write time = %.3f sec", write_time);
+            VERBOSE("Write time = %.3f sec.", write_time);
         }
     }
 

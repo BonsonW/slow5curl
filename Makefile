@@ -20,7 +20,7 @@ OBJ_BIN = $(BUILD_DIR)/main.o \
 OBJ_LIB = $(BUILD_DIR)/fetch.o \
 			$(BUILD_DIR)/index.o \
 			$(BUILD_DIR)/s5curl.o \
-			$(BUILD_DIR)/curlget.o \
+			$(BUILD_DIR)/mt.o \
 
 VERSION = `git describe --tags`
 
@@ -49,15 +49,15 @@ $(BUILD_DIR)/index.o: src/index.c include/slow5curl/s5curl.h slow5lib/src/slow5_
 
 $(BUILD_DIR)/s5curl.o: src/s5curl.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h slow5lib/src/slow5_misc.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
-
-$(BUILD_DIR)/curlget.o: src/curlget.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h
+	
+$(BUILD_DIR)/mt.o: src/mt.c include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 # tool
 $(BUILD_DIR)/misc.o: src_tool/misc.c src_tool/error.h src_tool/cmd.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/get.o: src_tool/get.c src_tool/thread.h src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h
+$(BUILD_DIR)/get.o: src_tool/get.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 $(BUILD_DIR)/main.o: src_tool/main.c src_tool/error.h src_tool/cmd.h src_tool/misc.h
@@ -77,11 +77,11 @@ distclean: clean
 
 # make test with run a simple test
 test: $(BINARY)
-	./test/test.sh blow5
+	./test/test.sh
 
 # make test with run a simple memory test using valgrind
 mem: $(BINARY)
-	./test/test.sh blow5 mem
+	./test/test.sh mem
 
 examples: $(BINARY)
 	./examples/build.sh

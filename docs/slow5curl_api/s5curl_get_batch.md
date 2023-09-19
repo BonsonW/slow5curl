@@ -2,29 +2,27 @@
 
 ## NAME
 
-s5curl_get_batch - fetches a list of record from a remote SLOW5 file corresponding to given read IDs
+s5curl_get_batch - fetches a list of record from a remote BLOW5 file corresponding to given read IDs
 
 ## SYNOPSYS
 
-`int s5curl_get_batch(slow5_curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records)`
+`int s5curl_get_batch(s5curl_mt_t *core, slow5_batch_t *db, char **rid, int num_rid)`
 
 ## DESCRIPTION
 
-`s5curl_get_batch()` fetches and decodes a record from a remote SLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
+`s5curl_get_batch()` fetches and decodes records from a remote BLOW5 file *s5c* for a specified list of *read_id*s into *db*.
 
-The argument *read_ids* points to an array of read identifier strings.
+The argument *rid* points to an array of read identifier strings.
 
-The argument *max_conns* defines the maximum amount of connections to be used from the *s5curl_multi_t*.
-
-The argument *n_reads* corresponds with the number of read IDs passed in the method.
+The argument *num_rid* corresponds with the number of read IDs passed in the method.
 
 **records* should have the appropriate memory allocated before `s5curl_get_batch()` is called. Each *slow5_rec_t* in **records* should be freed by the user program using `slow5_rec_free()`.
 
 The argument *s5c* points to a *slow5_file_t* opened using `s5curl_open()`. `s5curl_get_batch()` requires the SLOW index to be pre-loaded to *s5c* using `s5curl_idx_load()` or `s5curl_idx_load_with()`.
 
-The argument *s5curl_multi* points to an initialized *s5curl_multi_t*. This is done with `s5curl_multi_open`.
+The argument *core* points to an initialized *s5curl_mt_t*. This is done with `s5curl_init_mt`.
 
-`s5curl_get_batch()` can be called by multiple threads in parallel on the same *slow5_file_t* pointer, however it must have exclusive access to the *s5curl_multi_t* pointer.
+The argument *db* points to an initialized *slow5_batch_t*. This is done with `slow5_init_batch`.
 
 ## RETURN VALUE
 
@@ -59,22 +57,22 @@ Upon successful completion, `s5curl_get_batch()` returns a non negative integer 
 #include <curl/curl.h>
 
 #define URL "https://example.blow5"
-#define MAX_CONNECTS 100
+#define N_THREADS 10
 
 int main () {
 
     curl_global_init(CURL_GLOBAL_ALL);
 
-    s5curl_multi_t *multi = s5curl_multi_open(MAX_CONNECTS);
-    if (!multi) {
-        fprintf(stderr, "Error opening connections.\n");
-        return EXIT_FAILURE;
-    }
-
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
        fprintf(stderr, "Error fetching slow5 file\n");
        exit(EXIT_FAILURE);
+    }
+    
+    s5curl_mt_t *core = s5curl_init_mt(N_THREADS, s5c);
+    if (!core) {
+        fprintf(stderr, "Error opening connections.\n");
+        return EXIT_FAILURE;
     }
 
     ret = s5curl_idx_load(s5c);
@@ -83,19 +81,19 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    ret = s5curl_get_batch(*s5c, multi, MAX_CONNECTS, N_READS, read_ids, records);
+    ret = s5curl_get_batch(core, batch, read_ids, num_reads);
 
     //...
 
-    s5curl_idx_unload(s5c);
+    s5curl_free_mt(s5c);
 
     s5curl_close(s5c);
 
-    s5curl_multi_close(multi);
+    s5curl_free_mt(core);
 
     curl_global_cleanup();
 }
 ```
 
 ## SEE ALSO
-[s5curl_multi_open()](s5curl_multi_open.md)
+[s5curl_init_mt()](s5curl_init_mt.md)

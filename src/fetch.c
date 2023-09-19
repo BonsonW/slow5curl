@@ -1,8 +1,30 @@
+/*
+MIT License
+
+Copyright (c) 2023 Bonson Wong
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
-#include <slow5curl/s5curl.h>
 #include "fetch.h"
 
 extern enum slow5_log_level_opt  slow5_log_level;
@@ -18,7 +40,7 @@ void s5curl_resp_cleanup(s5curl_resp_t *resp) {
 }
 
 // adapted from https://curl.se/libcurl/c/CURLOPT_WRITEFUNCTION.html
-size_t s5curl_resp_callback(
+static size_t callback(
     void *data,
     size_t size,
     size_t nmemb,
@@ -93,7 +115,7 @@ CURLcode s5curl_fetch_bytes_into_resp(
     if (res != CURLE_OK) return res;
 
     // write into s5curl_resp
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, s5curl_resp_callback);
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;
@@ -120,7 +142,7 @@ CURLcode s5curl_fetch_into_resp(
     if (res != CURLE_OK) return res;
 
     // write into s5curl_resp
-    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, s5curl_resp_callback);
+    res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, callback);
     if (res != CURLE_OK) return res;
     res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)resp);
     if (res != CURLE_OK) return res;

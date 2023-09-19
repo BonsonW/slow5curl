@@ -22,34 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef FETCH_H_
-#define FETCH_H_
+#ifndef S5CURL_DEF
+#define S5CURL_DEF
 
 #include <stdint.h>
-#include <slow5curl/s5curl.h>
+#include <inttypes.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct s5curl_resp {
-    char *data;
-    size_t size;
-} s5curl_resp_t;
-
-s5curl_resp_t *s5curl_resp_init();
-
-void s5curl_resp_cleanup(s5curl_resp_t *resp);
-
-CURLcode s5curl_byte_fetch_init(CURL *curl, const char *url, uint64_t begin, uint64_t size);
-
-CURLcode s5curl_fetch_into_resp(CURL *curl, s5curl_resp_t *resp, const char *url);
-
-CURLcode s5curl_fetch_into_file(CURL *curl, FILE *fp, const char *url);
-
-CURLcode s5curl_fetch_bytes_into_resp(CURL *curl, s5curl_resp_t *resp, const char *url, uint64_t begin, uint64_t size);
-
-CURLcode s5curl_fetch_bytes_into_file(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
+// error codes
+#define S5CURL_ERR_OK       (0)     // OK
+#define S5CURL_ERR_SLOW5    (-1)    // error processing s/blow5 data 
+#define S5CURL_ERR_FETCH    (-2)    // fetching data failed
+#define S5CURL_ERR_OTH      (-3)    // Other error
 
 #ifdef __cplusplus
 }

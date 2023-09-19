@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
-#include <curl/curl.h>
 
 #define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
-#define MAX_CONNECTS 100
+#define N_THREADS 3
 #define N_READS 10
+#define BATCH_CAPACITY 100
 
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
@@ -39,20 +39,25 @@ int main(){
     // global curl init
     curl_global_init(CURL_GLOBAL_ALL);
 
-    // initialize a multi resource
-    s5curl_multi_t *s5curl_multi = s5curl_multi_open(MAX_CONNECTS);
-    if (!s5curl_multi) {
-        fprintf(stderr, "Error opening connections.\n");
-        return EXIT_FAILURE;
-    }
-
-    slow5_curl_t *s5c = s5curl_open(URL);
+    s5curl_t *s5c = s5curl_open(URL);
     if (!s5c) {
         fprintf(stderr, "Error fetching slow5 file %s.\n", URL);
         return EXIT_FAILURE;
     }
+    
+    // initialize a multithread struct
+    s5curl_mt_t *s5c_mt = s5curl_init_mt(N_THREADS, s5c);
+    if (!s5c_mt) {
+        fprintf(stderr, "Error initializing multithread stcut.\n");
+        return EXIT_FAILURE;
+    }
 
-    slow5_rec_t **records = calloc(N_READS, sizeof *records); // slow5 records to be read
+    slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
+    if (!db) {
+        fprintf(stderr, "Error initializing read batch.\n");
+        return EXIT_FAILURE;
+    }
+    
     int ret = 0; // for return value
 
     // load the SLOW5 index
@@ -63,14 +68,16 @@ int main(){
     }
 
     // fetch the records from read id list
-    ret = s5curl_get_batch(s5c, s5curl_multi, MAX_CONNECTS, N_READS, read_ids, records);
+    ret = s5curl_get_batch(s5c_mt, db, read_ids, N_READS);
+    
+    fprintf(stderr, "yaya.\n");
     
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
     } else {
         for (int i = 0; i < N_READS; ++i) {
-            slow5_rec_t *rec = records[i];
-            printf("%s\t",rec->read_id);
+            slow5_rec_t *rec = db->slow5_rec[i];
+            printf("%s\t", rec->read_id);
             uint64_t len_raw_signal = rec->len_raw_signal;
             for(uint64_t i = 0; i < len_raw_signal; i++) { // iterate through the raw signal and print in picoamperes
                 double pA = TO_PICOAMPS(rec->raw_signal[i], rec->digitisation, rec->offset, rec->range);
@@ -83,12 +90,10 @@ int main(){
 
     //..... fetch any other reads using slow5_get (as above)
 
-    // free records and read ids
+    // free read ids
     for (int i = 0; i < N_READS; ++i) {
-        slow5_rec_free(records[i]);
         free(read_ids[i]);
     }
-    free(records);
     free(read_ids);
 
     // free the SLOW5 index
@@ -97,8 +102,11 @@ int main(){
     // close the SLOW5 file
     s5curl_close(s5c);
 
-    // close multi resource
-    s5curl_multi_close(s5curl_multi);
+    // close multi-thread struct
+    s5curl_free_mt(s5c_mt);
+    
+    // free batch struct
+    slow5_free_batch(db);
 
     // global curl cleanup
     curl_global_cleanup();

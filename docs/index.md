@@ -1,8 +1,10 @@
 # slow5curl documentation
 
-[Getting started](getting_started.md)
+<!-- [Getting started](getting_started.md) -->
 
 [Commands and options](commands.md)
+
+[Example workflows](workflows.md)
 
 [Bash one-liners](oneliners.md)
 
