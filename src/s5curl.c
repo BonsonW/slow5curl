@@ -241,10 +241,10 @@ s5curl_t *s5curl_open(
 }
 
 int s5curl_get(
-    s5curl_t *s5c,
-    CURL *curl, 
     const char *read_id,
-    slow5_rec_t **record
+    slow5_rec_t **record,
+    CURL *curl,
+    s5curl_t *s5c
 ) {
     if (!curl) {
         SLOW5_ERROR("Get single read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));

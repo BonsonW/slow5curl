@@ -6,7 +6,7 @@ s5curl_get - fetches a record from a remote SLOW5 file corresponding to a given 
 
 ## SYNOPSYS
 
-`int s5curl_get(s5curl_t *s5c, CURL *curl, const char *read_id, slow5_rec_t **record)`
+`int s5curl_get(const char *read_id, slow5_rec_t **record, CURL *curl, s5curl_t *s5c)`
 
 ## DESCRIPTION
 

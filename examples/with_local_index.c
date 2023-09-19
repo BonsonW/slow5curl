@@ -39,7 +39,7 @@ int main(){
     }
 
     // fetch the read with read_id "0032812b-1ea5-46f1-a844-5bcc3bf3c21f"
-    ret = s5curl_get(s5c, curl, "0032812b-1ea5-46f1-a844-5bcc3bf3c21f", &rec);
+    ret = s5curl_get("0032812b-1ea5-46f1-a844-5bcc3bf3c21f", &rec, curl, s5c);
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
     } else {

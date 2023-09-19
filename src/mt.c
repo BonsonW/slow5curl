@@ -209,7 +209,7 @@ static void work_per_single_read_get(
 ) {
 	CURL *curl = core->curl[tid];
 
-	int ret = s5curl_get(core->s5c, curl, db->rid[i], &db->slow5_rec[i]);
+	int ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
 	
 	if (ret != 0) {
         SLOW5_ERROR("Error when fetching the read %s\n", db->rid[i]);

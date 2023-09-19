@@ -100,7 +100,7 @@ bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_
     double end;
 
     start = slow5_realtime();
-    len = s5curl_get(s5c, curl, read_id, &record);
+    len = s5curl_get(read_id, &record, curl, s5c);
     end = slow5_realtime();
     fetch_time = end - start;
     VERBOSE("fetch time = %.3f sec", fetch_time);

@@ -90,7 +90,7 @@ int main(){
 
     //..... fetch any other reads using slow5_get (as above)
 
-    // free records and read ids
+    // free read ids
     for (int i = 0; i < N_READS; ++i) {
         free(read_ids[i]);
     }
