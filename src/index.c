@@ -128,7 +128,7 @@ static inline struct slow5_idx *slow5_idx_init_empty(void) {
     return index;
 }
 
-slow5_idx_t *slow5_idx_init_from_url(
+static slow5_idx_t *slow5_idx_init_from_url(
     s5curl_t *s5c,
     CURL *curl
 ) {

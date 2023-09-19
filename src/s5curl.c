@@ -139,7 +139,7 @@ static struct slow5_file *s5curl_init(
     return s5p;
 }
 
-s5curl_t *s5curl_open_with(
+static s5curl_t *s5curl_open_with(
     const char *url,
     CURL *curl,
     const char *mode

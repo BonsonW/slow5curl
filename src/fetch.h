@@ -26,7 +26,7 @@ SOFTWARE.
 #define FETCH_H_
 
 #include <stdint.h>
-#include <curl/curl.h>
+#include <slow5curl/s5curl.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,8 +36,6 @@ typedef struct s5curl_resp {
     char *data;
     size_t size;
 } s5curl_resp_t;
-
-size_t s5curl_resp_callback(void *data, size_t size, size_t nmemb, void *clientp);
 
 s5curl_resp_t *s5curl_resp_init();
 
