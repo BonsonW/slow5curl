@@ -1,4 +1,4 @@
-# Bash One-liners with slow5tools
+# Bash One-liners with slow5curl
 
 
 ## Extracting information for eye-balling and inspecting
@@ -7,8 +7,8 @@
 
 ```
 # print the raw-signal (column 8) for the read-id r1:
-slow5tools get --to slow5 <BLOW5URL> "r1" | grep -v '^[#@]' | awk '{print $8}'
+slow5curl get --to slow5 <BLOW5URL> "r1" | grep -v '^[#@]' | awk '{print $8}'
 
 # extract the signal samples 100-200 (1-indexed) for the read-id r1:
-slow5tools get --to slow5 <BLOW5URL> "r1" | grep -v '^[#@]' | awk '{print $8}' | cut -d, -f 100-200
+slow5curl get --to slow5 <BLOW5URL> "r1" | grep -v '^[#@]' | awk '{print $8}' | cut -d, -f 100-200
 ```
