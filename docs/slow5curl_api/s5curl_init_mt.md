@@ -5,7 +5,7 @@ s5curl_init_mt - initializes a resource for multithreaded operations
 
 ## SYNOPSYS
 `s5curl_mt_t *s5curl_init_mt(int num_thread, s5curl_t *s5c)`
-*
+
 ## DESCRIPTION
 `s5curl_init_mt()` initializes a resource to be used by multithreaded read fetches. This resource is not thread safe but can be reused throughout the program by multiple calls.
 
@@ -17,7 +17,6 @@ Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. 
 ## NOTES
 `slow5_errno` will be set in future to indicate the type of error that occurred.
 
-## EXAMPLES
 ## EXAMPLES
 ```
 #include <stdio.h>
