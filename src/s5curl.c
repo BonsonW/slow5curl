@@ -71,15 +71,6 @@ static struct slow5_file *s5curl_init(
         return NULL;
     }
 
-    // determine format from pathname
-    if (format == SLOW5_FORMAT_UNKNOWN &&
-            (format = slow5_path_get_fmt(pathname)) == SLOW5_FORMAT_UNKNOWN) {
-        SLOW5_ERROR("Unknown slow5 format for file '%s'. Extension must be '%s' or '%s'.",
-                pathname, SLOW5_ASCII_EXTENSION, SLOW5_BINARY_EXTENSION);
-        slow5_errno = SLOW5_ERR_UNK;
-        return NULL;
-    }
-
     char *fread_buff = (char *)calloc(SLOW5_FSTREAM_BUFF_SIZE, sizeof(char));
     if (!fread_buff) {
         SLOW5_MALLOC_ERROR();
@@ -205,7 +196,7 @@ static s5curl_t *s5curl_open_with(
 	fseek(fp, 0, SEEK_SET);
 
     // initialize slow5 file
-    struct slow5_file *s5p = s5curl_init(fp, url, SLOW5_FORMAT_UNKNOWN);
+    struct slow5_file *s5p = s5curl_init(fp, url, SLOW5_FORMAT_BINARY);
     if (!s5p) {
         if (fclose(fp) == EOF) {
             SLOW5_ERROR("Error closing file '%s': %s.", url, strerror(errno));
@@ -231,6 +222,11 @@ s5curl_t *s5curl_open(
     CURL *curl = curl_easy_init();
     if (!curl) {
         SLOW5_ERROR("Failed to initialize connection for url '%s'.", url);
+        return NULL;
+    }
+
+    if (slow5_path_get_fmt(url) != SLOW5_FORMAT_BINARY) {
+        SLOW5_ERROR("Invalid file type for url %s, s5curl only supports '.blow5' files.\n", url);
         return NULL;
     }
     s5curl_t *ret = s5curl_open_with(url, curl, "r");

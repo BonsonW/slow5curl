@@ -212,4 +212,5 @@ int s5curl_idx_load_with(s5curl_t *s5c, const char *path) {
         slow5_errno = res;
         return S5CURL_ERR_SLOW5;
     }
+    return S5CURL_ERR_OK;
 }
