@@ -288,5 +288,5 @@ int s5curl_get(
     // cleanup
     s5curl_resp_cleanup(resp);
 
-    return EXIT_SUCCESS;
+    return S5CURL_ERR_OK;
 }

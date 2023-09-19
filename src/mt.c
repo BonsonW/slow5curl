@@ -168,7 +168,7 @@ static void pthread_db(
 	for (t = 0; t < core->num_thread; t++) {
 		ret = pthread_create(&tids[t], NULL, pthread_single, (void *)(&pt_args[t]));
 		if (ret < 0) {
-            SLOW5_ERROR("Error creating thread %d\n",t);
+            SLOW5_ERROR("Error creating thread %d.\n",t);
             exit(EXIT_FAILURE);
         }
 	}
@@ -177,7 +177,7 @@ static void pthread_db(
 	for (t = 0; t < core->num_thread; t++) {
 		int ret = pthread_join(tids[t], NULL);
 		if (ret < 0) {
-            SLOW5_ERROR("Error creating thread %d\n",t);
+            SLOW5_ERROR("Error creating thread %d.\n",t);
             exit(EXIT_FAILURE);
         }
 	}
@@ -212,7 +212,7 @@ static void work_per_single_read_get(
 	int ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
 	
 	if (ret != 0) {
-        SLOW5_ERROR("Error when fetching the read %s\n", db->rid[i]);
+        SLOW5_ERROR("Error fetching read %s.\n", db->rid[i]);
         exit(EXIT_FAILURE);
     }
 	db->mem_bytes[i] = ret;
@@ -227,6 +227,5 @@ int s5curl_get_batch(
 	db->rid = rid;
 	db->n_rec = num_rid;
 	work_db(core, db, work_per_single_read_get);
-	SLOW5_LOG_DEBUG("loaded and parsed %d recs\n", num_rid);    
 	return num_rid;
 }
