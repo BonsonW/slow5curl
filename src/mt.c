@@ -43,7 +43,6 @@ typedef struct {
 	int32_t endi;
 	void (*func)(s5curl_mt_t *, slow5_batch_t *, int32_t, int32_t);
 	int32_t thread_index;
-	int32_t curl_index;
 #ifdef WORK_STEAL
     void *all_pthread_args;
 #endif
@@ -108,7 +107,7 @@ static void *pthread_single(
 
 #ifndef WORK_STEAL
 	for (i = args->starti; i < args->endi; i++) {
-		args->func(core, db, i, args->curl_index);
+		args->func(core, db, i, args->thread_index);
 	}
 #else
 	pthread_arg_t *all_args = (pthread_arg_t *)(args->all_pthread_args);
@@ -118,10 +117,10 @@ static void *pthread_single(
 		if (i >= args->endi) {
 			break;
 		}
-		args->func(core, db, i, args->curl_index);
+		args->func(core, db, i, args->thread_index);
 	}
 	while ((i = steal_work(all_args, core->num_thread)) >= 0) {
-		args->func(core, db, i, args->curl_index);
+		args->func(core, db, i, args->thread_index);
 	}
 #endif
 
@@ -158,7 +157,7 @@ static void pthread_db(
 		}
 		
 		pt_args[t].func = func;
-		pt_args[t].curl_index = t;
+		pt_args[t].thread_index = t;
 #ifdef WORK_STEAL
         pt_args[t].all_pthread_args = (void *)pt_args;
 #endif
