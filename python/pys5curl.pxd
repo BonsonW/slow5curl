@@ -14,7 +14,7 @@ cdef extern from "pys5curl.h":
     ctypedef struct s5curl_conn_stack_t:
         pass
 
-    ctypedef struct s5curl_multi_t:
+    ctypedef struct s5curl_mt_t:
         s5curl_conn_stack_t *conns;
     
 
@@ -32,8 +32,8 @@ cdef extern from "pys5curl.h":
 
     int s5curl_get(const char *read_id, slow5_rec_t **record, CURL *curl, s5curl_t *s5c);
 
-    int s5curl_get_batch(s5curl_t *s5c, s5curl_multi_t *s5curl_multi, long max_conns, uint64_t n_reads, char **read_ids, slow5_rec_t **records);
+    int s5curl_get_batch(s5curl_mt_t *core, slow5_batch_t *db, char **rid, int num_rid);
 
-    s5curl_multi_t *s5curl_multi_open(int32_t n_conns);
+    s5curl_mt_t *s5curl_init_mt(int num_thread, s5curl_t *s5c);
 
-    void s5curl_multi_close(s5curl_multi_t *s5curl_multi);
+    void s5curl_free_mt(s5curl_mt_t *s5curl_mt_t);

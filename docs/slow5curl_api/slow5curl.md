@@ -27,7 +27,7 @@ typedef struct {
 } s5curl_t;
 ```
 
-The *s5curl_multi* is a resource intended to be used by multi-threaded fetches.
+The *s5curl_mt_t* is a resource intended to be used by multi-threaded fetches.
 
 ### High-level API
 
@@ -45,10 +45,10 @@ High-level API consists of following functions:
   &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote SLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;unloads a SLOW5 index from the memory
-* [s5curl_open_conns](s5curl_multi_open.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a resource for multithread operations
-* [s5curl_close_conns](s5curl_multi_close.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;frees up the resource for multithread operations
+* [s5curl_init_mt](s5curl_init_mt.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;initializes a multithread struct
+* [s5curl_free_mt](s5curl_free_mt.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;frees a multithread struct from memory
 
 ### Fetching
 * [s5curl_get](s5curl_get.md)<br/>
