@@ -58,7 +58,7 @@ void get_batch(
     s5curl_get_batch(mt, db, rid, num_ids);
     end = slow5_realtime();
     fetch_time = end - start;
-    VERBOSE("fetch time = %.3f sec", fetch_time);
+    VERBOSE("Fetch time = %.3f sec.", fetch_time);
 
     start = slow5_realtime();
     for (size_t i = 0; i < num_ids; ++i) {
@@ -81,7 +81,7 @@ void get_batch(
     }
     end = slow5_realtime();
     compress_time = end - start;
-    VERBOSE("compression time = %.3f sec", compress_time);
+    VERBOSE("Compression time = %.3f sec.", compress_time);
 }
 
 bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
@@ -103,7 +103,7 @@ bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_
     len = s5curl_get(read_id, &record, curl, s5c);
     end = slow5_realtime();
     fetch_time = end - start;
-    VERBOSE("fetch time = %.3f sec", fetch_time);
+    VERBOSE("Fetch time = %.3f sec.", fetch_time);
 
     start = slow5_realtime();
     if (record == NULL || len != 0) {
@@ -122,7 +122,7 @@ bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_
     }
     end = slow5_realtime();
     compress_time = end - start;
-    VERBOSE("compression time = %.3f sec", compress_time);
+    VERBOSE("Compression time = %.3f sec.", compress_time);
 
     return success;
 }
@@ -301,13 +301,14 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     double read_time = 0;
     double write_time = 0;
     double idx_load_time = 0;
-    double file_load_time = 0;
+    double header_load_time = 0;
 
     double start;
     double end;
 
     curl_global_init(CURL_GLOBAL_ALL);
-
+    
+    VERBOSE("%s", "Loading remote BLOW5 file.");
     start = slow5_realtime();
     s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
@@ -315,7 +316,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         return EXIT_FAILURE;
     }
     end = slow5_realtime();
-    file_load_time = end - start;
+    header_load_time = end - start;
 
     slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
 
@@ -325,7 +326,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             return EXIT_FAILURE;
         }
     }
-
+    
+    VERBOSE("%s", "Loading index.");
     start = slow5_realtime();
     if (slow5_index == NULL) {
         int ret_idx = s5curl_idx_load(slow5curl);
@@ -345,6 +347,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
     end = slow5_realtime();
     idx_load_time = end - start;
+    
+    VERBOSE("%s", "Fetching reads.");
 
     if (read_stdin) {
         // Setup core
@@ -405,7 +409,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                     int len = db->mem_bytes[i];
                     if (buffer == NULL || len < 0) {
                         if (skip_flag) continue;
-                        ERROR("Could not write the fetched read.%s", "");
+                        ERROR("Could not write the fetched read %s.", db->rid[i]);
                         return EXIT_FAILURE;
                     } else {
                         fwrite(buffer, 1, len, user_opts.f_out);
@@ -430,23 +434,23 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
             if (!success) {
                 if(skip_flag) continue;
-                ERROR("Could not fetch records.%s","");
+                ERROR("%s","Could not fetch records.");
                 return EXIT_FAILURE;
             }
         }
         curl_easy_cleanup(curl);
     }
 
-    VERBOSE("file load time = %.3f sec", file_load_time);
-    VERBOSE("index load time = %.3f sec", idx_load_time);
-    VERBOSE("total read time = %.3f sec", read_time);
+    VERBOSE("Header load time = %.3f sec.", header_load_time);
+    VERBOSE("Index load time = %.3f sec.", idx_load_time);
+    VERBOSE("Total read time = %.3f sec.", read_time);
 
     if (benchmark == false) {
         if (user_opts.fmt_out == SLOW5_FORMAT_BINARY) {
             start = slow5_realtime();
             slow5_eof_fwrite(user_opts.f_out);
             end = slow5_realtime();
-            VERBOSE("write time = %.3f sec", write_time);
+            VERBOSE("Write time = %.3f sec.", write_time);
         }
     }
 
