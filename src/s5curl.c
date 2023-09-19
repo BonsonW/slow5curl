@@ -150,9 +150,7 @@ static s5curl_t *s5curl_open_with(
         return NULL;
     }
     if (!url) {
-        if (!url) {
-            SLOW5_ERROR_EXIT("Argument '%s' cannot be NULL.", SLOW5_TO_STR(url));
-        }
+        SLOW5_ERROR_EXIT("Argument '%s' cannot be NULL.", SLOW5_TO_STR(url));
         slow5_errno = SLOW5_ERR_ARG;
         return NULL;
     }
@@ -232,7 +230,7 @@ s5curl_t *s5curl_open(
 ) {
     CURL *curl = curl_easy_init();
     if (!curl) {
-        SLOW5_ERROR("Failed to initialize connection for file '%s'.", url);
+        SLOW5_ERROR("Failed to initialize connection for url '%s'.", url);
         return NULL;
     }
     s5curl_t *ret = s5curl_open_with(url, curl, "r");
@@ -247,8 +245,8 @@ int s5curl_get(
     s5curl_t *s5c
 ) {
     if (!curl) {
-        SLOW5_ERROR("Get single read %s failed: %s.", read_id, curl_easy_strerror(CURLE_FAILED_INIT));
-        return SLOW5_ERR_OTH;
+        SLOW5_ERROR("Invalid CURL handle passed: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+        return S5CURL_ERR_ARG;
     }
     curl_easy_reset(curl);
 
@@ -256,7 +254,7 @@ int s5curl_get(
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-		return SLOW5_ERR_NOTFOUND;
+		return S5CURL_ERR_FETCH;
 	}
     
     // fetch
@@ -271,26 +269,24 @@ int s5curl_get(
 	);
 	if (res != 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
-		return SLOW5_ERR_OTH;
+		return S5CURL_ERR_FETCH;
 	}
 
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (s5curl_resp_code != 206) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+        return S5CURL_ERR_FETCH;
     }
 
-    // decode
     res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
-    if (res < 0) SLOW5_ERROR("Error decoding read %s.", read_id);
+    if (res < 0) {
+        SLOW5_ERROR("Error decoding read %s.", read_id);
+        return S5CURL_ERR_SLOW5;
+    }
 
     // cleanup
     s5curl_resp_cleanup(resp);
-
-    if (res < 0) {
-		SLOW5_ERROR("Decoding read %s failed.", read_id);
-		return SLOW5_ERR_OTH;
-	}
 
     return EXIT_SUCCESS;
 }

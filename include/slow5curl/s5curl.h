@@ -29,6 +29,8 @@ SOFTWARE.
 #include <slow5/slow5_mt.h>
 #include <curl/curl.h>
 
+#include "s5curl_defs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

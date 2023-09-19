@@ -34,9 +34,11 @@ extern "C" {
 
 // error codes
 #define S5CURL_ERR_OK       (0)     // OK
-#define S5CURL_ERR_SLOW5    (-1)    // error processing s/blow5 data 
-#define S5CURL_ERR_FETCH    (-2)    // fetching data failed
-#define S5CURL_ERR_OTH      (-3)    // Other error
+#define S5CURL_ERR_OTH      (-1)    // Other error
+#define S5CURL_ERR_SLOW5    (-2)    // error processing s/blow5 data 
+#define S5CURL_ERR_FETCH    (-3)    // fetching data failed
+#define S5CURL_ERR_ARG      (-4)    // initializing CURL failed
+
 
 #ifdef __cplusplus
 }
