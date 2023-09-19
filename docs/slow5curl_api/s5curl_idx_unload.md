@@ -1,13 +1,13 @@
 # s5curl_idx_unload
 
 ## NAME
-s5curl_idx_unload - unloads a SLOW5 index from the memory
+s5curl_idx_unload - unloads a BLOW5 index from the memory
 
 ## SYNOPSYS
 `void s5curl_idx_unload(s5curl_t *s5c)`
 
 ## DESCRIPTION
-`s5curl_idx_unload()` unloads an index file loaded into memory for a remote SLOW5 file pointed by *s5c*, which must have been previously loaded using `s5curl_idx_load()` or `s5curl_idx_load_with()`. Otherwise, or if *s5curl_idx_unload(s5c)* has already been called before, undefined behaviour occurs.
+`s5curl_idx_unload()` unloads an index file loaded into memory for a remote BLOW5 file pointed by *s5c*, which must have been previously loaded using `s5curl_idx_load()` or `s5curl_idx_load_with()`. Otherwise, or if *s5curl_idx_unload(s5c)* has already been called before, undefined behaviour occurs.
 
 ## RETURN VALUE
 

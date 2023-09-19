@@ -2,7 +2,7 @@
 
 ## NAME
 
-s5curl_get - fetches a record from a remote SLOW5 file corresponding to a given read ID
+s5curl_get - fetches a record from a remote BLOW5 file corresponding to a given read ID
 
 ## SYNOPSYS
 
@@ -10,7 +10,7 @@ s5curl_get - fetches a record from a remote SLOW5 file corresponding to a given 
 
 ## DESCRIPTION
 
-`s5curl_get()` fetches and decodes a record from a remote SLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
+`s5curl_get()` fetches and decodes a record from a remote BLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
 
 The argument *read_id* points to a read identifier string.
 

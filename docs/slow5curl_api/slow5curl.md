@@ -49,15 +49,15 @@ High-level API consists of following functions:
 #### Resource Initialization
 
 * [s5curl_open](s5curl_open.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;opens a remote BLOW5 file
 * [s5curl_close](s5curl_close.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;closes a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;closes a remote BLOW5 file
 * [s5curl_idx_load](s5curl_idx_load.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;fetches and loads the index file for a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;fetches and loads the index file for a remote BLOW5 file
 * [s5curl_idx_load_with](s5curl_idx_load_with.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote SLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote BLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;unloads a SLOW5 index from the memory
+  &nbsp;&nbsp;&nbsp;&nbsp;unloads a BLOW5 index from the memory
 * [s5curl_init_mt](s5curl_init_mt.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;initializes a multithread struct
 * [s5curl_free_mt](s5curl_free_mt.md)<br/>

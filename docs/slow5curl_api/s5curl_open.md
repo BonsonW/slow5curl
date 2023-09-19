@@ -1,14 +1,14 @@
 # s5curl_open
 
 ## NAME
-s5curl_open - fetches and loads a remote SLOW5 file's meta data
+s5curl_open - fetches and loads a remote BLOW5 file's meta data
 
 ## SYNOPSYS
 `slow5_file_t *s5curl_open(const char *url)`
 
 ## DESCRIPTION
 
-The `s5curl_open()` function fetches and loads a remote SLOW5 file's meta data pointed by the argument *url*, parses and populates the SLOW5 header.
+The `s5curl_open()` function fetches and loads a remote BLOW5 file's meta data pointed by the argument *url*, parses and populates the BLOW5 header.
 
 An open slow5 file should be closed at the end using `s5curl_open()` function.
 

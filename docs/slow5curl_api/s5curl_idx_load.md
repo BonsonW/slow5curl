@@ -1,13 +1,13 @@
 # s5curl_idx_load
 
 ## NAME
-s5curl_idx_load - fetches and loads the index file for a remote SLOW5 file
+s5curl_idx_load - fetches and loads the index file for a remote BLOW5 file
 
 ## SYNOPSYS
 `int s5curl_idx_load(s5curl_t *s5c)`
 
 ## DESCRIPTION
-`s5curl_idx_load()` fetches and loads an index file for a remote SLOW5 file pointed by *s5c* to its URL and associates the index with *s5c*.
+`s5curl_idx_load()` fetches and loads an index file for a remote BLOW5 file pointed by *s5c* to its URL and associates the index with *s5c*.
 
 `s5curl_idx_load()` should be called successfully before using `s5curl_get()` or `s5curl_get_batch()`.
 
