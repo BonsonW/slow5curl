@@ -245,8 +245,8 @@ int s5curl_get(
     s5curl_t *s5c
 ) {
     if (!curl) {
-        SLOW5_ERROR("Invalid CURL handle passed: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
-        return S5CURL_ERR_ARG;
+        SLOW5_ERROR("Invalid CURL handle passed for fetching read: %s.", read_id);
+        return S5CURL_ERR_CURL;
     }
     curl_easy_reset(curl);
 

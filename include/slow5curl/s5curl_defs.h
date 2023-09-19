@@ -37,7 +37,7 @@ extern "C" {
 #define S5CURL_ERR_OTH      (-1)    // Other error
 #define S5CURL_ERR_SLOW5    (-2)    // error processing s/blow5 data 
 #define S5CURL_ERR_FETCH    (-3)    // fetching data failed
-#define S5CURL_ERR_ARG      (-4)    // initializing CURL failed
+#define S5CURL_ERR_CURL     (-4)    // invalid CURL connection
 
 
 #ifdef __cplusplus
