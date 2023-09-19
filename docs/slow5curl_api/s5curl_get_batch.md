@@ -2,7 +2,7 @@
 
 ## NAME
 
-s5curl_get_batch - fetches a list of record from a remote SLOW5 file corresponding to given read IDs
+s5curl_get_batch - fetches a list of record from a remote BLOW5 file corresponding to given read IDs
 
 ## SYNOPSYS
 
@@ -10,7 +10,7 @@ s5curl_get_batch - fetches a list of record from a remote SLOW5 file correspondi
 
 ## DESCRIPTION
 
-`s5curl_get_batch()` fetches and decodes a record from a remote SLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
+`s5curl_get_batch()` fetches and decodes a record from a remote BLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
 
 The argument *rid* points to an array of read identifier strings.
 
