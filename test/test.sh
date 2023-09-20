@@ -14,7 +14,7 @@ die() {
 	exit 1
 }
 
-if [ "$2" = 'mem' ]; then
+if [ "$1" = 'mem' ]; then
     mem=1
 else
     mem=0
@@ -60,4 +60,9 @@ diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAM
 TESTCASE_NAME="multithread_multiread_localindex_multibatch_oneconnection"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} -t 1 -K 5 || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="multithread_multiread_localindex_multibatch_defaults"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl get ${URL} --index ${IDX} -o ${OUT} -l ${READ_LIST} || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}reads_10.blow5 ${OUT} || die "diff failed for test: ${TESTCASE_NAME}"
