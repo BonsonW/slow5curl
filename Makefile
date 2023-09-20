@@ -64,7 +64,7 @@ $(BUILD_DIR)/main.o: src_tool/main.c src_tool/error.h src_tool/cmd.h src_tool/mi
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 slow5lib/lib/libslow5.a:
-	$(MAKE) -C slow5lib zstd=$(zstd) no_simd=$(no_simd) zstd_local=$(zstd_local) lib/libslow5.a
+	$(MAKE) -C slow5lib slow5_mt=1 zstd=$(zstd) no_simd=$(no_simd) zstd_local=$(zstd_local) lib/libslow5.a
 
 clean:
 	rm -rf $(BINARY) $(BUILD_DIR)/*.o
