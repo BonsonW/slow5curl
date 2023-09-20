@@ -20,7 +20,7 @@
 #define USAGE_MSG "Usage: %s [OPTIONS] [COMMAND] [ARG]\n"
 #define HELP_LARGE_MSG \
     USAGE_MSG \
-    "Tools for using slow5 files.\n" \
+    "Tools for accessing remote BLOW5 files.\n" \
     "\n" \
     "OPTIONS:\n" \
     "    -h, --help       Display this message and exit.\n" \
@@ -44,19 +44,7 @@
     "    year={2022},\n" \
     "    publisher={Nature Publishing Group}\n" \
     "}\n\n" \
-    "\n" \
-    "Please cite the following in your publications when using slow5tools:\n\n" \
-    "Samarakoon, H., Ferguson, J.M., Jenner, S.P. et al. Flexible and efficient handling of nanopore sequencing signal data with slow5tools. Genome Biol 24, 69 (2023). https://doi.org/10.1186/s13059-023-02910-3\n\n" \
-    "@article{samarakoon2023flexible,\n" \
-    "    title={Flexible and efficient handling of nanopore sequencing signal data with slow5tools},\n" \
-    "    author={Samarakoon, Hiruna and Ferguson, James M and Jenner, Sasha P and Amos, Timothy G and Parameswaran, Sri and Gamaarachchi, Hasindu and Deveson, Ira W},\n" \
-    "    journal={Genome Biology},\n" \
-    "    volume={24},\n" \
-    "    number={1},\n" \
-    "    pages={69},\n" \
-    "    year={2023},\n" \
-    "    publisher={Springer}\n" \
-    "}\n\n" \
+
 
 // Backtrace buffer threshold of functions
 #define BT_BUF_SIZE (100)

@@ -31,7 +31,7 @@ int main(){
     slow5_rec_t *rec = NULL; // slow5 record to be read
     int ret = 0; // for return value
 
-    // load the SLOW5 index
+    // load the SLOW5 index from custom path
     ret = s5curl_idx_load_with(s5c, IDX);
     if (ret < 0) {
         fprintf(stderr, "Error fetching index for %s\n", URL);

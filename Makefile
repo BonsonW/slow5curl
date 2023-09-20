@@ -11,7 +11,7 @@ LDFLAGS		+= -lzstd
 endif
 
 BINARY = slow5curl
-LIBRARY = libslow5curl.a
+LIBRARY = lib/libslow5curl.a
 
 OBJ_BIN = $(BUILD_DIR)/main.o \
 			$(BUILD_DIR)/misc.o \
@@ -31,10 +31,14 @@ ifdef asan
 endif
 
 
-.PHONY: clean distclean test
+.PHONY: tool library clean distclean test
+
+tool: $(BINARY)
 
 $(BINARY): $(OBJ_BIN) $(LIBRARY)
 	$(CC) $(CFLAGS) $(OBJ_BIN) $(LIBRARY) $(LDFLAGS) -o $@
+
+library: $(LIBRARY)
 
 $(LIBRARY): $(OBJ_LIB) $(SLOW5LIB)
 	cp $(SLOW5LIB) $@
@@ -49,7 +53,7 @@ $(BUILD_DIR)/index.o: src/index.c include/slow5curl/s5curl.h slow5lib/src/slow5_
 
 $(BUILD_DIR)/s5curl.o: src/s5curl.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h slow5lib/src/slow5_misc.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
-	
+
 $(BUILD_DIR)/mt.o: src/mt.c include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 

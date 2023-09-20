@@ -17,13 +17,13 @@
 
 #define USAGE_MSG "Usage: %s [OPTIONS] [SLOW5_FILE] [READ_ID]...\n"
 #define HELP_LARGE_MSG \
-    "Display the read entry for each specified read id from a slow5 file.\n" \
-    "With no READ_ID, read from standard input newline separated read ids.\n" \
+    "Display the read entry for each specified READ_ID from a blow5 file.\n" \
+    "If READ_ID is not specified, a newline separated list of read ids will be read from the standard input .\n" \
     USAGE_MSG \
     "\n" \
     "OPTIONS:\n" \
-    "    --to FORMAT                   specify output file format\n" \
-    "    -o, --output [FILE]           output contents to FILE [default: stdout]\n" \
+    "    --to FORMAT                   specify output file format (slow5 or blow5)\n" \
+    "    -o, --output [FILE]           output contents to FILE (.slow5 or .blow5 extensions) [default: stdout]\n" \
     HELP_MSG_PRESS \
     HELP_MSG_THREADS \
     HELP_MSG_BATCH \
@@ -307,7 +307,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     double end;
 
     curl_global_init(CURL_GLOBAL_ALL);
-    
+
     VERBOSE("%s", "Loading remote BLOW5 file.");
     start = slow5_realtime();
     s5curl_t *slow5curl = s5curl_open(f_in_name);
@@ -326,7 +326,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             return EXIT_FAILURE;
         }
     }
-    
+
     VERBOSE("%s", "Loading index.");
     start = slow5_realtime();
     if (slow5_index == NULL) {
@@ -347,7 +347,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
     end = slow5_realtime();
     idx_load_time = end - start;
-    
+
     VERBOSE("%s", "Fetching reads.");
 
     if (read_stdin) {
@@ -356,7 +356,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         core.format_out = user_opts.fmt_out;
         core.press_method = press_out;
         core.benchmark = benchmark;
-        
+
         // Setup multithreading structures
         s5curl_mt_t *mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
@@ -367,7 +367,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         bool end_of_file = false;
         while (!end_of_file) {
             int64_t num_ids = 0;
-            
+
             while (num_ids < user_opts.read_id_batch_capacity) {
                 char *buf = NULL;
                 size_t cap_buf = 0;
@@ -419,7 +419,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 }
             }
         }
-        
+
         s5curl_free_mt(mt);
         slow5_free_batch(db);
 

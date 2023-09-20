@@ -15,7 +15,7 @@ int main(){
     const char *read_ids_path = "examples/reads_10.txt";
     char **read_ids = malloc(N_READS * sizeof *read_ids);
 
-    // read from file
+    // read the list of read IDs from file
     FILE *fp;
     char *line = NULL;
     size_t len = 0;
@@ -44,7 +44,7 @@ int main(){
         fprintf(stderr, "Error fetching slow5 file %s.\n", URL);
         return EXIT_FAILURE;
     }
-    
+
     // initialize a multithread struct
     s5curl_mt_t *s5c_mt = s5curl_init_mt(N_THREADS, s5c);
     if (!s5c_mt) {
@@ -57,7 +57,7 @@ int main(){
         fprintf(stderr, "Error initializing read batch.\n");
         return EXIT_FAILURE;
     }
-    
+
     int ret = 0; // for return value
 
     // load the SLOW5 index
@@ -69,9 +69,9 @@ int main(){
 
     // fetch the records from read id list
     ret = s5curl_get_batch(s5c_mt, db, read_ids, N_READS);
-    
+
     fprintf(stderr, "yaya.\n");
-    
+
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
     } else {
@@ -85,12 +85,12 @@ int main(){
             }
             printf("\n");
         }
-       
+
     }
 
-    //..... fetch any other reads using slow5_get (as above)
+    //..... fetch any other reads using s5curl_get_batch (as above)
 
-    // free read ids
+    // free the list of read ids
     for (int i = 0; i < N_READS; ++i) {
         free(read_ids[i]);
     }
@@ -102,11 +102,11 @@ int main(){
     // close the SLOW5 file
     s5curl_close(s5c);
 
-    // close multi-thread struct
-    s5curl_free_mt(s5c_mt);
-    
     // free batch struct
     slow5_free_batch(db);
+
+    // close multi-thread struct
+    s5curl_free_mt(s5c_mt);
 
     // global curl cleanup
     curl_global_cleanup();

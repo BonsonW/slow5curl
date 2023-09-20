@@ -15,9 +15,9 @@ An open slow5 file should be closed at the end using `s5curl_open()` function.
 Upon successful completion, `s5curl_open()` returns a *s5curl_t* pointer. Otherwise, NULL is returned. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
 
 ## ERRORS
-* `S5CURL_ERR_FETCH`       
+* `S5CURL_ERR_FETCH`
     &nbsp;&nbsp;&nbsp;&nbsp; Fetching data failed.
-* `S5CURL_ERR_SLOW5`       
+* `S5CURL_ERR_SLOW5`
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data.
 
 

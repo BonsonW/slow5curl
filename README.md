@@ -75,13 +75,25 @@ todo
 
 ```sh
 # fetch slow5 reads one at a time
-slow5curl get [OPTIONS] BLOW5_URL readid1 readid2 ....
-# fetch slow5 reads by batch
-slow5curl get [OPTIONS] BLOW5_URL --list readids.txt
+slow5curl get [OPTIONS] https://url/to/file.blow5 readid1 readid2 ....
+
+# fetch slow5 reads, a batch at a time
+slow5curl get [OPTIONS] https://url/to/file.blow5 --list readids.txt
+
+# use a custom slow5 index
+slow5curl get [OPTIONS] https://url/to/file.blow5 --index https://url/to/file.blow5.idx --list readids.txt
+
+# use a custom slow5 index which is available locally
+slow5curl get [OPTIONS] https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
+```
+
+Some actual examples:
+
+```sh
+slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 -o read.blow5
 ```
 
 See [here](https://bonsonw.github.io/slow5curl/oneliners.html) for example bash one-liners with slow5curl.
-
 
 
 ### Troubleshooting/Questions
@@ -91,7 +103,15 @@ open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library Usage
 
-Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions.
+Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
+
+```
+gcc [OPTIONS] -I path/to/slow5curl/include your_program.c path/to/slow5curl/lib/libslow5curl.a -lm -lz -lpthread
+```
+
+path/to/slow5curl/ is the absolute or relative path to the slow5curl repository cloned above.
+
+If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd`` to the above two commands.
 
 For the documentation of the C API visit [here](https://bonsonw.github.io/slow5curl/slow5curl_api/slow5curl) and for the Python API visit [here]().
 
@@ -101,7 +121,7 @@ Examples are provided under [examples](https://github.com/BonsonW/slow5curl/tree
 - *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
 - *get_single_read.c* demonstrates how to fetch a singlefrom a remote blow5 file.
 
-
+You can invoke `examples/build.sh`` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. If you compiled slow5curl with zstd support enabled, make sure you append -lzstd to the compilation commands.
 
 ## Citation
 

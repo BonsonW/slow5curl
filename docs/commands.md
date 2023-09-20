@@ -10,8 +10,8 @@
 Retrieve records for specified read IDs from a remote BLOW5 file URL.
 
 ```
-slow5curl get [OPTIONS] file1.blow5 readid1 readid2 ....
-slow5curl get [OPTIONS] file1.blow5 --list readids.txt
+slow5curl get [OPTIONS] https://url/to/file1.blow5 readid1 readid2 ....
+slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 ```
 
 *  `--to format_type`:<br/>
@@ -29,7 +29,7 @@ slow5curl get [OPTIONS] file1.blow5 --list readids.txt
 * `-l, --list FILE`:<br/>
     List of read ids provided as a single-column text file with one read id per line.
 * `--index FILE`:<br/>
-    Path to a custom slow5 index (experimental). Useful if your index file is located somewhere other than in the same directory as the input S/BLOW5 file.
+    URL to a custom slow5 index. This can also be a path to an index that is residing locally on your disk. Useful if your index file is located somewhere other https://url/file.blow5.idx when your input file is https://url/file.blow5.
 *  `-h`, `--help`:<br/>
     Prints the help menu.
 

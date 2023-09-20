@@ -9,32 +9,29 @@ slow5curl - Overview
 slow5curl is a library for fetching records from remote BLOW5 files. Compiling slow5curl requires a C compiler that conforms to at least c99 standard with X/Open 7, incorporating POSIX 2008 extension support.
 
 ### Data Structures
-The *s5curl_t* structure stores the url and the metadata of the remote BLOW5 file.
-Other struct members are private and not supposed to be directly accessed. This structure has the following form:
+The *s5curl_t* structure stores the url and the metadata of the remote BLOW5 file. This structure has the following form:
 
 ```
 typedef struct {
 
-    /* private struct members that are not supposed to be directly accessed are not shown.
-       the order of the memebers in this struct can subject to change.
-    */
+  char *url;                      // URL to the BLOW5 file
 
-    char *url;                      // URL to the BLOW5 file
+  /* private struct members that are not supposed to be directly accessed are not shown.
+      the order of the memebers in this struct can subject to change.
+  */
 
 } s5curl_t;
 ```
 
-The *s5curl_mt_t* is a struct intended to be used by multi-threaded fetches.
-Other struct members are private and not supposed to be directly accessed. This structure has the following form:
+The *s5curl_mt_t* is a struct intended to be used by multi-threaded fetches. This structure has the following form:
 
 ```
 typedef struct {
 
-    /* private struct members that are not supposed to be directly accessed are not shown.
-       the order of the memebers in this struct can subject to change.
-    */
-
-    int32_t num_thread;                      // number of threads dispatched pre batch call
+  int32_t num_thread;                      // number of threads dispatched pre batch call
+  /* private struct members that are not supposed to be directly accessed are not shown.
+      the order of the memebers in this struct can subject to change.
+  */
 
 } s5curl_mt_t;
 ```
@@ -50,7 +47,7 @@ High-level API consists of following functions:
 * [s5curl_idx_load](s5curl_idx_load.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;fetches and loads the index file for a remote BLOW5 file
 * [s5curl_idx_load_with](s5curl_idx_load_with.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;loads a local index file for a remote BLOW5 file
+  &nbsp;&nbsp;&nbsp;&nbsp;loads a custom index (remote or local) for a remote BLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;unloads a BLOW5 index from the memory
 * [s5curl_init_mt](s5curl_init_mt.md)<br/>
@@ -62,7 +59,7 @@ High-level API consists of following functions:
 * [s5curl_get](s5curl_get.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;fetches a record corresponding to a given read ID
 * [s5curl_get_batch](s5curl_get_batch.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;fetches records coressponding to a list of read IDs
+  &nbsp;&nbsp;&nbsp;&nbsp;fetches records corresponding to a list of read IDs using multiple threads
 
 ## CITATION
 Please cite the following in your publications when using *slow5curl/pyslow5curl*:
