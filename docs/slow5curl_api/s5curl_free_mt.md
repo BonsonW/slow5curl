@@ -10,7 +10,6 @@ s5curl_free_mt - unloads a the *s5curl_mt_t* struct from memory
 `s5curl_free_mt()` unloads a the *s5curl_mt_t* struct from memory, which must have been previously loaded using `s5curl_init_mt()`. Otherwise, or if `s5curl_free_mt()` has already been called before, undefined behaviour occurs.
 
 ## RETURN VALUE
-
 No return value
 
 ## NOTES
@@ -62,5 +61,4 @@ int main () {
 ```
 
 ## SEE ALSO
-
 [s5curl_get_batch()](s5curl_get_batch.md), [s5curl_init_mt()](s5curl_init_mt.md)

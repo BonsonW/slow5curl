@@ -10,7 +10,6 @@ s5curl_idx_unload - unloads a BLOW5 index from the memory
 `s5curl_idx_unload()` unloads an index file loaded into memory for a remote BLOW5 file pointed by *s5c*, which must have been previously loaded using `s5curl_idx_load()` or `s5curl_idx_load_with()`. Otherwise, or if *s5curl_idx_unload(s5c)* has already been called before, undefined behaviour occurs.
 
 ## RETURN VALUE
-
 No return value
 
 ## NOTES
@@ -51,5 +50,4 @@ int main () {
 ```
 
 ## SEE ALSO
-
 [s5curl_idx_load()](s5curl_idx_load.md), [s5curl_idx_load_with()](s5curl_idx_load_with.md)

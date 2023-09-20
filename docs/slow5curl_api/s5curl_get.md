@@ -1,15 +1,12 @@
 # s5curl_get
 
 ## NAME
-
 s5curl_get - fetches a record from a remote BLOW5 file corresponding to a given read ID
 
 ## SYNOPSYS
-
 `int s5curl_get(const char *read_id, slow5_rec_t **record, CURL *curl, s5curl_t *s5c)`
 
 ## DESCRIPTION
-
 `s5curl_get()` fetches and decodes a record from a remote BLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
 
 The argument *read_id* points to a read identifier string.
@@ -23,7 +20,6 @@ The argument *curl* points to a *CURL* handle.
 `s5curl_get()` can be called by multiple threads in parallel on the same *slow5_file_t* pointer, however it must have a different *CURL* handle.
 
 ## RETURN VALUE
-
 Upon successful completion, `s5curl_get()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
 
 ## ERRORS

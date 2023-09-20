@@ -1,15 +1,12 @@
 # s5curl_get_batch
 
 ## NAME
-
 s5curl_get_batch - fetches a list of record from a remote BLOW5 file corresponding to given read IDs
 
 ## SYNOPSYS
-
 `int s5curl_get_batch(s5curl_mt_t *core, slow5_batch_t *db, char **rid, int num_rid)`
 
 ## DESCRIPTION
-
 `s5curl_get_batch()` fetches and decodes records from a remote BLOW5 file *s5c* for a specified list of *read_id*s into *db*.
 
 The argument *rid* points to an array of read identifier strings.
@@ -25,7 +22,6 @@ The argument *core* points to an initialized *s5curl_mt_t*. This is done with `s
 The argument *db* points to an initialized *slow5_batch_t*. This is done with `slow5_init_batch`.
 
 ## RETURN VALUE
-
 Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit.
 
 ## NOTES

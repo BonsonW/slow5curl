@@ -65,5 +65,4 @@ int main () {
 ```
 
 ## SEE ALSO
-
 [s5curl_get_batch()](s5curl_get_batch.md), [s5curl_free_mt()](s5curl_free_mt.md)
