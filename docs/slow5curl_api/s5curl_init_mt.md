@@ -15,6 +15,7 @@ This *s5curl_mt_t* should be freed by the user program using `s5curl_free_mt()`.
 Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. Otherwise, NULL is returned and `slow5_errno` is set to indicate the error.
 
 ## NOTES
+slow5curl must be compiled with multithreading enabled (`make slow5_mt=1`) to use this feature.
 `slow5_errno` will be set in future to indicate the type of error that occurred.
 
 ## EXAMPLES

@@ -26,28 +26,10 @@ The argument *db* points to an initialized *slow5_batch_t*. This is done with `s
 
 ## RETURN VALUE
 
-Upon successful completion, `s5curl_get_batch()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error and `slow5_errno` is set to indicate the error.
-
-## ERRORS
-
-* `SLOW5_ERR_NOTFOUND`  
-    &nbsp;&nbsp;&nbsp;&nbsp; Read_id was not found in the index.
-* `SLOW5_ERR_ARG`       
-    &nbsp;&nbsp;&nbsp;&nbsp; Invalid argument - read_id, read or s5c is NULL.
-* `SLOW5_ERR_RECPARSE`  
-    &nbsp;&nbsp;&nbsp;&nbsp; Record parsing error.
-* `SLOW5_ERR_NOIDX`     
-    &nbsp;&nbsp;&nbsp;&nbsp; The index has not been loaded.
-* `SLOW5_ERR_IO`        
-    &nbsp;&nbsp;&nbsp;&nbsp; I/O error when reading the slow5 file, for instance, `pread()`failed.
-* `SLOW5_ERR_MEM`        
-    &nbsp;&nbsp;&nbsp;&nbsp; Memory allocation error.
-* `SLOW5_ERR_UNK`        
-    &nbsp;&nbsp;&nbsp;&nbsp; Slow5 file format is unknown.
-* `SLOW5_ERR_PRESS`      
-    &nbsp;&nbsp;&nbsp;&nbsp; Decompression error.
+Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit.
 
 ## NOTES
+slow5curl must be compiled with multithreading enabled (`make slow5_mt=1`) to use this feature.
 
 ## EXAMPLES
 ```

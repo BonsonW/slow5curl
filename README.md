@@ -70,6 +70,9 @@ On OS X : brew install zstd
 
 SLOW5 files compressed with *zstd* offer smaller file size and better performance compared to the default *zlib*. However, *zlib* runtime library is available by default on almost all distributions unlike *zstd* and thus files compressed with *zlib* will be more 'portable'.
 
+#### Optional multithreading
+
+You can automatically enable multithreading when fetching batches of reads when building *slow5curl* by invoking `make slow5_mt=1`.
 
 ### Other building options
 

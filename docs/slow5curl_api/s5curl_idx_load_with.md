@@ -12,7 +12,12 @@ s5curl_idx_load_with - loads a local index file for a remote BLOW5 file
 `s5curl_idx_load_with()` should be called successfully before using `s5curl_get()` or `s5curl_get_batch()`.
 
 ## RETURN VALUE
-Upon successful completion, `s5curl_idx_load_with()` returns a non-negative integer. Otherwise, a negative value is returned.
+Upon successful completion, `s5curl_idx_load_with()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
+
+## ERRORS
+
+* `S5CURL_ERR_SLOW5`       
+    &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data. 
 
 ## NOTES
 `slow5_errno` will be set in future to indicate the type of error that occurred.

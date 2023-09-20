@@ -250,7 +250,8 @@ int s5curl_get(
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-		return S5CURL_ERR_FETCH;
+		slow5_errno = SLOW5_ERR_NOTFOUND;
+        return S5CURL_ERR_SLOW5;
 	}
     
     // fetch

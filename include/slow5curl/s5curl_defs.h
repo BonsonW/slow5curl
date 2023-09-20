@@ -33,11 +33,11 @@ extern "C" {
 #endif
 
 // error codes
-#define S5CURL_ERR_OK       (0)     // OK
+#define S5CURL_ERR_OK       (0)     // Successfully completed
 #define S5CURL_ERR_OTH      (-1)    // Other error
-#define S5CURL_ERR_SLOW5    (-2)    // error processing s/blow5 data 
-#define S5CURL_ERR_FETCH    (-3)    // fetching data failed
-#define S5CURL_ERR_CURL     (-4)    // invalid CURL connection
+#define S5CURL_ERR_SLOW5    (-2)    // Error processing s/blow5 data 
+#define S5CURL_ERR_FETCH    (-3)    // Fetching data failed
+#define S5CURL_ERR_CURL     (-4)    // Invalid CURL connection
 
 
 #ifdef __cplusplus
