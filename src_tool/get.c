@@ -43,6 +43,7 @@ typedef struct {
 void get_batch(
     core_t *core,
     s5curl_mt_t *s5c_mt,
+    slow5_mt_t *s5p_mt,
     slow5_batch_t *db,
     char **rid,
     int num_ids
@@ -62,7 +63,6 @@ void get_batch(
 
     start = slow5_realtime();
     if (!core->benchmark) {
-        slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
         slow5_file_t *sf = s5p_mt->sf;
 
         // dummy settings
@@ -81,8 +81,6 @@ void get_batch(
         sf->format = o_fmt;
         sf->compress->record_press->method = o_rec_press;
         sf->compress->signal_press->method = o_sig_press;
-
-        slow5_free_mt(s5p_mt);
     }
     end = slow5_realtime();
     compress_time = end - start;
@@ -366,7 +364,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     if (read_stdin) {
         // Setup multithreading structures
-        s5curl_mt_t *mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        s5curl_mt_t *s5c_mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
         char **rid = malloc(cap_ids * sizeof *rid);
@@ -404,7 +403,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             // Fetch records for read ids in the batch
             start = slow5_realtime();
             // Fetch records for read ids in the batch
-            get_batch(&core, mt, db, rid, num_ids);
+            get_batch(&core, s5c_mt, s5p_mt, db, rid, num_ids);
             end = slow5_realtime();
             read_time += end - start;
 
@@ -428,7 +427,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             }
         }
 
-        s5curl_free_mt(mt);
+        s5curl_free_mt(s5c_mt);
+        slow5_free_mt(s5p_mt);
         slow5_free_batch(db);
 
         free(rid);
