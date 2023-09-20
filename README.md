@@ -1,6 +1,6 @@
 # slow5curl
 
-Slow5curl is a library and toolkit for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and libcurl. This project is still under heavy development, only the C API is available.
+Slow5curl is a library and toolkit for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). This project is still under active development, and currently only the C API is available.
 
 [![CI](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml)
 
@@ -44,23 +44,17 @@ cd slow5curl
 make
 ```
 
-The commands to libcurl __development libraries__ on some popular distributions :
+The commands to install libcurl and zlib __development libraries__ on some popular distributions :
 ```sh
-On Debian/Ubuntu : sudo apt-get install libcurl4-openssl-dev
-On Fedora/CentOS : sudo dnf/yum install libcurl4-openssl-dev
-On OS X : brew install curl
+On Debian/Ubuntu : sudo apt-get install libcurl4-openssl-dev zlib1g-dev
+On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
+On OS X : brew install curl zlib
 ```
 
-The commands to zlib __development libraries__ on some popular distributions :
-```sh
-On Debian/Ubuntu : sudo apt-get install zlib1g-dev
-On Fedora/CentOS : sudo dnf/yum install zlib-devel
-On OS X : brew install zlib
-```
 
 #### Optional zstd compression
 
-You can optionally enable [*zstd* compression](https://facebook.github.io/zstd) support when building *slow5curl* by invoking `make zstd=1`. This requires __zstd 1.3 or higher development libraries__ installed on your system:
+If you want to access BLOW5 files compressed with *zstd*, you can optionally enable [*zstd* compression](https://facebook.github.io/zstd) support in slow5lib when building *slow5curl* by invoking `make zstd=1`. This requires __zstd 1.3 or higher development libraries__ installed on your system:
 
 ```sh
 On Debian/Ubuntu : sudo apt-get install libzstd1-dev # libzstd-dev on newer distributions if libzstd1-dev is unavailable
@@ -68,11 +62,6 @@ On Fedora/CentOS : sudo yum libzstd-devel
 On OS X : brew install zstd
 ```
 
-SLOW5 files compressed with *zstd* offer smaller file size and better performance compared to the default *zlib*. However, *zlib* runtime library is available by default on almost all distributions unlike *zstd* and thus files compressed with *zlib* will be more 'portable'.
-
-#### Optional multithreading
-
-You can automatically enable multithreading when fetching batches of reads when building *slow5curl* by invoking `make slow5_mt=1`.
 
 ### Other building options
 
