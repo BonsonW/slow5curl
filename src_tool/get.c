@@ -42,7 +42,7 @@ typedef struct {
 
 void get_batch(
     core_t *core,
-    s5curl_mt_t *mt,
+    s5curl_mt_t *s5c_mt,
     slow5_batch_t *db,
     char **rid,
     int num_ids
@@ -55,38 +55,47 @@ void get_batch(
     double end;
 
     start = slow5_realtime();
-    s5curl_get_batch(mt, db, rid, num_ids);
+    s5curl_get_batch(s5c_mt, db, rid, num_ids);
     end = slow5_realtime();
     fetch_time = end - start;
     VERBOSE("Fetch time = %.3f sec.", fetch_time);
 
     start = slow5_realtime();
-    for (size_t i = 0; i < num_ids; ++i) {
-        if (db->slow5_rec[i] == NULL) {
-            db->mem_records[i] = NULL;
-            db->mem_bytes[i] = -1;
-        } else {
-            if (core->benchmark == false) {
-                size_t record_size;
-                struct slow5_press* compress = slow5_press_init(core->press_method);
-                if (!compress) {
-                    ERROR("Could not initialize the slow5 compression method%s","");
-                    exit(EXIT_FAILURE);
-                }
-                db->mem_records[i] = slow5_rec_to_mem(db->slow5_rec[i], mt->s5c->s5p->header->aux_meta, core->format_out, compress, &record_size);
-                db->mem_bytes[i] = record_size;
-                slow5_press_free(compress);
-            }
-        }
+    if (!core->benchmark) {
+        slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
+        slow5_file_t *sf = s5p_mt->sf;
+
+        // dummy settings
+        enum slow5_fmt o_fmt = sf->format;
+        enum slow5_press_method o_rec_press = sf->compress->record_press->method;
+        enum slow5_press_method o_sig_press = sf->compress->signal_press->method;
+
+        sf->format = core->format_out;
+        sf->compress->record_press->method = core->press_method.record_method;
+        sf->compress->signal_press->method = core->press_method.signal_method;
+
+        // peform
+        slow5_encode_batch(s5p_mt, db, db->n_rec);
+
+        // restore
+        sf->format = o_fmt;
+        sf->compress->record_press->method = o_rec_press;
+        sf->compress->signal_press->method = o_sig_press;
+
+        slow5_free_mt(s5p_mt);
     }
     end = slow5_realtime();
     compress_time = end - start;
     VERBOSE("Compression time = %.3f sec.", compress_time);
 }
 
-bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_meta *meta, enum slow5_fmt format_out,
-                  slow5_press_method_t press_method, bool benchmark, FILE *slow5_file_pointer, CURL *curl) {
-
+bool get_single(
+    s5curl_t *s5c,
+    const char *read_id,
+    core_t *core,
+    FILE *slow5_file_pointer,
+    CURL *curl
+) {
     bool success = true;
 
     int len = 0;
@@ -109,13 +118,13 @@ bool get_single(s5curl_t *s5c, const char *read_id, char **argv, struct program_
     if (record == NULL || len != 0) {
         success = false;
     } else {
-        if (benchmark == false) {
-            struct slow5_press* compress = slow5_press_init(press_method);
+        if (core->benchmark == false) {
+            struct slow5_press* compress = slow5_press_init(core->press_method);
             if (!compress) {
                 ERROR("Could not initialize the slow5 compression method%s","");
                 exit(EXIT_FAILURE);
             }
-            slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, format_out, compress);
+            slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, core->format_out, compress);
             slow5_press_free(compress);
         }
         slow5_rec_free(record);
@@ -349,14 +358,13 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     idx_load_time = end - start;
 
     VERBOSE("%s", "Fetching reads.");
+    // Setup core
+    core_t core;
+    core.format_out = user_opts.fmt_out;
+    core.press_method = press_out;
+    core.benchmark = benchmark;
 
     if (read_stdin) {
-        // Setup core
-        core_t core;
-        core.format_out = user_opts.fmt_out;
-        core.press_method = press_out;
-        core.benchmark = benchmark;
-
         // Setup multithreading structures
         s5curl_mt_t *mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
@@ -428,7 +436,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){
             start = slow5_realtime();
-            bool success = get_single(slow5curl, argv[i], argv, meta, user_opts.fmt_out, press_out, benchmark, user_opts.f_out, curl);
+            bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
             end = slow5_realtime();
             read_time += end - start;
 
