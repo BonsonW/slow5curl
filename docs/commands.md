@@ -3,11 +3,11 @@
 ## COMMANDS
 
 * `get`:<br/>
-    Retrieve records for specified read IDs from a remote SLOW5/BLOW5 file URL.
+    Retrieve records for specified read IDs from a remote BLOW5 file URL.
 
 ### get
 
-Retrieve records for specified read IDs from a remote SLOW5/BLOW5 file URL.
+Retrieve records for specified read IDs from a remote BLOW5 file URL.
 
 ```
 slow5curl get [OPTIONS] file1.blow5 readid1 readid2 ....
@@ -46,3 +46,4 @@ slow5curl get [OPTIONS] file1.blow5 --list readids.txt
 
 ## LIBRARY
 
+todo
