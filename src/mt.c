@@ -52,10 +52,23 @@ s5curl_mt_t *s5curl_init_mt(
 	int num_thread,
 	s5curl_t *s5c
 ) {
-	s5curl_mt_t *core = (s5curl_mt_t *)malloc(sizeof(s5curl_mt_t));
+	if (!s5c) {
+		SLOW5_ERROR("%s", "Argument 's5c' is NULL.");
+		slow5_errno = SLOW5_ERR_ARG;
+		return NULL;
+	}
+	if (num_thread < 1) {
+		SLOW5_ERROR("%s", "Argument 'num_thread' must be greater that 0.");
+		slow5_errno = SLOW5_ERR_ARG;
+		return NULL;
+	}
+	
+	s5curl_mt_t *core = calloc(1, sizeof(s5curl_mt_t));
 	SLOW5_MALLOC_CHK_EXIT(core);
 	
 	core->curl = calloc(num_thread, sizeof *core->curl);
+	SLOW5_MALLOC_CHK_EXIT(core->curl);
+
     for (size_t i = 0; i < num_thread; ++i) {
         core->curl[i] = curl_easy_init();
         SLOW5_MALLOC_CHK_EXIT(core->curl[i]);

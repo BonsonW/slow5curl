@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -213,9 +214,8 @@ bool s5curl_is_url(
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
     
-    if (curl_easy_perform(curl) == CURLE_OK) {
-        return true;
-    }
+    bool res = curl_easy_perform(curl) == CURLE_OK;
+    curl_easy_cleanup(curl);
     
-    return false;
+    return res;
 }
