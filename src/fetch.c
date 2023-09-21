@@ -200,7 +200,7 @@ CURLcode s5curl_fetch_into_file(
     return curl_easy_perform(curl);
 }
 
-bool is_url(
+bool s5curl_is_url(
     const char *url
 ) {
     CURL *curl;

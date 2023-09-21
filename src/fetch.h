@@ -51,7 +51,7 @@ CURLcode s5curl_fetch_bytes_into_resp(CURL *curl, s5curl_resp_t *resp, const cha
 
 CURLcode s5curl_fetch_bytes_into_file(CURL *curl, FILE *fp, const char *url, uint64_t begin, uint64_t size);
 
-bool is_url(const char *url);
+bool s5curl_is_url(const char *url);
 
 #ifdef __cplusplus
 }

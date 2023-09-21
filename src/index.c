@@ -210,7 +210,7 @@ int s5curl_idx_load_with(
     s5curl_t *s5c,
     const char *path
 ) {
-    if (is_url(path)) {
+    if (s5curl_is_url(path)) {
         CURL *curl = curl_easy_init();
         if (!curl) {
             SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
