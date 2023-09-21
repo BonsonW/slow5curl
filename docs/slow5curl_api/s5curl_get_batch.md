@@ -25,7 +25,6 @@ The argument *db* points to an initialized *slow5_batch_t*. This is done with `s
 Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit.
 
 ## NOTES
-slow5curl must be compiled with multithreading enabled (`make slow5_mt=1`) to use this feature.
 
 ## EXAMPLES
 ```

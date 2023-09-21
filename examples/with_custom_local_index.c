@@ -1,11 +1,10 @@
-// an example programme that uses slow5curl to fetch a single record with a custom index file
+// an example programme that uses slow5curl to fetch a single record with a custom local index file
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <curl/curl.h>
 #include <slow5curl/s5curl.h>
 
-#define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
+#define URL "https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5"
 #define IDX "examples/reads_10.blow5.idx"
 
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))

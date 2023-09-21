@@ -199,3 +199,23 @@ CURLcode s5curl_fetch_into_file(
 
     return curl_easy_perform(curl);
 }
+
+bool is_url(
+    const char *url
+) {
+    CURL *curl;
+    curl = curl_easy_init();
+    if (!curl) {
+        // todo: print error
+        return false;
+    }
+    
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
+    
+    if (curl_easy_perform(curl) == CURLE_OK) {
+        return true;
+    }
+    
+    return false;
+}

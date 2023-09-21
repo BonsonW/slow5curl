@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
-#define URL "https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
+#define URL "https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5"
+#define READ_LIST_PATH "examples/data/reads_10.txt"
 #define N_THREADS 3
 #define N_READS 10
 #define BATCH_CAPACITY 100
@@ -12,7 +13,6 @@
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
 int main(){
-    const char *read_ids_path = "examples/reads_10.txt";
     char **read_ids = malloc(N_READS * sizeof *read_ids);
 
     // read the list of read IDs from file
@@ -22,7 +22,7 @@ int main(){
     ssize_t n_chars;
     size_t cur_read = 0;
 
-    fp = fopen(read_ids_path, "r");
+    fp = fopen(READ_LIST_PATH, "r");
     if (fp == NULL) {
         fprintf(stderr, "Error opening read ids.\n");
         exit(EXIT_FAILURE);

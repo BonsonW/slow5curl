@@ -42,9 +42,8 @@ Thumbs.db
 
 # binaries
 /tool
-reads.blow5
+*.blow5
 *.a
 *.out
 /slow5curl
-examples/get_multi_read
-examples/get_single_read
+/examples/build/*

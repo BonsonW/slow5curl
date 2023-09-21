@@ -206,11 +206,28 @@ int s5curl_idx_load(
     return S5CURL_ERR_OK;
 }
 
-int s5curl_idx_load_with(s5curl_t *s5c, const char *path) {
-    int res = slow5_idx_load_with(s5c->s5p, path);
-    if (res != 0) {
-        slow5_errno = res;
-        return S5CURL_ERR_SLOW5;
+int s5curl_idx_load_with(
+    s5curl_t *s5c,
+    const char *path
+) {
+    if (is_url(path)) {
+        CURL *curl = curl_easy_init();
+        if (!curl) {
+            SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+            return S5CURL_ERR_CURL;
+        }
+        s5c->s5p->index = slow5_idx_init_from_url(s5c, curl);
+        curl_easy_cleanup(curl);
+    
+        if (!s5c->s5p->index) {
+            return S5CURL_ERR_SLOW5;
+        }
+    } else {
+        int res = slow5_idx_load_with(s5c->s5p, path);
+        if (res != 0) {
+            slow5_errno = res;
+            return S5CURL_ERR_SLOW5;
+        }
     }
     return S5CURL_ERR_OK;
 }

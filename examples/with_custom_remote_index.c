@@ -1,10 +1,11 @@
-// an example programme that uses slow5curl to fetch a single record
+// an example programme that uses slow5curl to fetch a single record with a custom remote index file
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5"
+#define IDX "https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5.idx"
 
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
@@ -29,15 +30,15 @@ int main(){
     slow5_rec_t *rec = NULL; // slow5 record to be read
     int ret = 0; // for return value
 
-    // load the SLOW5 index
-    ret = s5curl_idx_load(s5c);
+    // load the SLOW5 index from custom path
+    ret = s5curl_idx_load_with(s5c, IDX);
     if (ret < 0) {
         fprintf(stderr, "Error fetching index for %s\n", URL);
         exit(EXIT_FAILURE);
     }
 
-    // fetch the read with read_id "000286ab-1f80-40e3-a778-8d89e4e52940"
-    ret = s5curl_get("000286ab-1f80-40e3-a778-8d89e4e52940", &rec, curl, s5c);
+    // fetch the read with read_id "0032812b-1ea5-46f1-a844-5bcc3bf3c21f"
+    ret = s5curl_get("0032812b-1ea5-46f1-a844-5bcc3bf3c21f", &rec, curl, s5c);
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
     } else {

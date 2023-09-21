@@ -120,8 +120,10 @@ For the documentation of the C API visit [here](https://bonsonw.github.io/slow5c
 Examples are provided under [examples](https://github.com/BonsonW/slow5curl/tree/master/examples).
 - *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
 - *get_single_read.c* demonstrates how to fetch a singlefrom a remote blow5 file.
+- *with_custom_local_index.c* shows how to use slow5curl to fetch a single record with a custom local index file.
+- *with_custom_remote_index.c* shows how to use slow5curl to fetch a single record with a custom remote index file.
 
-You can invoke `examples/build.sh`` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. If you compiled slow5curl with zstd support enabled, make sure you append -lzstd to the compilation commands.
+You can invoke [build.sh](build.sh) from slow5lib directory as `examples/build.sh` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. As an example, the command to compile [get_single_read.c](get_single_read.c) is `gcc -Wall -O2 -I include/ -I slow5lib/include/ examples/get_single_read.c libslow5curl.a -lcurl -lz`. Make sure that you first call `make` so that `libslow5curl.a` becomes available to be linked with. If you compiled *slow5curl* with *zstd* support enabled (`make zstd=1`), make sure you append `-lzstd` to the compilation commands.
 
 ## Citation
 
