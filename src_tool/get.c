@@ -1,7 +1,7 @@
 /**
  * @file get.c
- * @brief get read(record) given the read_id from a SLOW5 file
- * @author Hiruna Samarakoon (h.samarakoon@garvan.org.au) Sasha Jenner (jenner.sasha@gmail.com), Hasindu Gamaarachchi (hasindu@garvan.org.au)
+ * @brief get read(record) given the read_id from a remote BLOW5 file
+ * @author Hiruna Samarakoon (h.samarakoon@garvan.org.au) Sasha Jenner (jenner.sasha@gmail.com), Bonson Wong (bonson.ym@gmail.com)
  * @date 27/02/2021
  */
 

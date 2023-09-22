@@ -30,6 +30,8 @@
     "\n" \
     "COMMANDS:\n" \
     "    get                   display the read entry for each specified read id\n" \
+    "    head                  print the header\n" \
+    "    reads                 list all read ids\n" \
     "\n" \
     "ARGS:    Try '%s [COMMAND] --help' for more information.\n" \
 
@@ -56,6 +58,8 @@
 int slow5tools_verbosity_level = LOG_VERBOSE;
 
 int (get_main)(int, char **, struct program_meta *);
+int (head_main)(int, char **, struct program_meta *);
+int (reads_main)(int, char **, struct program_meta *);
 
 // Segmentation fault handler
 void segv_handler(int sig) {
@@ -104,6 +108,8 @@ int main(const int argc, char **argv){
     } else {
         const struct command cmds[] = {
             {"get",          get_main},
+            {"head",         head_main},
+            {"reads",        reads_main},
         };
         const size_t num_cmds = sizeof (cmds) / sizeof (*cmds);
 
