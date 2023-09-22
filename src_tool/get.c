@@ -370,8 +370,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
         char **rid = malloc(cap_ids * sizeof *rid);
-        int64_t rid_real_size = 0;
-
+        
         bool end_of_file = false;
         while (!end_of_file) {
             int64_t num_ids = 0;
@@ -397,9 +396,6 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 rid[num_ids] = curr_id;
                 ++num_ids;
             }
-            if (num_ids > rid_real_size) {
-                rid_real_size = num_ids;
-            }
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
@@ -413,7 +409,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             // Print records
             start = slow5_realtime();
             if (benchmark == false) {
-                for (int64_t i = 0; i < num_ids; ++ i) {
+                for (int64_t i = 0; i < num_ids; ++i) {
                     void *buffer = db->mem_records[i];
                     int len = db->mem_bytes[i];
                     if (buffer == NULL || len < 0) {
