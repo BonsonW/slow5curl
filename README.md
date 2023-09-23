@@ -1,6 +1,6 @@
 # slow5curl
 
-Slow5curl is a library and toolkit for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). This project is still under active development, and currently only the C API is available.
+slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). This project is still under active development, and currently the tool and the C API is available. Python API is under construction.
 
 [![CI](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml)
 
@@ -18,10 +18,10 @@ slow5 ecosystem: https://hasindu2008.github.io/slow5<br/>
     - [Building a release](#building-a-release)
     - [Building from GitHub](#building-from-github)
     - [Other building options](#other-building-options)
-- [Tool Usage](#tool-usage)
+- [Tool](#tool)
     - [Tool Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
-- [Library Usage](#library-usage)
+- [Library](#library)
     - [Library Examples](#library-examples)
 - [Citation](#citation)
 
@@ -51,7 +51,6 @@ On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
 On OS X : brew install curl zlib
 ```
 
-
 #### Optional zstd compression
 
 If you want to access BLOW5 files compressed with *zstd*, you can optionally enable [*zstd* compression](https://facebook.github.io/zstd) support in slow5lib when building *slow5curl* by invoking `make zstd=1`. This requires __zstd 1.3 or higher development libraries__ installed on your system:
@@ -67,7 +66,7 @@ On OS X : brew install zstd
 
 todo
 
-## Tool Usage
+## Tool
 
 * Visit the [man page](https://bonsonw.github.io/slow5curl/commands.html) for all the commands and options.
 
@@ -101,7 +100,7 @@ See [here](https://bonsonw.github.io/slow5curl/oneliners.html) for example bash 
 <!-- Visit the [frequently asked questions](https://hasindu2008.github.io/slow5tools/faq.html) or -->
 open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
-## Library Usage
+## Library
 
 Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
 
@@ -119,11 +118,11 @@ For the documentation of the C API visit [here](https://bonsonw.github.io/slow5c
 
 Examples are provided under [examples](https://github.com/BonsonW/slow5curl/tree/master/examples).
 - *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
-- *get_single_read.c* demonstrates how to fetch a singlefrom a remote blow5 file.
-- *with_custom_local_index.c* shows how to use slow5curl to fetch a single record with a custom local index file.
-- *with_custom_remote_index.c* shows how to use slow5curl to fetch a single record with a custom remote index file.
+- *get_single_read.c* demonstrates how to fetch a single read from a remote blow5 file.
+- *with_custom_local_index.c* shows how to fetch a single read with a custom local index file.
+- *with_custom_remote_index.c* shows how to fetch a single read with a custom remote index file.
 
-You can invoke [build.sh](build.sh) from slow5lib directory as `examples/build.sh` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. As an example, the command to compile [get_single_read.c](get_single_read.c) is `gcc -Wall -O2 -I include/ -I slow5lib/include/ examples/get_single_read.c libslow5curl.a -lcurl -lz`. Make sure that you first call `make` so that `libslow5curl.a` becomes available to be linked with. If you compiled *slow5curl* with *zstd* support enabled (`make zstd=1`), make sure you append `-lzstd` to the compilation commands.
+You can invoke [build.sh](build.sh) from slow5lib directory as `examples/build.sh` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. As an example, the command to compile [get_single_read.c](get_multi_read.c) is `gcc -Wall -O2 -I include/ -I slow5lib/include/ examples/get_single_read.c lib/libslow5curl.a -lcurl -lz lpthread`. Make sure that you first call `make` so that `libslow5curl.a` becomes available to be linked with. If you compiled *slow5curl* with *zstd* support enabled (`make zstd=1`), make sure you append `-lzstd` to the compilation commands.
 
 ## Citation
 

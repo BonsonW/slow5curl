@@ -9,7 +9,7 @@
     Print header information from a remote BLOW5 file URL.
 
 * `reads`:<br/>
-    Print all read IDs from a remote BLOW5 file URL.
+    Print list of all read IDs from a remote BLOW5 file URL.
 
 ### get
 
@@ -49,7 +49,7 @@ slow5curl head https://url/to/file1.blow5
 
 ### reads
 
-Print all read IDs from a remote BLOW5 file URL.
+Print the list of read IDs from a remote BLOW5 file URL.
 
 ```
 slow5curl reads https://url/to/file1.blow5
