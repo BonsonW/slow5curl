@@ -47,3 +47,4 @@ Thumbs.db
 *.out
 /slow5curl
 /examples/build/*
+logs/*
