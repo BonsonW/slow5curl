@@ -294,7 +294,7 @@ int s5curl_get(
     if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != 206) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
         return S5CURL_ERR_FETCH;
-    } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != 200) {
+    } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != 225) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
         return S5CURL_ERR_FETCH;
     }
