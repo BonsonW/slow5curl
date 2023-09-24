@@ -34,8 +34,6 @@ SOFTWARE.
 
 extern enum slow5_log_level_opt  slow5_log_level;
 
-#define MAX_IDX_BUF_SIZE (1000 * 1024 * 1024)
-
 static slow5_idx_t *s5curl_idx_init_from_url(
     s5curl_t *s5c,
     CURL *curl
