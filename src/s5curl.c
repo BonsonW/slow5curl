@@ -209,6 +209,26 @@ static s5curl_t *s5curl_open_with(
     s5curl_t *s5c = (s5curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
+    s5c->protocol = S5CURLP_UNKOWN;
+
+    // check protocol
+    char ftp[] = "ftp";
+    char http[] = "http";
+    char buf[strlen(url)+1];
+
+    memcpy(buf, url, strlen(ftp));
+    buf[strlen(ftp)] = '\0';
+
+    if (strcmp(ftp, buf) == 0) {
+        s5c->protocol = S5CURLP_FTP;
+    }
+
+    memcpy(buf, url, strlen(http));
+    buf[strlen(http)] = '\0';
+
+    if (strcmp(http, buf) == 0) {
+        s5c->protocol = S5CURLP_HTTP;
+    }
 
     // cleanup
     s5curl_resp_cleanup(hdr_meta);
@@ -271,7 +291,10 @@ int s5curl_get(
 
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
-    if (s5curl_resp_code != 206) {
+    if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != 206) {
+        SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+        return S5CURL_ERR_FETCH;
+    } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != 200) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
         return S5CURL_ERR_FETCH;
     }

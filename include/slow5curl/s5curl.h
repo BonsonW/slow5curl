@@ -35,8 +35,17 @@ SOFTWARE.
 extern "C" {
 #endif
 
+enum S5CURLProtocol {
+  S5CURLP_FTP,
+  S5CURLP_HTTP,
+  S5CURLP_UNKOWN
+};
+
+typedef enum S5CURLProtocol S5CURLProtocol;
+
 typedef struct {
     char *url;
+    S5CURLProtocol protocol;
     slow5_file_t *s5p;
 } s5curl_t;
 

@@ -39,7 +39,6 @@ extern "C" {
 #define S5CURL_ERR_FETCH    (-3)    // Fetching data failed
 #define S5CURL_ERR_CURL     (-4)    // Invalid CURL connection
 
-
 #ifdef __cplusplus
 }
 #endif
