@@ -424,7 +424,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 }
             }
             end = slow5_realtime();
-            write_time = end - start;
+            write_time += end - start;
         }
 
         s5curl_free_mt(s5c_mt);
