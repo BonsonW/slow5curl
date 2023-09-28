@@ -427,19 +427,19 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     } else {
         CURL *curl = curl_easy_init();
+        start = slow5_realtime();
         for (int i = optind + 1; i < argc; ++i){
-            start = slow5_realtime();
             bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
-            end = slow5_realtime();
-
+            
             if (!success) {
                 if(skip_flag) continue;
-                ERROR("%s","Could not fetch records.");
+                ERROR("%s","Error fetching records.");
                 return EXIT_FAILURE;
-            } else {
-                VERBOSE("Fetched in %.3f seconds.", end - start);
             }
         }
+        end = slow5_realtime();
+        VERBOSE("Fetched %ld reads in %.3f seconds.", argc - (optind + 1), end - start);
+
         curl_easy_cleanup(curl);
     }
     VERBOSE("%s","Finished.\n");
