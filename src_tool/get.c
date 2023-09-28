@@ -355,9 +355,9 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     end = slow5_realtime();
     core.ts.idx = end - start;
 
-    VERBOSE("%s", "Fetching reads.");
-
     if (read_stdin) {
+        VERBOSE("%s", "Fetching reads.");
+
         // Setup multithreading structures
         s5curl_mt_t *s5c_mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
         slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
@@ -392,9 +392,11 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             }
 
             // Fetch records for read ids in the batch
+            start = slow5_realtime();
             get_batch(&core, s5c_mt, s5p_mt, db, rid, num_ids);
+            end = slow5_realtime();
 
-            VERBOSE("Fetched %ld reads.", num_ids);
+            VERBOSE("Fetched %ld reads in %.3f seconds.", num_ids, end - start);
 
             // Print records
             start = slow5_realtime();
@@ -426,12 +428,16 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     } else {
         CURL *curl = curl_easy_init();
         for (int i = optind + 1; i < argc; ++i){
+            start = slow5_realtime();
             bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
+            end = slow5_realtime();
 
             if (!success) {
                 if(skip_flag) continue;
                 ERROR("%s","Could not fetch records.");
                 return EXIT_FAILURE;
+            } else {
+                VERBOSE("Fetched in %.3f seconds.", end - start);
             }
         }
         curl_easy_cleanup(curl);
