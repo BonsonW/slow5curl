@@ -70,7 +70,7 @@ s5curl_mt_t *s5curl_init_mt(
 	SLOW5_MALLOC_CHK_EXIT(core->curl);
 
     for (size_t i = 0; i < num_thread; ++i) {
-        core->curl[i] = curl_easy_init();
+        core->curl[i] = s5curl_conn_init();
         SLOW5_MALLOC_CHK_EXIT(core->curl[i]);
     }
 
@@ -84,7 +84,7 @@ void s5curl_free_mt(
 	s5curl_mt_t *core
 ) {
 	for (size_t i = 0; i < core->num_thread; ++i) {
-        curl_easy_cleanup(core->curl[i]);
+        s5curl_conn_cleanup(core->curl[i]);
     }
 	free(core->curl);
 	free(core);
@@ -220,7 +220,7 @@ static void work_per_single_read_get(
 	int32_t i,
 	int32_t tid
 ) {
-	CURL *curl = core->curl[tid];
+	S5CURLCONN *curl = core->curl[tid];
 
 	int ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
 	

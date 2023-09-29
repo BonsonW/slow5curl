@@ -237,7 +237,7 @@ s5curl_t *s5curl_open(
 int s5curl_get(
     const char *read_id,
     slow5_rec_t **record,
-    CURL *curl,
+    S5CURLCONN *curl,
     s5curl_t *s5c
 ) {
     if (!curl) {
@@ -286,4 +286,20 @@ int s5curl_get(
     s5curl_resp_cleanup(resp);
 
     return S5CURL_ERR_OK;
+}
+
+void s5curl_global_init() {
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+void s5curl_global_cleanup() {
+    curl_global_cleanup();
+}
+
+S5CURLCONN *s5curl_conn_init() {
+    return (S5CURLCONN *)curl_easy_init();
+}
+
+void s5curl_conn_cleanup(S5CURLCONN *conn) {
+    curl_easy_cleanup(conn);
 }

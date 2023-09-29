@@ -35,6 +35,8 @@ SOFTWARE.
 extern "C" {
 #endif
 
+typedef CURL S5CURLCONN;
+
 typedef struct {
     char *url;
     slow5_file_t *s5p;
@@ -43,8 +45,16 @@ typedef struct {
 typedef struct {
     int32_t num_thread;
     s5curl_t *s5c;
-    CURL **curl;
+    S5CURLCONN **curl;
 } s5curl_mt_t;
+
+void s5curl_global_init();
+
+void s5curl_global_cleanup();
+
+S5CURLCONN *s5curl_conn_init();
+
+void s5curl_conn_cleanup(S5CURLCONN *conn);
 
 s5curl_t *s5curl_open(const char *url);
 
@@ -56,7 +66,7 @@ int s5curl_idx_load_with(s5curl_t *s5c, const char *path);
 
 void s5curl_idx_unload(s5curl_t *s5c);
 
-int s5curl_get(const char *read_id, slow5_rec_t **record, CURL *curl, s5curl_t *s5c);
+int s5curl_get(const char *read_id, slow5_rec_t **record, S5CURLCONN *curl, s5curl_t *s5c);
 
 int s5curl_get_batch(s5curl_mt_t *core, slow5_batch_t *db, char **rid, int num_rid);
 
