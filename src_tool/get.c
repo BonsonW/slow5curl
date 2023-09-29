@@ -438,7 +438,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             }
         }
         end = slow5_realtime();
-        VERBOSE("Fetched %ld reads in %.3f seconds.", argc - (optind + 1), end - start);
+        VERBOSE("Fetched %d reads in %.3f seconds.", argc - (optind + 1), end - start);
 
         curl_easy_cleanup(curl);
     }
