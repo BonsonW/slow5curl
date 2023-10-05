@@ -171,7 +171,6 @@ static s5curl_t *s5curl_open_with(
     
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
-    fprintf(stderr, "%s\n", hdr_meta->data);
 
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
         SLOW5_ERROR("File '%s' with header size %u has exceeded the max header size.", url, header_size);
