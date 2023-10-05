@@ -35,6 +35,19 @@ echo_test_name() {
     printf '\n--%s--\n' "$1"
 }
 
+# cache opt
+TESTCASE_NAME="get_cached"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl get ${URL} --cache "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_cached"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl reads ${URL} > ${TXT_OUT} --cache "${OUT}cached" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
 # head
 TESTCASE_NAME="head"
 echo_test_name ${TESTCASE_NAME}
@@ -42,9 +55,19 @@ ex ./slow5curl head ${URL} > ${TXT_OUT} || die "Running the tool failed for test
 diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # reads
-TESTCASE_NAME="reads"
+TESTCASE_NAME="reads_remoteindex"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl reads ${URL} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_customlocalindex"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl reads ${URL} --index ${IDX} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_customremoteindex"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl reads ${URL} --index ${IDX_REM} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # get

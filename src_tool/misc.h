@@ -70,6 +70,7 @@ typedef struct {
 
 } opt_t;
 
+int copy_file_to(FILE *in, const char *dst_path);
 
 enum slow5_fmt parse_name_to_fmt(const char *fmt_str);
 enum slow5_fmt parse_path_to_fmt(const char *fname);

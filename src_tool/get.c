@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 #include <slow5curl/s5curl.h>
+#include "../slow5lib/src/slow5_idx.h"
 #include "cmd.h"
 #include "misc.h"
 
@@ -156,6 +157,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         {"help",        no_argument, NULL, 'h' }, //8
         {"benchmark",   no_argument, NULL, 'e' }, //9
         {"index",       required_argument, NULL, 0 }, //10
+        {"cache",       required_argument, NULL, 0 }, //11
         {NULL, 0, NULL, 0 }
     };
 
@@ -168,6 +170,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     // Input arguments
     char* read_list_file_in = NULL;
     const char *slow5_index = NULL;
+    const char *idx_cache_path = NULL;
 
     int opt;
     int longindex = 0;
@@ -215,6 +218,9 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                         break;
                     case 10:
                         slow5_index = optarg;
+                        break;
+                    case 11:
+                        idx_cache_path = optarg;
                         break;
                 }
                 break;
@@ -342,6 +348,11 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             ERROR("Error loading index file for %s\n", f_in_name);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
+        }
+        if (idx_cache_path != NULL) {
+            VERBOSE("%s", "Caching index.");
+            slow5_idx_t *idx = slow5curl->s5p->index;
+            copy_file_to(idx->fp, idx_cache_path);
         }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
