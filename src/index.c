@@ -70,6 +70,12 @@ static slow5_idx_t *s5curl_idx_init_from_url(
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
 		return NULL;
 	}
+    long s5curl_resp_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
+    if (s5curl_resp_code != 200) {
+        SLOW5_ERROR("Fetching index data of '%s' failed: %li.", index->pathname, s5curl_resp_code);
+        return NULL;
+    }
     fseek(index_fp, 0, SEEK_SET);
 
     index->fp = index_fp;
@@ -102,6 +108,7 @@ int s5curl_idx_load(
         SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
         return S5CURL_ERR_CURL;
     }
+
     s5c->s5p->index = s5curl_idx_init_from_url(s5c, curl);
     curl_easy_cleanup(curl);
 
