@@ -44,6 +44,9 @@ typedef struct {
     int32_t num_thread;
     s5curl_t *s5c;
     CURL **curl;
+
+    int num_retry;
+    int retry_wait_sec;
 } s5curl_mt_t;
 
 s5curl_t *s5curl_open(const char *url);

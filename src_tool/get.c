@@ -8,6 +8,7 @@
 #define _XOPEN_SOURCE 700
 #include <getopt.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <slow5curl/s5curl.h>
 #include "../slow5lib/src/slow5_idx.h"
@@ -48,6 +49,8 @@ typedef struct {
     slow5_press_method_t press_method;
     bool benchmark;
     times_stamps_t ts;
+    int num_retry;
+    int retry_wait_sec;
 } core_t;
 
 void get_batch(
@@ -101,7 +104,7 @@ bool get_single(
 ) {
     bool success = true;
 
-    int len = 0;
+    int ret = 0;
     slow5_rec_t *record = NULL;
 
     // Time stamps
@@ -109,12 +112,17 @@ bool get_single(
     double end;
 
     start = slow5_realtime();
-    len = s5curl_get(read_id, &record, curl, s5c);
+    ret = s5curl_get(read_id, &record, curl, s5c);
+    for (int k = 1; k <= core->num_retry && ret == S5CURL_ERR_FETCH; ++k) {
+		ERROR("Retry %d/%d: fetch %s", k, core->num_retry, read_id);
+        sleep(core->retry_wait_sec);
+		ret = s5curl_get(read_id, &record, curl, s5c);
+	}
     end = slow5_realtime();
     core->ts.fetch = end - start;
 
     start = slow5_realtime();
-    if (record == NULL || len != 0) {
+    if (record == NULL || ret != 0) {
         success = false;
     } else {
         if (core->benchmark == false) {
@@ -316,6 +324,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     core.format_out = user_opts.fmt_out;
     core.press_method = press_out;
     core.benchmark = benchmark;
+    core.num_retry = 1;
+    core.retry_wait_sec = 1;
 
     // Time stamps
     double start;
@@ -371,6 +381,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
         // Setup multithreading structures
         s5curl_mt_t *s5c_mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        s5c_mt->num_retry = core.num_retry;
+        s5c_mt->retry_wait_sec = core.retry_wait_sec;
         slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
