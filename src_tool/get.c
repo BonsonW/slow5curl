@@ -161,12 +161,12 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         {"output",      required_argument, NULL, 'o'}, //4
         {"list",        required_argument, NULL, 'l'},  //5
         {"skip",        no_argument, NULL, 0},  //6
-        {"threads",     required_argument, NULL, 't' }, //7
-        {"help",        no_argument, NULL, 'h' }, //8
-        {"benchmark",   no_argument, NULL, 'e' }, //9
-        {"index",       required_argument, NULL, 0 }, //10
-        {"cache",       required_argument, NULL, 0 }, //11
-        {NULL, 0, NULL, 0 }
+        {"threads",     required_argument, NULL, 't'}, //7
+        {"help",        no_argument, NULL, 'h'}, //8
+        {"benchmark",   no_argument, NULL, 'e'}, //9
+        {"index",       required_argument, NULL, 0}, //10
+        {"cache",       required_argument, NULL, 0}, //11
+        {NULL, 0, NULL, 0}
     };
 
     bool read_stdin = false;

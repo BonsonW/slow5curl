@@ -49,6 +49,7 @@ void s5curl_close(
 ) {
     slow5_close(s5c->s5p);
     free(s5c->url);
+    free(s5c->cookie);
     free(s5c);
 }
 
@@ -149,7 +150,6 @@ static s5curl_t *s5curl_open_with(
     // get header meta data
     s5curl_resp_t *hdr_meta = s5curl_resp_init();
 
-    curl_easy_reset(curl);
 	int res = s5curl_fetch_bytes_into_resp(
         curl,
 	    hdr_meta,
@@ -186,7 +186,6 @@ static s5curl_t *s5curl_open_with(
         return NULL;
     }
 
-    curl_easy_reset(curl);
 	res = s5curl_fetch_bytes_into_file(
         curl,
 	    fp,
@@ -220,6 +219,7 @@ static s5curl_t *s5curl_open_with(
     s5curl_t *s5c = (s5curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
+    s5c->cookie = NULL;
 
     // cleanup
     s5curl_resp_cleanup(hdr_meta);
@@ -237,6 +237,29 @@ s5curl_t *s5curl_open(
     }
 
     s5curl_t *ret = s5curl_open_with(url, curl, "r");
+    curl_easy_cleanup(curl);
+    return ret;
+}
+
+s5curl_t *s5curl_open_with_cookie(
+    const char *url,
+    const char *cookie
+) {
+    CURL *curl = curl_easy_init();
+    if (!curl) {
+        SLOW5_ERROR("Failed to initialize connection for url '%s'.", url);
+        return NULL;
+    }
+
+    int res = curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookie);
+    if (res != 0) {
+        SLOW5_ERROR("Fetch to set cookie for: %s: %s.", url, curl_easy_strerror(res));
+        return NULL;
+    }
+
+    s5curl_t *ret = s5curl_open_with(url, curl, "r");
+    ret->cookie = cookie;
+
     curl_easy_cleanup(curl);
     return ret;
 }
@@ -263,6 +286,13 @@ int s5curl_get(
     
     // fetch
 	s5curl_resp_t *resp = s5curl_resp_init();
+    if (s5c->cookie) {
+        int res = curl_easy_setopt(curl, CURLOPT_COOKIEFILE, s5c->cookie);
+        if (res != 0) {
+            SLOW5_ERROR("Fetch to set cookie for: %s: %s", read_id, curl_easy_strerror(res));
+            return S5CURL_ERR_FETCH;
+        }
+    }
 
 	int res = s5curl_fetch_bytes_into_resp(
         curl,

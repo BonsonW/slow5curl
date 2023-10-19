@@ -33,7 +33,8 @@ int head_main(int argc, char **argv, struct program_meta *meta){
     //WARNING("%s","slow5tools is experiemental. Use with caution. Report any bugs under GitHub issues");
 
     static struct option long_opts[] = {
-            {"help", no_argument, NULL, 'h' }, //0
+            {"help",    no_argument, NULL, 'h' }, //0
+            {"cookie",  required_argument, NULL, 0},  //1
             {NULL, 0, NULL, 0 }
     };
 
@@ -41,9 +42,11 @@ int head_main(int argc, char **argv, struct program_meta *meta){
     init_opt(&user_opts);
 
     // Input arguments
+    char *cookie = NULL;
+
     int longindex = 0;
     int opt;
-
+    
     // Parse options
     while ((opt = getopt_long(argc, argv, "ht:K:", long_opts, &longindex)) != -1) {
         DEBUG("opt='%c', optarg=\"%s\", optind=%d, opterr=%d, optopt='%c'",
@@ -62,6 +65,13 @@ int head_main(int argc, char **argv, struct program_meta *meta){
             case 't':
                 user_opts.arg_num_threads = optarg;
                 break;
+            case 0  :
+                switch (longindex) {
+                    case 1:
+                        cookie = optarg;
+                        break;
+                }
+                break;
             default: // case '?'
                 fprintf(stderr, HELP_SMALL_MSG, argv[0]);
                 EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -77,7 +87,14 @@ int head_main(int argc, char **argv, struct program_meta *meta){
     }
 
     curl_global_init(CURL_GLOBAL_ALL);
-    s5curl_t *slow5curl = s5curl_open(argv[optind]);
+
+    s5curl_t *slow5curl = NULL;
+    if (cookie) {
+        slow5curl = s5curl_open_with_cookie(argv[optind], cookie);
+    } else {
+        slow5curl = s5curl_open(argv[optind]);
+    }
+     
     if (!slow5curl) {
         ERROR("cannot open %s. \n", argv[optind]);
         return EXIT_FAILURE;

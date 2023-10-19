@@ -37,6 +37,7 @@ extern "C" {
 
 typedef struct {
     char *url;
+    char *cookie;
     slow5_file_t *s5p;
 } s5curl_t;
 
@@ -51,11 +52,15 @@ typedef struct {
 
 s5curl_t *s5curl_open(const char *url);
 
+s5curl_t *s5curl_open_with_cookie(const char *url, const char *cookie);
+
 void s5curl_close(s5curl_t *s5c);
 
 int s5curl_idx_load(s5curl_t *s5c);
 
 int s5curl_idx_load_with(s5curl_t *s5c, const char *path);
+
+int s5curl_idx_load_with_cookie(s5curl_t *s5c, const char *path, const char *cookie);
 
 void s5curl_idx_unload(s5curl_t *s5c);
 

@@ -44,9 +44,11 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     //WARNING("%s","slow5tools is experiemental. Use with caution. Report any bugs under GitHub issues");
 
     static struct option long_opts[] = {
-        {"help", no_argument, NULL, 'h' }, //0
-        {"index",       required_argument, NULL, 0 }, //1
-        {"cache",       required_argument, NULL, 0 }, //2
+        {"help",            no_argument, NULL, 'h'},        //0
+        {"index",           required_argument, NULL, 0},    //1
+        {"cache",           required_argument, NULL, 0},    //2
+        {"index-cookie",    required_argument, NULL, 0},    //3
+        {"header-cookie",   required_argument, NULL, 0},    //4
         {NULL, 0, NULL, 0 }
     };
 
@@ -56,6 +58,8 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     // Input arguments
     const char *slow5_index = NULL;
     const char *idx_cache_path = NULL;
+    const char *index_cookie = NULL;
+    const char *header_cookie = NULL;
 
     int longindex = 0;
     int opt;
@@ -86,6 +90,12 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
                     case 2:
                         idx_cache_path = optarg;
                         break;
+                    case 3:
+                        index_cookie = optarg;
+                        break;
+                    case 4:
+                        header_cookie = optarg;
+                        break;
                 }
                 break;
             
@@ -96,7 +106,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
         }
     }
 
-    if (argc - optind > 1){
+    if (argc - optind > 1) {
         ERROR("%s", "Too many arguments");
         fprintf(stderr, HELP_SMALL_MSG, argv[0]);
         EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -108,10 +118,11 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     char *f_in_name = argv[optind];
 
     VERBOSE("%s", "Loading remote BLOW5 file.");
-    s5curl_t *slow5curl = s5curl_open(f_in_name);
-    if (!slow5curl) {
-        ERROR("cannot open %s. \n", f_in_name);
-        return EXIT_FAILURE;
+    s5curl_t *slow5curl = NULL;
+    if (header_cookie) {
+        slow5curl = s5curl_open_with_cookie(argv[optind], header_cookie);
+    } else {
+        slow5curl = s5curl_open(argv[optind]);
     }
 
     VERBOSE("%s", "Loading index.");
@@ -129,7 +140,12 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
         }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
-        int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
+        int ret_idx = -1;
+        if (index_cookie) {
+            ret_idx = s5curl_idx_load_with_cookie(slow5curl, slow5_index, index_cookie);
+        } else {
+            ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
+        }
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);

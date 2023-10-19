@@ -60,7 +60,6 @@ static slow5_idx_t *s5curl_idx_init_from_url(
         return NULL;
     }
 
-    curl_easy_reset(curl);
 	int ret = s5curl_fetch_into_file(
         curl,
 	    index_fp,
@@ -141,6 +140,32 @@ int s5curl_idx_load_with(
             slow5_errno = res;
             return S5CURL_ERR_SLOW5;
         }
+    }
+    return S5CURL_ERR_OK;
+}
+
+int s5curl_idx_load_with_cookie(
+    s5curl_t *s5c,
+    const char *path,
+    const char *cookie
+) {
+    CURL *curl = curl_easy_init();
+    if (!curl) {
+        SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+        return S5CURL_ERR_CURL;
+    }
+
+    int res = curl_easy_setopt(curl, CURLOPT_COOKIEFILE, cookie);
+    if (res != 0) {
+        SLOW5_ERROR("Fetch to set cookie for: %s: %s.", s5c->url, curl_easy_strerror(res));
+        return S5CURL_ERR_CURL;
+    }
+
+    s5c->s5p->index = s5curl_idx_init_from_url(s5c, curl);
+    curl_easy_cleanup(curl);
+
+    if (!s5c->s5p->index) {
+        return S5CURL_ERR_SLOW5;
     }
     return S5CURL_ERR_OK;
 }
