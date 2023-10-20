@@ -146,6 +146,22 @@ static s5curl_t *s5curl_open_with(
         return NULL;
     }
 
+    // check protocol
+    S5CURLProtocol protocol = S5CURLP_UNKOWN;
+    char ftp[] = "ftp";
+    char http[] = "http";
+    char buf[strlen(url)+1];
+
+    memcpy(buf, url, strlen(ftp));
+    buf[strlen(ftp)] = '\0';
+
+    if (strcmp(ftp, buf) == 0) protocol = S5CURLP_FTP;
+
+    memcpy(buf, url, strlen(http));
+    buf[strlen(http)] = '\0';
+
+    if (strcmp(http, buf) == 0) protocol = S5CURLP_HTTP;
+
     // get header meta data
     s5curl_resp_t *hdr_meta = s5curl_resp_init();
 
@@ -164,10 +180,14 @@ static s5curl_t *s5curl_open_with(
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
-    if (s5curl_resp_code != 206) {
+    if (protocol == S5CURLP_HTTP &&  s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
+        SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        return NULL;
+    } else if (protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
         return NULL;
     }
+
     
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
@@ -200,7 +220,10 @@ static s5curl_t *s5curl_open_with(
 		return NULL;
 	}
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
-    if (s5curl_resp_code != 206) {
+    if (protocol == S5CURLP_HTTP &&  s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
+        SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        return NULL;
+    } else if (protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
         return NULL;
     }
@@ -220,6 +243,7 @@ static s5curl_t *s5curl_open_with(
     s5curl_t *s5c = (s5curl_t *)calloc(1, sizeof *s5c);
     s5c->url = strdup(url);
     s5c->s5p = s5p;
+    s5c->protocol = protocol;
 
     // cleanup
     s5curl_resp_cleanup(hdr_meta);
@@ -277,7 +301,10 @@ int s5curl_get(
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
-    if (s5curl_resp_code != 206) {
+    if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
+        SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+        return S5CURL_ERR_FETCH;
+    } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
         return S5CURL_ERR_FETCH;
     }

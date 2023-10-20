@@ -39,6 +39,11 @@ extern "C" {
 #define S5CURL_ERR_FETCH    (-3)    // Fetching data failed
 #define S5CURL_ERR_CURL     (-4)    // Invalid CURL connection
 
+// response codes
+#define S5CURL_HTTP_OK      (200)   // HTTP successfully completed get
+#define S5CURL_HTTP_PARTIAL (206)   // HTTP succesfully completed partial response
+#define S5CURL_FTP_OK       (226)   // FTP successfully completed transfer, closing connection
+#define S5CURL_FTP_PARTAL   (225)   // FTP successfully completed transfer, connection left open
 
 #ifdef __cplusplus
 }
