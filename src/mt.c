@@ -29,6 +29,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define SLOW5_WORK_STEAL 1
 #define SLOW5_STEAL_THRESH 1
@@ -58,7 +59,7 @@ s5curl_mt_t *s5curl_init_mt(
 		return NULL;
 	}
 	if (num_thread < 1) {
-		SLOW5_ERROR("%s", "Argument 'num_thread' must be greater that 0.");
+		SLOW5_ERROR("%s", "Argument 'num_thread' must be greater that 1.");
 		slow5_errno = SLOW5_ERR_ARG;
 		return NULL;
 	}
@@ -76,6 +77,8 @@ s5curl_mt_t *s5curl_init_mt(
 
 	core->s5c = s5c;
 	core->num_thread = num_thread;
+	core->num_retry = 0;
+	core->retry_wait_sec = 0;
 
 	return core;
 }
@@ -223,11 +226,15 @@ static void work_per_single_read_get(
 	CURL *curl = core->curl[tid];
 
 	int ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
-	
+	for (int k = 1; k <= core->num_retry && ret == S5CURL_ERR_FETCH; ++k) {
+		SLOW5_VERBOSE("Retry %d/%d: fetch %s\n",  k+1, core->num_retry, db->rid[i]);
+		sleep(core->retry_wait_sec);
+		ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
+	}
 	if (ret != 0) {
-        SLOW5_ERROR("Error fetching read %s.\n", db->rid[i]);
-        exit(EXIT_FAILURE);
-    }
+		SLOW5_ERROR("Failed to fetch read %s.\n", db->rid[i]);
+		exit(EXIT_FAILURE);
+	}
 	db->mem_bytes[i] = ret;
 }
 

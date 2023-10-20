@@ -9,6 +9,7 @@
 #include "error.h"
 #include "cmd.h"
 #include "misc.h"
+#include "../slow5lib/src/slow5_idx.h"
 #include <slow5curl/s5curl.h>
 
 #define USAGE_MSG "Usage: %s [OPTIONS] [SLOW5_FILE]\n"
@@ -21,13 +22,6 @@
 extern int slow5tools_verbosity_level;
 
 static void print_rid(s5curl_t* s5c) {
-    int ret = 0;
-    ret = s5curl_idx_load(s5c);
-    if (ret < 0) {
-        fprintf(stderr,"Error in loading index\n");
-        exit(EXIT_FAILURE);
-    }
-
     uint64_t num_reads = 0;
     char **read_ids = slow5_get_rids(s5c->s5p, &num_reads);
     if (read_ids == NULL) {
@@ -50,14 +44,19 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     //WARNING("%s","slow5tools is experiemental. Use with caution. Report any bugs under GitHub issues");
 
     static struct option long_opts[] = {
-            {"help", no_argument, NULL, 'h' }, //0
-            {NULL, 0, NULL, 0 }
+        {"help", no_argument, NULL, 'h' }, //0
+        {"index",       required_argument, NULL, 0 }, //1
+        {"cache",       required_argument, NULL, 0 }, //2
+        {NULL, 0, NULL, 0 }
     };
 
     opt_t user_opts;
     init_opt(&user_opts);
 
     // Input arguments
+    const char *slow5_index = NULL;
+    const char *idx_cache_path = NULL;
+
     int longindex = 0;
     int opt;
 
@@ -79,6 +78,17 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
             case 't':
                 user_opts.arg_num_threads = optarg;
                 break;
+            case 0  :
+                switch (longindex) {
+                    case 1:
+                        slow5_index = optarg;
+                        break;
+                    case 2:
+                        idx_cache_path = optarg;
+                        break;
+                }
+                break;
+            
             default: // case '?'
                 fprintf(stderr, HELP_SMALL_MSG, argv[0]);
                 EXIT_MSG(EXIT_FAILURE, argv, meta);
@@ -94,10 +104,37 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     }
 
     curl_global_init(CURL_GLOBAL_ALL);
-    s5curl_t *slow5curl = s5curl_open(argv[optind]);
+
+    char *f_in_name = argv[optind];
+
+    VERBOSE("%s", "Loading remote BLOW5 file.");
+    s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
-        ERROR("cannot open %s. \n", argv[optind]);
+        ERROR("cannot open %s. \n", f_in_name);
         return EXIT_FAILURE;
+    }
+
+    VERBOSE("%s", "Loading index.");
+    if (slow5_index == NULL) {
+        int ret_idx = s5curl_idx_load(slow5curl);
+        if (ret_idx < 0) {
+            ERROR("Error loading index file for %s\n", f_in_name);
+            EXIT_MSG(EXIT_FAILURE, argv, meta);
+            return EXIT_FAILURE;
+        }
+        if (idx_cache_path != NULL) {
+            VERBOSE("%s", "Caching index.");
+            slow5_idx_t *idx = slow5curl->s5p->index;
+            copy_file_to(idx->fp, idx_cache_path);
+        }
+    } else {
+        WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
+        int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
+        if (ret_idx < 0) {
+            ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
+            EXIT_MSG(EXIT_FAILURE, argv, meta);
+            return EXIT_FAILURE;
+        }
     }
 
     print_rid(slow5curl);

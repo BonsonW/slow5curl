@@ -6,8 +6,27 @@
  */
 #include "misc.h"
 #include "cmd.h"
+#include <fcntl.h>
 
 extern int slow5tools_verbosity_level;
+
+int copy_file_to(FILE *in, const char *dst_path) {
+    FILE *out = fopen(dst_path, "w"); 
+    if (out == NULL) { 
+        ERROR("Cannot open file %s \n", dst_path); 
+        exit(1); 
+    }
+
+    rewind(in);
+    char c = fgetc(in); 
+    while (c != EOF) { 
+        fputc(c, out); 
+        c = fgetc(in); 
+    } 
+
+    fclose(out); 
+    return 0; 
+}
 
 void print_args(int argc, char **argv){
 

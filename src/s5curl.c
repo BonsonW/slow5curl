@@ -162,6 +162,12 @@ static s5curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
+    long s5curl_resp_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
+    if (s5curl_resp_code != 206) {
+        SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        return NULL;
+    }
     
 	uint32_t header_size = 0;
 	memcpy((void *)&header_size, hdr_meta->data + 64, 4);
@@ -193,6 +199,11 @@ static s5curl_t *s5curl_open_with(
         slow5_errno = SLOW5_ERR_OTH;
 		return NULL;
 	}
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
+    if (s5curl_resp_code != 206) {
+        SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        return NULL;
+    }
 	fseek(fp, 0, SEEK_SET);
 
     // initialize slow5 file
@@ -245,10 +256,6 @@ s5curl_t *s5curl_open(
         return NULL;
     }
 
-    if (slow5_path_get_fmt(url) != SLOW5_FORMAT_BINARY) {
-        SLOW5_ERROR("Invalid file type for url %s, s5curl only supports '.blow5' files.\n", url);
-        return NULL;
-    }
     s5curl_t *ret = s5curl_open_with(url, curl, "r");
     curl_easy_cleanup(curl);
     return ret;
@@ -288,7 +295,6 @@ int s5curl_get(
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
 		return S5CURL_ERR_FETCH;
 	}
-
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != 206) {

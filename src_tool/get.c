@@ -8,8 +8,10 @@
 #define _XOPEN_SOURCE 700
 #include <getopt.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <slow5curl/s5curl.h>
+#include "../slow5lib/src/slow5_idx.h"
 #include "cmd.h"
 #include "misc.h"
 
@@ -33,11 +35,22 @@
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
+typedef struct {
+    double fetch;
+    double encode;
+    double write;
+    double idx;
+    double header;
+} times_stamps_t;
+
 /* core data structure that has information that are global to all the threads */
 typedef struct {
     enum slow5_fmt format_out;
     slow5_press_method_t press_method;
     bool benchmark;
+    times_stamps_t ts;
+    int num_retry;
+    int retry_wait_sec;
 } core_t;
 
 void get_batch(
@@ -49,17 +62,13 @@ void get_batch(
     int num_ids
 ) {
     // Time stamps
-    double fetch_time = 0;
-    double compress_time = 0;
-
     double start;
     double end;
 
     start = slow5_realtime();
     s5curl_get_batch(s5c_mt, db, rid, num_ids);
     end = slow5_realtime();
-    fetch_time = end - start;
-    //VERBOSE("Get time = %.3f sec.", fetch_time);
+    core->ts.fetch += end - start;
 
     start = slow5_realtime();
     if (!core->benchmark) {
@@ -83,9 +92,7 @@ void get_batch(
         sf->compress->signal_press->method = o_sig_press;
     }
     end = slow5_realtime();
-    compress_time = end - start;
-
-    VERBOSE("Get time = %.3f sec, Encode time = %.3f sec.", fetch_time, compress_time);
+    core->ts.encode += end - start;
 }
 
 bool get_single(
@@ -97,24 +104,25 @@ bool get_single(
 ) {
     bool success = true;
 
-    int len = 0;
+    int ret = 0;
     slow5_rec_t *record = NULL;
 
     // Time stamps
-    double fetch_time = 0;
-    double compress_time = 0;
-
     double start;
     double end;
 
     start = slow5_realtime();
-    len = s5curl_get(read_id, &record, curl, s5c);
+    ret = s5curl_get(read_id, &record, curl, s5c);
+    for (int k = 1; k <= core->num_retry && ret == S5CURL_ERR_FETCH; ++k) {
+		ERROR("Retry %d/%d: fetch %s", k, core->num_retry, read_id);
+        sleep(core->retry_wait_sec);
+		ret = s5curl_get(read_id, &record, curl, s5c);
+	}
     end = slow5_realtime();
-    fetch_time = end - start;
-    VERBOSE("Fetch time = %.3f sec.", fetch_time);
+    core->ts.fetch = end - start;
 
     start = slow5_realtime();
-    if (record == NULL || len != 0) {
+    if (record == NULL || ret != 0) {
         success = false;
     } else {
         if (core->benchmark == false) {
@@ -129,8 +137,7 @@ bool get_single(
         slow5_rec_free(record);
     }
     end = slow5_realtime();
-    compress_time = end - start;
-    VERBOSE("Compression time = %.3f sec.", compress_time);
+    core->ts.fetch = end - start;
 
     return success;
 }
@@ -158,6 +165,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         {"help",        no_argument, NULL, 'h' }, //8
         {"benchmark",   no_argument, NULL, 'e' }, //9
         {"index",       required_argument, NULL, 0 }, //10
+        {"cache",       required_argument, NULL, 0 }, //11
         {NULL, 0, NULL, 0 }
     };
 
@@ -170,6 +178,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     // Input arguments
     char* read_list_file_in = NULL;
     const char *slow5_index = NULL;
+    const char *idx_cache_path = NULL;
 
     int opt;
     int longindex = 0;
@@ -217,6 +226,9 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                         break;
                     case 10:
                         slow5_index = optarg;
+                        break;
+                    case 11:
+                        idx_cache_path = optarg;
                         break;
                 }
                 break;
@@ -305,12 +317,17 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     char *f_in_name = argv[optind];
 
-    // Time stamps
-    double read_time = 0;
-    double write_time = 0;
-    double idx_load_time = 0;
-    double header_load_time = 0;
+    slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
 
+    // Setup core
+    core_t core = {0};
+    core.format_out = user_opts.fmt_out;
+    core.press_method = press_out;
+    core.benchmark = benchmark;
+    core.num_retry = 1;
+    core.retry_wait_sec = 1;
+
+    // Time stamps
     double start;
     double end;
 
@@ -324,9 +341,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         return EXIT_FAILURE;
     }
     end = slow5_realtime();
-    header_load_time = end - start;
-
-    slow5_press_method_t press_out = {user_opts.record_press_out, user_opts.signal_press_out};
+    core.ts.header = end - start;
 
     if (benchmark == false) {
         if(slow5_hdr_fwrite(user_opts.f_out, slow5curl->s5p->header, user_opts.fmt_out, press_out) == -1){
@@ -344,6 +359,11 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }
+        if (idx_cache_path != NULL) {
+            VERBOSE("%s", "Caching index.");
+            slow5_idx_t *idx = slow5curl->s5p->index;
+            copy_file_to(idx->fp, idx_cache_path);
+        }
     } else {
         WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
         int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
@@ -354,18 +374,15 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         }
     }
     end = slow5_realtime();
-    idx_load_time = end - start;
-
-    VERBOSE("%s", "Fetching reads.");
-    // Setup core
-    core_t core;
-    core.format_out = user_opts.fmt_out;
-    core.press_method = press_out;
-    core.benchmark = benchmark;
+    core.ts.idx = end - start;
 
     if (read_stdin) {
+        VERBOSE("%s", "Fetching reads.");
+
         // Setup multithreading structures
         s5curl_mt_t *s5c_mt = s5curl_init_mt(user_opts.num_threads, slow5curl);
+        s5c_mt->num_retry = core.num_retry;
+        s5c_mt->retry_wait_sec = core.retry_wait_sec;
         slow5_mt_t *s5p_mt = slow5_init_mt(s5c_mt->num_thread, s5c_mt->s5c->s5p);
         slow5_batch_t *db = slow5_init_batch(user_opts.read_id_batch_capacity);
         int64_t cap_ids = READ_ID_INIT_CAPACITY;
@@ -399,12 +416,10 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
-            // Fetch records for read ids in the batch
             get_batch(&core, s5c_mt, s5p_mt, db, rid, num_ids);
             end = slow5_realtime();
-            read_time += end - start;
 
-            VERBOSE("Fetched %ld reads.", num_ids);
+            VERBOSE("Fetched %ld reads in %.3f seconds.", num_ids, end - start);
 
             // Print records
             start = slow5_realtime();
@@ -424,7 +439,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 }
             }
             end = slow5_realtime();
-            write_time = end - start;
+            core.ts.write += end - start;
         }
 
         s5curl_free_mt(s5c_mt);
@@ -435,26 +450,29 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     } else {
         CURL *curl = curl_easy_init();
+        start = slow5_realtime();
         for (int i = optind + 1; i < argc; ++i){
-            start = slow5_realtime();
             bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
-            end = slow5_realtime();
-            read_time += end - start;
-
+            
             if (!success) {
                 if(skip_flag) continue;
-                ERROR("%s","Could not fetch records.");
+                ERROR("%s","Error fetching records.");
                 return EXIT_FAILURE;
             }
         }
+        end = slow5_realtime();
+        VERBOSE("Fetched %d reads in %.3f seconds.", argc - (optind + 1), end - start);
+
         curl_easy_cleanup(curl);
     }
-    VERBOSE("%s","Fetched all reads.\n");
+    VERBOSE("%s","Finished.\n");
 
-    VERBOSE("Header load time = %.3f sec.", header_load_time);
-    VERBOSE("Index load time = %.3f sec.", idx_load_time);
-    VERBOSE("Get and encode time = %.3f sec.", read_time);
-    VERBOSE("Write time = %.3f sec.", write_time);
+    VERBOSE("%s", "Timings:");
+    VERBOSE("   Header Load:   %.3f sec.", core.ts.header);
+    VERBOSE("   Index Load:    %.3f sec.", core.ts.idx);
+    VERBOSE("   Fetch:         %.3f sec.", core.ts.fetch);
+    VERBOSE("   Encode:        %.3f sec.", core.ts.encode);
+    VERBOSE("   Write:         %.3f sec.", core.ts.write);
 
     if (benchmark == false) {
         if (user_opts.fmt_out == SLOW5_FORMAT_BINARY) {
