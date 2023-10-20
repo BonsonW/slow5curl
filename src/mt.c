@@ -227,7 +227,7 @@ static void work_per_single_read_get(
 
 	int ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
 	for (int k = 1; k <= core->num_retry && ret == S5CURL_ERR_FETCH; ++k) {
-		SLOW5_VERBOSE("Retry %d/%d: fetch %s\n",  k+1, core->num_retry, db->rid[i]);
+		SLOW5_VERBOSE("Retry %d/%d: fetch %s\n", k, core->num_retry, db->rid[i]);
 		sleep(core->retry_wait_sec);
 		ret = s5curl_get(db->rid[i], &db->slow5_rec[i], curl, core->s5c);
 	}
