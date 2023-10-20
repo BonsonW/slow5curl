@@ -114,7 +114,7 @@ bool get_single(
     start = slow5_realtime();
     ret = s5curl_get(read_id, &record, curl, s5c);
     for (int k = 1; k <= core->num_retry && ret == S5CURL_ERR_FETCH; ++k) {
-		ERROR("Retry %d/%d: fetch %s", k, core->num_retry, read_id);
+		VERBOSE("Retry %d/%d: fetch %s", k, core->num_retry, read_id);
         sleep(core->retry_wait_sec);
 		ret = s5curl_get(read_id, &record, curl, s5c);
 	}
