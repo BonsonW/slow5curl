@@ -72,7 +72,10 @@ static slow5_idx_t *s5curl_idx_init_from_url(
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
-    if (s5curl_resp_code != 200) {
+    if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != S5CURL_HTTP_OK) {
+        SLOW5_ERROR("Fetching index data of '%s' failed: %li.", index->pathname, s5curl_resp_code);
+        return NULL;
+    } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_OK) {
         SLOW5_ERROR("Fetching index data of '%s' failed: %li.", index->pathname, s5curl_resp_code);
         return NULL;
     }
