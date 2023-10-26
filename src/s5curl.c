@@ -258,7 +258,7 @@ s5curl_t *s5curl_open_with_cookie(
     }
 
     s5curl_t *ret = s5curl_open_with(url, curl, "r");
-    ret->cookie = cookie;
+    ret->cookie = strdup(cookie);
 
     curl_easy_cleanup(curl);
     return ret;
