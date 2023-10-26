@@ -1,13 +1,15 @@
-# s5curl_idx_unload
+# s5curl_conn_init
 
 ## NAME
-s5curl_idx_unload - unloads a BLOW5 index from the memory
+s5curl_conn_cleanup - closes an existing connection handle
 
 ## SYNOPSYS
-`void s5curl_idx_unload(s5curl_t *s5c)`
+`void s5curl_conn_cleanup(S5CURLCONN *conn)`
 
 ## DESCRIPTION
-`s5curl_idx_unload()` unloads an index file loaded into memory for a remote BLOW5 file pointed by *s5c*, which must have been previously loaded using `s5curl_idx_load()` or `s5curl_idx_load_with()`. Otherwise, or if *s5curl_idx_unload(s5c)* has already been called before, undefined behaviour occurs.
+The `s5curl_conn_cleanup()` function closes an existing connection handle opened by `s5curl_conn_init()`.
+
+Every `s5curl_conn_init()` should be followed by a corresponding `s5curl_conn_cleanup()` function.
 
 ## RETURN VALUE
 No return value.
@@ -22,10 +24,13 @@ No return value.
 #include <curl/curl.h>
 
 #define URL "https://example.blow5"
+#define READ_ID "0032812b-1ea5-46f1-a844-5bcc3bf3c21f"
 
 int main () {
 
     s5curl_global_init();
+
+    S5CURLCONN *curl = s5curl_conn_init();
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -39,15 +44,22 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
+    ret = s5curl_get(s5c, curl, READ_ID, &rec);
+    if (ret < 0) {
+        fprintf(stderr, "Error in when fetching the read\n");
+    }
+
     //...
 
     s5curl_idx_unload(s5c);
 
     s5curl_close(s5c);
 
+    s5curl_conn_cleanup(curl);
+
     s5curl_global_cleanup();
 }
 ```
 
 ## SEE ALSO
-[s5curl_idx_load()](s5curl_idx_load.md), [s5curl_idx_load_with()](s5curl_idx_load_with.md)
+[s5curl_conn_init()](s5curl_conn_init.md)

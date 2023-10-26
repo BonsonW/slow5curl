@@ -40,6 +40,14 @@ typedef struct {
 High-level API consists of following functions:
 
 #### Resource Initialization
+* [s5curl_conn_init](s5curl_conn_init.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;opens a new connection handle
+* [s5curl_conn_cleanup](s5curl_conn_cleanup.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;closes an existing connection handle
+* [s5curl_global_init](s5curl_global_init.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;global initialization for slow5curl
+* [s5curl_global_cleanup](s5curl_global_cleanup.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;releases resources acquired by s5curl_global_init
 * [s5curl_open](s5curl_open.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;opens a remote BLOW5 file
 * [s5curl_close](s5curl_close.md)<br/>
