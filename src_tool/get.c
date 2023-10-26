@@ -331,7 +331,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     double start;
     double end;
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     VERBOSE("%s", "Loading remote BLOW5 file.");
     start = slow5_realtime();
@@ -485,7 +485,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     fclose(read_list_in);
     if (user_opts.arg_fname_out != NULL) fclose(user_opts.f_out);
 
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 
     EXIT_MSG(EXIT_SUCCESS, argv, meta);
     return EXIT_SUCCESS;

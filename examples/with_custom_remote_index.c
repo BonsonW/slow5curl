@@ -11,7 +11,7 @@
 
 int main(){
     // global curl init
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     // initialize a connection
     // to be re-used across s5curl_get(s) in a single thread
@@ -66,7 +66,7 @@ int main(){
     curl_easy_cleanup(curl);
 
     // global curl cleanup
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 
     return 0;
 }

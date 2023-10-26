@@ -43,7 +43,7 @@ Upon successful completion, `s5curl_get()` returns a non negative integer (>=0).
 
 int main () {
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     CURL *curl = curl_easy_init();
 
@@ -72,7 +72,7 @@ int main () {
 
     curl_easy_cleanup(curl);
 
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 }
 ```
 

@@ -26,7 +26,7 @@ No return value
 
 int main () {
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -56,7 +56,7 @@ int main () {
 
     s5curl_free_mt(core);
 
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 }
 ```
 

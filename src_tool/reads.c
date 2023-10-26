@@ -103,7 +103,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
         exit(EXIT_FAILURE);
     }
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     char *f_in_name = argv[optind];
 
@@ -140,7 +140,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
     print_rid(slow5curl);
 
     s5curl_close(slow5curl);
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 
     return EXIT_SUCCESS;
 }

@@ -37,7 +37,7 @@ int main(){
     fclose(fp);
 
     // global curl init
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
 
     s5curl_t *s5c = s5curl_open(URL);
     if (!s5c) {
@@ -109,7 +109,7 @@ int main(){
     s5curl_free_mt(s5c_mt);
 
     // global curl cleanup
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 
     return 0;
 }

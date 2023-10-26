@@ -76,7 +76,7 @@ int head_main(int argc, char **argv, struct program_meta *meta){
         exit(EXIT_FAILURE);
     }
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    s5curl_global_init();
     s5curl_t *slow5curl = s5curl_open(argv[optind]);
     if (!slow5curl) {
         ERROR("cannot open %s. \n", argv[optind]);
@@ -86,7 +86,7 @@ int head_main(int argc, char **argv, struct program_meta *meta){
     print_hdr(slow5curl);
 
     s5curl_close(slow5curl);
-    curl_global_cleanup();
+    s5curl_global_cleanup();
 
     return EXIT_SUCCESS;
 }
