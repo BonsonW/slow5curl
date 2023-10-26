@@ -4,7 +4,7 @@
 s5curl_get - fetches a record from a remote BLOW5 file corresponding to a given read ID
 
 ## SYNOPSYS
-`int s5curl_get(const char *read_id, slow5_rec_t **record, CURL *curl, s5curl_t *s5c)`
+`int s5curl_get(const char *read_id, slow5_rec_t **record, S5CURLCONN *curl, s5curl_t *s5c)`
 
 ## DESCRIPTION
 `s5curl_get()` fetches and decodes a record from a remote BLOW5 file *s5c* for a specified *read_id* into a *slow5_rec_t* and stores it in **record*.
@@ -15,7 +15,7 @@ If **record* is set to NULL before the call, then `s5curl_get()` will allocate a
 
 The argument *s5c* points to a *slow5_file_t* opened using `s5curl_open()`. `s5curl_get()` requires the SLOW index to be pre-loaded to *s5c* using `s5curl_idx_load()` or `s5curl_idx_load_with()`.
 
-The argument *curl* points to a *CURL* handle.
+The argument *curl* points to a *S5CURLCONN* handle.
 
 `s5curl_get()` can be called by multiple threads in parallel on the same *slow5_file_t* pointer, however it must have a different *CURL* handle.
 
@@ -45,7 +45,7 @@ int main () {
 
     s5curl_global_init();
 
-    CURL *curl = curl_easy_init();
+    S5CURLCONN *curl = s5curl_conn_init();
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -70,7 +70,7 @@ int main () {
 
     s5curl_close(s5c);
 
-    curl_easy_cleanup(curl);
+    s5curl_conn_cleanup(curl);
 
     s5curl_global_cleanup();
 }

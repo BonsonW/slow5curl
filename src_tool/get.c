@@ -449,7 +449,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         free(rid);
 
     } else {
-        CURL *curl = curl_easy_init();
+        S5CURLCONN *curl = s5curl_conn_init();
         start = slow5_realtime();
         for (int i = optind + 1; i < argc; ++i){
             bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);

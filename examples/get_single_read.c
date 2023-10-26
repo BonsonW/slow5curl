@@ -14,7 +14,7 @@ int main(){
 
     // initialize a connection
     // to be re-used across s5curl_get(s) in a single thread
-    CURL *curl = curl_easy_init();
+    S5CURLCONN *curl = s5curl_conn_init();
     if (!curl) {
         fprintf(stderr, "Error initializing connection.\n");
         return EXIT_FAILURE;
@@ -62,7 +62,7 @@ int main(){
     s5curl_close(s5c);
 
     // close connection
-    curl_easy_cleanup(curl);
+    s5curl_conn_cleanup(curl);
 
     // global curl cleanup
     s5curl_global_cleanup();

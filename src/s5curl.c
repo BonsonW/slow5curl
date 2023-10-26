@@ -52,6 +52,14 @@ void s5curl_global_cleanup() {
     curl_global_cleanup();
 }
 
+S5CURLCONN *s5curl_conn_init() {
+    return (S5CURLCONN *)curl_easy_init();
+}
+
+void s5curl_conn_cleanup(S5CURLCONN *conn) {
+    curl_easy_cleanup(conn);
+}
+
 void s5curl_close(
     s5curl_t *s5c
 ) {
