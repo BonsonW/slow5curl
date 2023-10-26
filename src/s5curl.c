@@ -44,6 +44,14 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
+void s5curl_global_init() {
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+void s5curl_global_cleanup() {
+    curl_global_cleanup();
+}
+
 void s5curl_close(
     s5curl_t *s5c
 ) {
