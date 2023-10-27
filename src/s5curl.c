@@ -313,15 +313,18 @@ int s5curl_get(
 	);
 	if (res != 0) {
 		SLOW5_ERROR("Fetch bytes for read %s failed: %s.", read_id, curl_easy_strerror(res));
+        s5curl_resp_cleanup(resp);
 		return S5CURL_ERR_FETCH;
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+        s5curl_resp_cleanup(resp);
         return S5CURL_ERR_FETCH;
     } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching read %s failed with error code: %li.", read_id, s5curl_resp_code);
+        s5curl_resp_cleanup(resp);
         return S5CURL_ERR_FETCH;
     }
 
