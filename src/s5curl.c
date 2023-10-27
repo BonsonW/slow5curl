@@ -331,6 +331,7 @@ int s5curl_get(
     res = slow5_decode((void *)&resp->data, &resp->size, record, s5c->s5p);
     if (res < 0) {
         SLOW5_ERROR("Error decoding read %s.", read_id);
+        s5curl_resp_cleanup(resp);
         return S5CURL_ERR_SLOW5;
     }
 
