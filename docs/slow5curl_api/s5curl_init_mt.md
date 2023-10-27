@@ -26,6 +26,7 @@ Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. 
 
 #define URL "https://example.blow5"
 #define N_THREADS 10
+#define BATCH_CAPACITY 100
 
 int main () {
 
@@ -47,6 +48,12 @@ int main () {
     if (ret < 0) {
         fprintf(stderr, "Error in loading index\n");
         exit(EXIT_FAILURE);
+    }
+
+    slow5_batch_t *db = slow5_init_batch(batch_capacity);
+    if (!db) {
+        fprintf(stderr, "Error initializing read batch.\n");
+        return EXIT_FAILURE;
     }
 
     ret = s5curl_get_batch(core, batch, read_ids, num_reads);

@@ -58,6 +58,12 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
+    slow5_batch_t *db = slow5_init_batch(batch_capacity);
+    if (!db) {
+        fprintf(stderr, "Error initializing read batch.\n");
+        return EXIT_FAILURE;
+    }
+
     ret = s5curl_get_batch(core, batch, read_ids, num_reads);
 
     //...
