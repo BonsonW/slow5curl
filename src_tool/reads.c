@@ -128,7 +128,6 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
             copy_file_to(idx->fp, idx_cache_path);
         }
     } else {
-        WARNING("%s","Loading index from custom path is an experimental feature. keep an eye.");
         int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
