@@ -70,7 +70,3 @@ slow5curl reads https://url/to/file1.blow5
     Prints the help menu.
 *  `--cite`:<br/>
     Prints the citation information.
-
-## LIBRARY
-
-todo
