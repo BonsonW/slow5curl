@@ -29,8 +29,8 @@ The *s5curl_mt_t* is a struct intended to be used by multi-threaded fetches. Thi
 typedef struct {
 
   int32_t num_thread;     // number of threads dispatched per batch call
-  int num_retry;          // number of retries on a fetch before aborting the method
-  int retry_wait_sec;     // number of seconds to wait before the next retry
+  int num_retry;          // number of retries on a fetch before aborting the method (default 1)
+  int retry_wait_sec;     // number of seconds to wait before the next retry (default 1)
 
   /* private struct members that are not supposed to be directly accessed are not shown.
       the order of the members in this struct can subject to change.
@@ -38,8 +38,6 @@ typedef struct {
 
 } s5curl_mt_t;
 ```
-
-The number of retries is by default 1. A retry occurs in the rare event that a fetch fails. It is reccomended that this parameter is kept a low value.
 
 ### High-level API
 High-level API consists of following functions:
