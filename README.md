@@ -7,7 +7,7 @@ slow5curl is a command line tool and a library and for fetching reads from remot
 Full documentation: https://BonsonW.github.io/slow5curl<br/>
 Publication (SLOW5 format): https://www.nature.com/articles/s41587-021-01147-4<br/>
 SLOW5 specification: https://hasindu2008.github.io/slow5specs<br/>
-slow5 ecosystem: https://hasindu2008.github.io/slow5<br/>
+SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Quick start
 
