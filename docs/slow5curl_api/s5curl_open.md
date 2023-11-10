@@ -29,7 +29,6 @@ Currently only opens binary slow5 files
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
-#include <curl/curl.h>
 
 #define URL "https://example.blow5"
 

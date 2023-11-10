@@ -31,8 +31,6 @@ Upon successful completion, `s5curl_get_batch()` returns the number of reads pas
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
-#include <curl/curl.h>
-
 #define URL "https://example.blow5"
 #define N_THREADS 10
 
