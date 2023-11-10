@@ -1,3 +1,3 @@
 #! /bin/bash
 
-make clean && make slow5_mt=1 -j && make test
+make clean && make -j && make test
