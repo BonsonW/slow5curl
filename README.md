@@ -91,7 +91,9 @@ Some actual examples:
 slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 -o read.blow5
 ```
 
-See [here](https://bonsonw.github.io/slow5curl/oneliners.html) for example bash one-liners with slow5curl.
+[One-Liners](https://bonsonw.github.io/slow5curl/oneliners.html): Example bash one-liners.
+
+[Workflows](https://bonsonw.github.io/slow5curl/workflows.html): Example bash workflows.
 
 
 ### Troubleshooting/Questions
