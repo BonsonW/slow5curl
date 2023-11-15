@@ -50,6 +50,8 @@ On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
 On OS X : brew install curl zlib
 ```
 
+### Other building options
+
 #### Optional zstd compression
 
 If you want to access BLOW5 files compressed with *zstd*, you can optionally enable [*zstd* compression](https://facebook.github.io/zstd) support in slow5lib when building *slow5curl* by invoking `make zstd=1`. This requires __zstd 1.3 or higher development libraries__ installed on your system:
@@ -59,11 +61,6 @@ On Debian/Ubuntu : sudo apt-get install libzstd1-dev # libzstd-dev on newer dist
 On Fedora/CentOS : sudo yum libzstd-devel
 On OS X : brew install zstd
 ```
-
-
-### Other building options
-
-todo
 
 ## Tool
 
