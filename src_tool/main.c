@@ -55,7 +55,7 @@
 #define SEG_FAULT_MSG "I regret to inform that a segmentation fault occurred. " \
                       "But at least it is better than a wrong answer."
 
-int slow5tools_verbosity_level = LOG_VERBOSE;
+int slow5curl_verbosity_level = LOG_VERBOSE;
 
 int (get_main)(int, char **, struct program_meta *);
 int (head_main)(int, char **, struct program_meta *);
@@ -92,7 +92,7 @@ int main(const int argc, char **argv){
 
     // Default options
     struct program_meta meta = {
-        .verbosity_level = slow5tools_verbosity_level
+        .verbosity_level = slow5curl_verbosity_level
     };
 
     // Setup segmentation fault handler
@@ -139,12 +139,12 @@ int main(const int argc, char **argv){
                     // break_flag = true;
                     // break;
                 case 'v':
-                    slow5tools_verbosity_level = atoi(optarg);
+                    slow5curl_verbosity_level = atoi(optarg);
                     print_args(argc,argv);
                     break;
                 case 'V':
                     DEBUG("displaying version information%s","");
-                    fprintf(stdout, "slow5tools %s\n", SLOW5TOOLS_VERSION);
+                    fprintf(stdout, "slow5curl %s\n", SLOW5CURL_VERSION);
                     ret = EXIT_SUCCESS;
                     break_flag = true;
                     break;

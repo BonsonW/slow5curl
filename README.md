@@ -96,7 +96,6 @@ See [here](https://bonsonw.github.io/slow5curl/oneliners.html) for example bash 
 
 ### Troubleshooting/Questions
 
-<!-- Visit the [frequently asked questions](https://hasindu2008.github.io/slow5tools/faq.html) or -->
 open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library

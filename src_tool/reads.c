@@ -19,7 +19,7 @@
     "\n" \
     HELP_MSG_HELP \
 
-extern int slow5tools_verbosity_level;
+extern int slow5curl_verbosity_level;
 
 static void print_rid(s5curl_t* s5c) {
     uint64_t num_reads = 0;
@@ -40,8 +40,6 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
 
     // Debug: print arguments
     print_args(argc,argv);
-
-    //WARNING("%s","slow5tools is experiemental. Use with caution. Report any bugs under GitHub issues");
 
     static struct option long_opts[] = {
         {"help", no_argument, NULL, 'h' }, //0
@@ -88,7 +86,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
                         break;
                 }
                 break;
-            
+
             default: // case '?'
                 fprintf(stderr, HELP_SMALL_MSG, argv[0]);
                 EXIT_MSG(EXIT_FAILURE, argv, meta);

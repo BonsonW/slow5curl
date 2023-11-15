@@ -29,8 +29,7 @@ OBJ_LIB = $(BUILD_DIR)/fetch.o \
 			$(BUILD_DIR)/s5curl.o \
 			$(BUILD_DIR)/mt.o \
 
-# VERSION = `git describe --tags`
-VERSION = v0.1.0
+VERSION = `git describe --tags`
 
 # make asan=1 enables address sanitiser
 ifdef asan
