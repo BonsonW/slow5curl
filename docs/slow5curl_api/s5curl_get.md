@@ -76,3 +76,4 @@ int main () {
 ```
 
 ## SEE ALSO
+[slow5_rec_t](https://hasindu2008.github.io/slow5lib/slow5_api/slow5.html)
