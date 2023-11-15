@@ -19,7 +19,7 @@ extern "C" {
 #define LOG_DEBUG   5
 #define LOG_TRACE   6
 
-extern int slow5tools_verbosity_level;
+extern int slow5curl_verbosity_level;
 
 #define STDERR_PREFIX "[%s] "
 #define VERBOSE_PREFIX "[%s] "
@@ -32,31 +32,31 @@ extern int slow5tools_verbosity_level;
 #define NO_COLOUR "\033[0m\n"
 
 #define VERBOSE(msg, ...) { \
-    if (slow5tools_verbosity_level >= LOG_VERBOSE) { \
+    if (slow5curl_verbosity_level >= LOG_VERBOSE) { \
         fprintf(stderr, VERBOSE_PREFIX msg "\n", __func__, __VA_ARGS__); \
     } \
 }
 
 #define DEBUG(msg, ...) { \
-    if (slow5tools_verbosity_level >= LOG_DEBUG) { \
+    if (slow5curl_verbosity_level >= LOG_DEBUG) { \
         fprintf(stderr, DEBUG_PREFIX msg "\n", __func__, __FILE__, __LINE__, __VA_ARGS__); \
     } \
 }
 
 #define WARNING(msg, ...) { \
-    if (slow5tools_verbosity_level >= LOG_WARN) { \
+    if (slow5curl_verbosity_level >= LOG_WARN) { \
         fprintf(stderr, WARNING_PREFIX msg NO_COLOUR, __func__, __VA_ARGS__); \
     } \
 }
 
 #define ERROR(msg, ...)  { \
-    if (slow5tools_verbosity_level >= LOG_ERR) { \
+    if (slow5curl_verbosity_level >= LOG_ERR) { \
         fprintf(stderr, ERROR_PREFIX msg NO_COLOUR, __func__, __VA_ARGS__); \
     } \
 }
 
 #define INFO(msg, ...)  { \
-    if (slow5tools_verbosity_level >= LOG_INFO) { \
+    if (slow5curl_verbosity_level >= LOG_INFO) { \
         fprintf(stderr, INFO_PREFIX msg NO_COLOUR, __func__, __VA_ARGS__); \
     } \
 }

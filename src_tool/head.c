@@ -18,7 +18,7 @@
     "\n" \
     HELP_MSG_HELP \
 
-extern int slow5tools_verbosity_level;
+extern int slow5curl_verbosity_level;
 
 static void print_hdr(s5curl_t* s5c) {
     slow5_press_method_t press_method = {SLOW5_COMPRESS_NONE, SLOW5_COMPRESS_NONE};
@@ -29,8 +29,6 @@ int head_main(int argc, char **argv, struct program_meta *meta){
 
     // Debug: print arguments
     print_args(argc,argv);
-
-    //WARNING("%s","slow5tools is experiemental. Use with caution. Report any bugs under GitHub issues");
 
     static struct option long_opts[] = {
             {"help", no_argument, NULL, 'h' }, //0

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define SLOW5TOOLS_VERSION "1.1.0-dirty"
+#define SLOW5CURL_VERSION "0.1.0"
 
 #define DEFAULT_NUM_THREADS 128
 #define DEFAULT_NUM_PROCESSES 8

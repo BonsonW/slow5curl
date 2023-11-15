@@ -7,7 +7,7 @@ slow5curl is a command line tool and a library and for fetching reads from remot
 Full documentation: https://BonsonW.github.io/slow5curl<br/>
 Publication (SLOW5 format): https://www.nature.com/articles/s41587-021-01147-4<br/>
 SLOW5 specification: https://hasindu2008.github.io/slow5specs<br/>
-slow5 ecosystem: https://hasindu2008.github.io/slow5<br/>
+SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Quick start
 
@@ -22,7 +22,6 @@ slow5 ecosystem: https://hasindu2008.github.io/slow5<br/>
     - [Tool Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
 - [Library](#library)
-    - [Library Examples](#library-examples)
 - [Citation](#citation)
 
 ## Building
@@ -97,7 +96,6 @@ See [here](https://bonsonw.github.io/slow5curl/oneliners.html) for example bash 
 
 ### Troubleshooting/Questions
 
-<!-- Visit the [frequently asked questions](https://hasindu2008.github.io/slow5tools/faq.html) or -->
 open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library
@@ -112,17 +110,13 @@ path/to/slow5curl/ is the absolute or relative path to the slow5curl repository 
 
 If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd`` to the above two commands.
 
-For the documentation of the C API visit [here](https://bonsonw.github.io/slow5curl/slow5curl_api/slow5curl) and for the Python API visit [here]().
+[C API](https://bonsonw.github.io/slow5curl/slow5curl_api/slow5curl): Full documentation of the C API.
 
-### Library Examples
+[Python API](): Full documentation of the Python API.
 
-Examples are provided under [examples](https://github.com/BonsonW/slow5curl/tree/master/examples).
-- *get_multi_read.c* demonstrates how to fetch a list of reads from a remote blow5 file.
-- *get_single_read.c* demonstrates how to fetch a single read from a remote blow5 file.
-- *with_custom_local_index.c* shows how to fetch a single read with a custom local index file.
-- *with_custom_remote_index.c* shows how to fetch a single read with a custom remote index file.
+[C API Examples](https://github.com/BonsonW/slow5curl/tree/master/examples): Main features of the C API and how to use them.
 
-You can invoke [build.sh](build.sh) from slow5lib directory as `examples/build.sh` to compile the example programmes. Have a look at the script to see the commands used for compiling and linking. As an example, the command to compile [get_single_read.c](get_multi_read.c) is `gcc -Wall -O2 -I include/ -I slow5lib/include/ examples/get_single_read.c lib/libslow5curl.a -lcurl -lz lpthread`. Make sure that you first call `make` so that `libslow5curl.a` becomes available to be linked with. If you compiled *slow5curl* with *zstd* support enabled (`make zstd=1`), make sure you append `-lzstd` to the compilation commands.
+[Python API Examples](): Main features of the Python API and how to use them.
 
 ## Citation
 

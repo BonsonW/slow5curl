@@ -10,6 +10,11 @@ ifeq ($(zstd),1)
 LDFLAGS		+= -lzstd
 endif
 
+ifeq ($(zstd_local),)
+else
+LDFLAGS		+= zstd/lib/libzstd.a
+endif
+
 BINARY = slow5curl
 LIBRARY = lib/libslow5curl.a
 
@@ -86,6 +91,36 @@ clean:
 distclean: clean
 	git clean -f -X
 	rm -rf $(BUILD_DIR)/* autom4te.cache
+
+release: distclean
+# make the release
+	mkdir -p slow5curl-$(VERSION)
+	mkdir -p slow5curl-$(VERSION)/docs slow5curl-$(VERSION)/scripts slow5curl-$(VERSION)/slow5lib
+	cp -r README.md LICENSE Makefile build lib src src_tool include slow5curl-$(VERSION)
+	cp -r docs/* slow5curl-$(VERSION)/docs/
+	cp scripts/install-zstd.sh slow5curl-$(VERSION)/scripts/
+	cp -r slow5lib/lib slow5lib/include slow5lib/src  slow5lib/Makefile slow5lib/LICENSE slow5lib/thirdparty/ slow5curl-$(VERSION)/slow5lib
+	tar -zcf slow5curl-$(VERSION)-release.tar.gz slow5curl-$(VERSION)
+	rm -rf slow5curl-$(VERSION)
+# make the binaries
+	scripts/install-zstd.sh
+	make -j8 zstd_local=../zstd/lib
+	mkdir -p slow5curl-$(VERSION)
+	mkdir slow5curl-$(VERSION)/docs
+	mv slow5curl slow5curl-$(VERSION)/
+	cp -r README.md LICENSE slow5curl-$(VERSION)/
+	cp -r docs/commands.md slow5curl-$(VERSION)/docs/
+	tar -zcf slow5curl-$(VERSION)-x86_64-linux-binaries.tar.gz slow5curl-$(VERSION)
+	rm -rf slow5curl-$(VERSION)
+# test release
+	tar xf slow5curl-$(VERSION)-release.tar.gz
+	make -C slow5curl-$(VERSION)
+	slow5curl-$(VERSION)/slow5curl --version
+	rm -rf slow5curl-$(VERSION)
+# test binaries
+	tar xf slow5curl-$(VERSION)-x86_64-linux-binaries.tar.gz
+	mv slow5curl-$(VERSION)/slow5curl slow5curl
+	test/test.sh
 
 # make test with run a simple test
 test: $(BINARY)

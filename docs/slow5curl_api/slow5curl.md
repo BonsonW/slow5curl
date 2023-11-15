@@ -2,9 +2,6 @@
 
 **Note: This documentation is far from being complete and perfect. So if you need a new functionality, want to clarify something, find something is not right, facing a weird bug when using this API etc. do not hesitate to open an [issue](https://github.com/BonsonW/slow5curl/issues). Nowadays, bioinformatics tools written in C/C++ are getting fewer and fewer, so I would be glad to help.**
 
-## NAME
-slow5curl - Overview
-
 ## DESCRIPTION
 slow5curl is a library for fetching records from remote BLOW5 files. Compiling slow5curl requires a C compiler that conforms to at least c99 standard with X/Open 7, incorporating POSIX 2008 extension support.
 
