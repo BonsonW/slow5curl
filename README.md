@@ -64,7 +64,11 @@ On OS X : brew install zstd
 
 ## Tool
 
-* Visit the [man page](https://bonsonw.github.io/slow5curl/commands.html) for all the commands and options.
+[Manual](https://bonsonw.github.io/slow5curl/commands.html): Commands and options.
+
+[One-Liners](https://bonsonw.github.io/slow5curl/oneliners.html): Example bash one-liners.
+
+[Workflows](https://bonsonw.github.io/slow5curl/workflows.html): Example bash workflows.
 
 ### Tool Examples
 
@@ -82,20 +86,15 @@ slow5curl get [OPTIONS] https://url/to/file.blow5 --index https://url/to/file.bl
 slow5curl get [OPTIONS] https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
 ```
 
-Some actual examples:
+An actual example:
 
 ```sh
 slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 -o read.blow5
 ```
 
-[One-Liners](https://bonsonw.github.io/slow5curl/oneliners.html): Example bash one-liners.
-
-[Workflows](https://bonsonw.github.io/slow5curl/workflows.html): Example bash workflows.
-
-
 ### Troubleshooting/Questions
 
-Open an [issue](https://github.com/BonsonW/slow5curl/issues).
+Open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library
 
