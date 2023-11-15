@@ -37,7 +37,7 @@ Binaries should work on most Linux distributions as long as the `curl` and `zlib
 ## Building
 
 ### Building A Release
-Users are recommended to build from the  [latest release](https://github.com/BonsonW/slow5curl/releases) tar ball. A compiler that supports C99 is needed to build slow5tools.
+Users are recommended to build from the  [latest release](https://github.com/BonsonW/slow5curl/releases) tar ball. A compiler that supports C99 is needed to build slow5curl.
 
 Quick example for Ubuntu :
 
@@ -127,17 +127,22 @@ Simply include `<slow5curl/s5curl.h>` in your C program and call the API functio
 gcc [OPTIONS] -I path/to/slow5curl/include your_program.c path/to/slow5curl/lib/libslow5curl.a -lm -lz -lpthread
 ```
 
-path/to/slow5curl/ is the absolute or relative path to the slow5curl repository cloned above.
+*path/to/slow5curl/* is the absolute or relative path to the slow5curl repository cloned above.
 
-If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd`` to the above two commands.
+If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd` to the above two commands.
 
 [C API](https://bonsonw.github.io/slow5curl/slow5curl_api/slow5curl): Full documentation of the C API.
 
+<!--
 [Python API](): Full documentation of the Python API.
+-->
 
 [C API Examples](https://github.com/BonsonW/slow5curl/tree/master/examples): Main features of the C API and how to use them.
 
+<!--
 [Python API Examples](): Main features of the Python API and how to use them.
+-->
+
 
 ## Citation
 
