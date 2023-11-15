@@ -18,4 +18,6 @@
 
 ## Related Links
 
+[Github repository](https://github.com/BonsonW/slow5curl)
+
 [SLOW5 specification](https://hasindu2008.github.io/slow5specs)
