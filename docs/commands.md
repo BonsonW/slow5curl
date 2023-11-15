@@ -15,7 +15,7 @@
 
 Retrieve records for specified read IDs from a remote BLOW5 file URL.
 
-```
+```sh
 slow5curl get [OPTIONS] https://url/to/file1.blow5 readid1 readid2 ....
 slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 ```
@@ -45,7 +45,7 @@ slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 
 Print header information from a remote BLOW5 file URL.
 
-```
+```sh
 slow5curl head https://url/to/file1.blow5
 ```
 
@@ -53,7 +53,7 @@ slow5curl head https://url/to/file1.blow5
 
 Print the list of read IDs from a remote BLOW5 file URL.
 
-```
+```sh
 slow5curl reads https://url/to/file1.blow5
 ```
 

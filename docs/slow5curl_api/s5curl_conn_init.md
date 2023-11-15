@@ -17,7 +17,7 @@ Upon successful completion, `s5curl_conn_init()` returns a *S5CURLCONN* connecti
 ## NOTES
 
 ## EXAMPLES
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>

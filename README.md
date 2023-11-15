@@ -36,7 +36,7 @@ todo
 
 To build from GitHub:
 
-```
+```sh
 sudo apt-get install zlib1g-dev libcurl4-openssl-dev #install zlib and libcurl development libraries
 git clone --recursive https://github.com/BonsonW/slow5curl
 cd slow5curl
@@ -101,7 +101,7 @@ open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
 
-```
+```sh
 gcc [OPTIONS] -I path/to/slow5curl/include your_program.c path/to/slow5curl/lib/libslow5curl.a -lm -lz -lpthread
 ```
 

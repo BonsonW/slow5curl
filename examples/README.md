@@ -5,7 +5,7 @@ These examples demonstrate the main features of the C API and how to use them.
 You can invoke [build](../examples/build.sh) from slow5lib directory as **examples/build.sh** to compile the example programmes. Have a look at the script to see the commands used for compiling and linking.
 
 As an example, the command to compile [get_single_read](../examples/get_single_read.c) is:
-```
+```sh
 gcc -Wall -O2 -I include/ -I slow5lib/include/ examples/get_single_read.c lib/libslow5curl.a -lcurl -lz lpthread
 ```
 Make sure that you first call make so that libslow5curl.a becomes available to be linked with.

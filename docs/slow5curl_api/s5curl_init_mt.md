@@ -18,7 +18,7 @@ Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. 
 `slow5_errno` will be set in future to indicate the type of error that occurred.
 
 ## EXAMPLES
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>

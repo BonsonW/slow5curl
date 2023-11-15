@@ -32,7 +32,7 @@ Upon successful completion, `s5curl_get()` returns a non negative integer (>=0).
 ## NOTES
 
 ## EXAMPLES
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>

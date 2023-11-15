@@ -22,7 +22,7 @@ Upon successful completion, `s5curl_idx_load_with()` returns a non negative inte
 `slow5_errno` will be set in future to indicate the type of error that occurred.
 
 ## EXAMPLES
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>

@@ -25,7 +25,7 @@ Upon successful completion, `s5curl_open()` returns a *s5curl_t* pointer. Otherw
 Currently only opens binary slow5 files
 
 ## EXAMPLES
-```
+```c
 #include <stdio.h>
 #include <stdlib.h>
 #include <slow5curl/s5curl.h>
