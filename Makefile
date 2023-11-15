@@ -10,6 +10,11 @@ ifeq ($(zstd),1)
 LDFLAGS		+= -lzstd
 endif
 
+ifeq ($(zstd_local),)
+else
+LDFLAGS		+= zstd/lib/libzstd.a
+endif
+
 BINARY = slow5curl
 LIBRARY = lib/libslow5curl.a
 
@@ -100,7 +105,7 @@ release: distclean
 	rm -rf slow5curl-$(VERSION)
 # make the binaries
 	scripts/install-zstd.sh
-	make -j8 zstd=1
+	make -j8 zstd_local=../zstd/lib
 	mkdir -p slow5curl-$(VERSION)
 	mkdir slow5curl-$(VERSION)/docs
 	mv slow5curl slow5curl-$(VERSION)/

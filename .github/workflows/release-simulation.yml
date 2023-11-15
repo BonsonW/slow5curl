@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-20.04
     container: centos:7
     steps:
-    # - name: install git
-    #   run: sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update -y && sudo apt-get install git -y
+    - name: install git
+      run: yum update -y && yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && yum install -y git
     - uses: actions/checkout@v2
       with:
         submodules: recursive
     - name: install packages
-      run: sudo yum update && sudo yum install -y install libcurl-devel zlib-devel
+      run: yum update -y && yum install -y install libcurl-devel zlib-devel gcc make wget
     - name: env
-      run: lsb_release -a &&  ldd --version && gcc --version && g++ --version
+      run: ldd --version && gcc --version
     - name: build release
-      run: make release
+      run: git config --global --add safe.directory '*' && make release
