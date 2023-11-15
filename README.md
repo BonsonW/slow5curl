@@ -9,15 +9,15 @@ Publication (SLOW5 format): https://www.nature.com/articles/s41587-021-01147-4<b
 SLOW5 specification: https://hasindu2008.github.io/slow5specs<br/>
 SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
-## Quick start
+## Quick Start
 
 ## Table of Contents
 
 - [Quick start](#quick-start)
 - [Building](#building)
-    - [Building a release](#building-a-release)
-    - [Building from GitHub](#building-from-github)
-    - [Other building options](#other-building-options)
+    - [Building A Release](#building-a-release)
+    - [Building From GitHub](#building-from-github)
+    - [Other Building Options](#other-building-options)
 - [Tool](#tool)
     - [Tool Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
@@ -26,11 +26,11 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Building
 
-### Building a release
+### Building A Release
 
 todo
 
-### Building from GitHub
+### Building From GitHub
 
 **WARNING: Building from GitHub is meant for advanced users to test the latest features. For production purposes, use the latest release version that is thoroughly tested.**
 
@@ -50,7 +50,7 @@ On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
 On OS X : brew install curl zlib
 ```
 
-### Other building options
+### Other Building Options
 
 #### Optional zstd compression
 
@@ -95,7 +95,7 @@ slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_
 
 ### Troubleshooting/Questions
 
-open an [issue](https://github.com/BonsonW/slow5curl/issues).
+Open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library
 
