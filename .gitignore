@@ -38,9 +38,11 @@ ehthumbs.db
 Thumbs.db
 
 # Editor generated files #
+######################
 /.vscode
 
-# binaries
+# Binaries #
+############
 /tool
 *.blow5
 *.a
