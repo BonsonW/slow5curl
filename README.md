@@ -42,7 +42,7 @@ Users are recommended to build from the  [latest release](https://github.com/Bon
 Quick example for Ubuntu :
 
 ```sh
-sudo apt-get install zlib1g-dev libcurl4-openssl-dev #install zlib and libcurl development libraries
+sudo apt-get install zlib1g-dev libcurl4-openssl-dev # install zlib and libcurl development libraries
 VERSION=v0.1.0
 wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-release.tar.gz" && tar xvf slow5curl-$VERSION-release.tar.gz && cd slow5curl-$VERSION/
 make
@@ -60,7 +60,7 @@ On OS X : brew install curl zlib
 To build from GitHub:
 
 ```sh
-sudo apt-get install zlib1g-dev libcurl4-openssl-dev #install zlib and libcurl development libraries
+sudo apt-get install zlib1g-dev libcurl4-openssl-dev # install zlib and libcurl development libraries
 git clone --recursive https://github.com/BonsonW/slow5curl
 cd slow5curl
 make
