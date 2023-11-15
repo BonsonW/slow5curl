@@ -1,15 +1,14 @@
 # slow5curl
 
-slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). This project is still under active development, and currently the tool and the C API is available. Python API is under construction.
+slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). This project is still under active development. Currently, the tool and the C API is available. Python API is under construction.
 
+[![GitHub Downloads](https://img.shields.io/github/downloads/BonsonW/slow5curl/total?logo=GitHub)](https://github.com/BonsonW/slow5curl/releases)
 [![CI](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml)
 
 Full documentation: https://BonsonW.github.io/slow5curl<br/>
 Publication (SLOW5 format): https://www.nature.com/articles/s41587-021-01147-4<br/>
 SLOW5 specification: https://hasindu2008.github.io/slow5specs<br/>
 SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
-
-## Quick Start
 
 ## Table of Contents
 
@@ -24,15 +23,39 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 - [Library](#library)
 - [Citation](#citation)
 
+## Quick Start
+
+If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). For example:
+```sh
+VERSION=v0.1.0
+wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-x86_64-linux-binaries.tar.gz" && tar xvf slow5curl-$VERSION-x86_64-linux-binaries.tar.gz && cd slow5curl-$VERSION/
+./slow5curl
+```
+Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `sudo apt-get install curl` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this).
+
+
 ## Building
 
 ### Building A Release
+Users are recommended to build from the  [latest release](https://github.com/BonsonW/slow5curl/releases) tar ball. A compiler that supports C99 is needed to build slow5tools.
 
-todo
+Quick example for Ubuntu :
+
+```sh
+sudo apt-get install zlib1g-dev libcurl4-openssl-dev #install zlib and libcurl development libraries
+VERSION=v0.1.0
+wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-release.tar.gz" && tar xvf slow5curl-$VERSION-release.tar.gz && cd slow5curl-$VERSION/
+make
+```
+The commands to install libcurl and zlib __development libraries__ on some popular distributions :
+```sh
+On Debian/Ubuntu : sudo apt-get install libcurl4-openssl-dev zlib1g-dev
+On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
+On OS X : brew install curl zlib
+```
+
 
 ### Building From GitHub
-
-**WARNING: Building from GitHub is meant for advanced users to test the latest features. For production purposes, use the latest release version that is thoroughly tested.**
 
 To build from GitHub:
 
