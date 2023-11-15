@@ -1,0 +1,31 @@
+---
+name: "tagged-release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  centos_7:
+    name: centos_7
+    runs-on: ubuntu-20.04
+    container: centos:7
+    steps:
+    - name: install git
+      run: yum update -y && yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && yum install -y git
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: install packages
+      run: yum update -y && yum install -y install libcurl-devel zlib-devel gcc make wget
+    - name: env
+      run: ldd --version && gcc --version
+    - name: build release
+      run: git config --global --add safe.directory '*' && make release
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        files: |
+          *.tar.gz
