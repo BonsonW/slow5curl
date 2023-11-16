@@ -39,7 +39,7 @@ wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-
 ### Building A Release
 Users are recommended to build from the  [latest release](https://github.com/BonsonW/slow5curl/releases) tar ball. A compiler that supports C99 is needed to build slow5curl.
 
-Quick example for Ubuntu :
+Quick example for Ubuntu:
 
 ```sh
 sudo apt-get install zlib1g-dev libcurl4-openssl-dev # install zlib and libcurl development libraries
@@ -47,11 +47,11 @@ VERSION=v0.1.0
 wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-release.tar.gz" && tar xvf slow5curl-$VERSION-release.tar.gz && cd slow5curl-$VERSION/
 make
 ```
-The commands to install libcurl and zlib __development libraries__ on some popular distributions :
+The commands to install libcurl and zlib __development libraries__ on some popular distributions:
 ```sh
-On Debian/Ubuntu : sudo apt-get install libcurl4-openssl-dev zlib1g-dev
-On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
-On OS X : brew install curl zlib
+On Debian/Ubuntu: sudo apt-get install libcurl4-openssl-dev zlib1g-dev
+On Fedora/CentOS: sudo dnf/yum install libcurl-devel zlib-devel
+On OS X: brew install curl zlib
 ```
 
 
@@ -66,11 +66,11 @@ cd slow5curl
 make
 ```
 
-The commands to install libcurl and zlib __development libraries__ on some popular distributions :
+The commands to install libcurl and zlib __development libraries__ on some popular distributions:
 ```sh
-On Debian/Ubuntu : sudo apt-get install libcurl4-openssl-dev zlib1g-dev
-On Fedora/CentOS : sudo dnf/yum install libcurl-devel zlib-devel
-On OS X : brew install curl zlib
+On Debian/Ubuntu: sudo apt-get install libcurl4-openssl-dev zlib1g-dev
+On Fedora/CentOS: sudo dnf/yum install libcurl-devel zlib-devel
+On OS X: brew install curl zlib
 ```
 
 ### Other Building Options
@@ -80,9 +80,9 @@ On OS X : brew install curl zlib
 If you want to access BLOW5 files compressed with *zstd*, you can optionally enable [*zstd* compression](https://facebook.github.io/zstd) support in slow5lib when building *slow5curl* by invoking `make zstd=1`. This requires __zstd 1.3 or higher development libraries__ installed on your system:
 
 ```sh
-On Debian/Ubuntu : sudo apt-get install libzstd1-dev # libzstd-dev on newer distributions if libzstd1-dev is unavailable
-On Fedora/CentOS : sudo yum libzstd-devel
-On OS X : brew install zstd
+On Debian/Ubuntu: sudo apt-get install libzstd1-dev # libzstd-dev on newer distributions if libzstd1-dev is unavailable
+On Fedora/CentOS: sudo yum libzstd-devel
+On OS X: brew install zstd
 ```
 
 ## Tool
