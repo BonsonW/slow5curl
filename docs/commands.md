@@ -29,21 +29,23 @@ slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 *  `-s, --sig-compress compression_type`:<br/>
     Specifies the raw signal compression method used for BLOW5 output. `compression_type` can be `none` for uncompressed raw signal or `svb-zd` to compress the raw signal using StreamVByte zig-zag delta [default value: svb-zd]. Note that record compression (-c option above) is still applied on top of the compressed signal. Signal compression with svb-zd and record compression with zstd is similar to ONT's vbz.  zstd+svb-zd offers slightly smaller file size and slightly better performance compared to the default zlib+svb-zd, however, will be less portable.
 * `-t, --threads INT`:<br/>
-    Number of threads (connections) [default value: 8].
+    Number of threads (connections) [default value: 128].
 * `-K, --batchsize`:<br/>
-    The batch size. This is the number of records on the memory at once [default value: 4096]. An increased batch size improves multi-threaded performance at cost of higher RAM.
+    The batch size. This is the number of records on the memory at once [default value: 4096]. An increased batch size improves multi-threaded performance at the cost of higher RAM.
 * `-l, --list FILE`:<br/>
     List of read ids provided as a single-column text file with one read id per line.
+* `--skip`:<br/>
+    Warn and continue if a read_id was not found
 * `--index FILE`:<br/>
-    URL to a custom slow5 index. This can also be a path to an index that is residing locally on your disk. Useful if your index file is located somewhere other https://url/file.blow5.idx when your input file is https://url/file.blow5.
-* `--cache PATH`:<br/>
-    Save the downloaded index to specified path. This can be referenced later to avoid downloading the same index file.
+    URL to a custom slow5 index. Useful if your index file is located somewhere other than https://url/file.blow5.idx when your input file is https://url/file.blow5. This can also be a path to an index that is residing locally on your disk. Useful if you want to repeatedly query the same BLOW5 file and want to avoid repeated index downloads.
+* `--cache FILE`:<br/>
+    Save the downloaded index to the specified file path. This can be referenced later using --index option to avoid downloading the same index file.
 *  `-h`, `--help`:<br/>
     Prints the help menu.
 
 ### head
 
-Print header information from a remote BLOW5 file URL.
+Print [header information](https://hasindu2008.github.io/slow5specs/summary#slow5-header) from a remote BLOW5 file URL. 
 
 ```sh
 slow5curl head https://url/to/file1.blow5
@@ -57,8 +59,8 @@ Print the list of read IDs from a remote BLOW5 file URL.
 slow5curl reads https://url/to/file1.blow5
 ```
 
-* `--cache PATH`:<br/>
-    Save the downloaded index to specified path. This can be referenced later to avoid downloading the same index file.
+* `--cache FILE`:<br/>
+    Save the downloaded index to the specified path. This can be referenced later to avoid downloading the same index file.
 
 ## GLOBAL OPTIONS
 
