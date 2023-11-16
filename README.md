@@ -25,13 +25,15 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Quick Start
 
-If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). For example:
+If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this). 
+
 ```sh
+sudo apt-get install curl # curl runtime library on Ubuntu (CentOS have this by default)
 VERSION=v0.1.0
 wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-x86_64-linux-binaries.tar.gz" && tar xvf slow5curl-$VERSION-x86_64-linux-binaries.tar.gz && cd slow5curl-$VERSION/
 ./slow5curl
 ```
-Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `sudo apt-get install curl` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this).
+
 
 
 ## Building
@@ -121,11 +123,14 @@ slow5curl reads [OPTIONS] https://url/to/file1.blow5
 Working examples:
 
 ```sh
-# read from a small BLOW5
+# fetch from a small BLOW5
 slow5curl get https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5 000286ab-1f80-40e3-a778-8d89e4e52940 -o read.blow5
 
-# read from a large BLOW5
-slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 -o read.blow5
+# fetch from a large BLOW5 while caching the indexing (note downloading the index will take some time)
+slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36  --cache /tmp/PGXX22394_reads.blow5.idx -o read.blow5
+
+# fetch from a large BLOW5 with the cached index
+slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 --index /tmp/PGXX22394_reads.blow5.idx -o read.blow5 
 ```
 
 ### Troubleshooting/Questions
@@ -134,15 +139,15 @@ Open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
 ## Library
 
-Simply include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
+Follow the steps to [build slow5curl from GitHub](https://github.com/BonsonW/slow5curl/edit/main/README.md#building-from-github). Include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
 
 ```sh
-gcc [OPTIONS] -I path/to/slow5curl/include your_program.c path/to/slow5curl/lib/libslow5curl.a -lm -lz -lpthread
+gcc [OPTIONS] -I path/to/slow5curl/include -I path/to/slow5curl/slow5lib/include your_program.c path/to/slow5curl/lib/libslow5curl.a -lcurl -lpthread -lz
 ```
 
 *path/to/slow5curl/* is the absolute or relative path to the slow5curl repository cloned above.
 
-If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd` to the above two commands.
+If you compiled slow5curl with zstd support enabled, make sure you append `-lzstd` to the above command.
 
 [C API](https://bonsonw.github.io/slow5curl/slow5curl_api/slow5curl): Full documentation of the C API.
 
@@ -150,11 +155,13 @@ If you compiled slow5curl with zstd support enabled, make sure you append `-lzst
 [Python API](): Full documentation of the Python API.
 -->
 
-[C API Examples](https://github.com/BonsonW/slow5curl/tree/master/examples): Main features of the C API and how to use them.
+[C API Examples](https://github.com/BonsonW/slow5curl/tree/main/examples): Main features of the C API and how to use them.
 
 <!--
 [Python API Examples](): Main features of the Python API and how to use them.
 -->
+
+If you need any help with using the library please open an [issue](https://github.com/BonsonW/slow5curl/issues).
 
 
 ## Citation
