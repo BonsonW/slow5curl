@@ -25,7 +25,7 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Quick Start
 
-If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this). 
+If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `apt-get install curl` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this). 
 
 ```sh
 sudo apt-get install curl # curl runtime library on Ubuntu (CentOS have this by default)
