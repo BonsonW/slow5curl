@@ -159,7 +159,7 @@ If you compiled slow5curl with zstd support enabled, make sure you append `-lzst
 [Python API Examples](): Main features of the Python API and how to use them.
 -->
 
-If you need any help with using the library please open an [issue](https://github.com/BonsonW/slow5curl/issues).
+If you need any help with using the library please open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
 
 ## Citation
