@@ -96,22 +96,35 @@ On OS X : brew install zstd
 ### Tool Examples
 
 ```sh
-# fetch slow5 reads one at a time
+# fetch reads from a remote BLOW5, one at a time
 slow5curl get [OPTIONS] https://url/to/file.blow5 readid1 readid2 ....
 
-# fetch slow5 reads, a batch at a time
+# fetch reads from a remote BLOW5, a batch at a time
 slow5curl get [OPTIONS] https://url/to/file.blow5 --list readids.txt
 
-# use a custom slow5 index
+# get a read from a remote BLOW5, caching the index
+slow5curl get [OPTIONS] https://url/to/file.blow5 readid1 --cache /path/to/file.blow5.idx -o read.blow5
+
+# use a custom BLOW5 index which is available locally
+slow5curl get [OPTIONS] https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
+
+# use a custom remote BLOW5 index
 slow5curl get [OPTIONS] https://url/to/file.blow5 --index https://url/to/file.blow5.idx --list readids.txt
 
-# use a custom slow5 index which is available locally
-slow5curl get [OPTIONS] https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
+# get the header info of a remote BLOW5
+slow5curl head https://url/to/file1.blow5
+
+# get the list of read-ids of a remote BLOW5
+slow5curl reads [OPTIONS] https://url/to/file1.blow5
 ```
 
-An actual example:
+Working examples:
 
 ```sh
+# read from a small BLOW5
+slow5curl get https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_10.blow5 000286ab-1f80-40e3-a778-8d89e4e52940 -o read.blow5
+
+# read from a large BLOW5
 slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 -o read.blow5
 ```
 

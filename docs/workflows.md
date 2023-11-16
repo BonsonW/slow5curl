@@ -1,6 +1,6 @@
 # Example workflows
 
-## Extract reads mapping to a particular genomic region
+## Extract and re-basecall reads mapping to a particular genomic region
 
 ```sh
 samtools view reads.bam chrX:147911919-147951125 | cut -f1  | sort -u > rid_list.txt

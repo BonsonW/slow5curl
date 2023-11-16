@@ -1,4 +1,4 @@
-# slow5curl documentation
+# Documentation
 
 <!-- [Getting started](getting_started.md) -->
 
@@ -14,7 +14,7 @@
 
 [C API](slow5curl_api/slow5curl.md)
 
-[Python API]()
+<!-- [Python API]() -->
 
 ## Related Links
 
