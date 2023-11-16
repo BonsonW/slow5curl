@@ -21,6 +21,7 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
     - [Tool Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
 - [Library](#library)
+- [Acknowledgement](#acknowledgement)
 - [Citation](#citation)
 
 ## Quick Start
@@ -162,9 +163,13 @@ If you compiled slow5curl with zstd support enabled, make sure you append `-lzst
 If you need any help with using the library please open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
 
+## Acknowledgement
+
+AWS Open Data Sponsorship Program for generously hosting [open data in BLOW5 format](https://github.com/GenTechGp/gtgseq), which greatly helped us to develop and test this tool.
+
 ## Citation
 
-Please cite the following in your publications when using *SLOW5* file format:
+Please cite the following in your publications when using the *SLOW5* file format:
 
 > Gamaarachchi, H., Samarakoon, H., Jenner, S.P. et al. Fast nanopore sequencing data analysis with SLOW5. Nat Biotechnol 40, 1026-1029 (2022). https://doi.org/10.1038/s41587-021-01147-4
 
