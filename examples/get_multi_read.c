@@ -13,7 +13,11 @@
 #define TO_PICOAMPS(RAW_VAL, DIGITISATION, OFFSET, RANGE) (((RAW_VAL)+(OFFSET))*((RANGE)/(DIGITISATION)))
 
 int main(){
-    char **read_ids = malloc(N_READS * sizeof *read_ids);
+    char **read_ids = (char **)malloc(N_READS * sizeof *read_ids);
+    if(!read_ids){
+        fprintf(stderr, "Error allocating memory for read ids.\n");
+        exit(EXIT_FAILURE);
+    }
 
     // read the list of read IDs from file
     FILE *fp;
@@ -41,7 +45,7 @@ int main(){
 
     s5curl_t *s5c = s5curl_open(URL);
     if (!s5c) {
-        fprintf(stderr, "Error fetching slow5 file %s.\n", URL);
+        fprintf(stderr, "Error opening slow5 file %s.\n", URL);
         return EXIT_FAILURE;
     }
 
