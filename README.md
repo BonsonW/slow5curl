@@ -3,7 +3,7 @@
 slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). See [slow5lib](https://github.com/hasindu2008/slow5lib) or [slow5tools](https://github.com/hasindu2008/slow5tools) for fully featured SLOW5 file manipulation; slow5curl is kept standalone for its specific use case and dependencies.
 
 
-🚧 🚧 *This project is still under active development. Currently, the tool and the C API is available. Python API is under construction.* 🚧 🚧
+*This project is still under active development. Currently, the tool and the C API is available. Python API is under construction.*
 
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/BonsonW/slow5curl/total?logo=GitHub)](https://github.com/BonsonW/slow5curl/releases)
