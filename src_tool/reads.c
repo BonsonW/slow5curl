@@ -112,7 +112,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
         return EXIT_FAILURE;
     }
 
-    VERBOSE("%s", "Loading index.");
+    VERBOSE("%s", "Loading index (this may take a while).");
     if (slow5_index == NULL) {
         int ret_idx = s5curl_idx_load(slow5curl);
         if (ret_idx < 0) {
