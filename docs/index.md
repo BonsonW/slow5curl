@@ -1,6 +1,6 @@
 # Documentation
 
-<!-- [Getting started](getting_started.md) -->
+[Getting started](https://github.com/BonsonW/slow5curl/#readme)
 
 ## Toolkit
 
@@ -14,10 +14,12 @@
 
 [C API](slow5curl_api/slow5curl.md)
 
-<!-- [Python API]() -->
+Python API will be available soon.
 
 ## Related Links
 
 [Github repository](https://github.com/BonsonW/slow5curl)
 
 [SLOW5 specification](https://hasindu2008.github.io/slow5specs)
+
+[SLOW5 Ecosystem](https://hasindu2008.github.io/slow5/)
