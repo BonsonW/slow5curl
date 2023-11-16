@@ -98,25 +98,25 @@ On OS X: brew install zstd
 
 ```sh
 # fetch reads from a remote BLOW5, one at a time
-slow5curl get [OPTIONS] https://url/to/file.blow5 readid1 readid2 ....
+slow5curl get https://url/to/file.blow5 readid1 readid2 ....
 
 # fetch reads from a remote BLOW5, a batch at a time
-slow5curl get [OPTIONS] https://url/to/file.blow5 --list readids.txt
+slow5curl get https://url/to/file.blow5 --list readids.txt
 
 # get a read from a remote BLOW5, caching the index
-slow5curl get [OPTIONS] https://url/to/file.blow5 readid1 --cache /path/to/file.blow5.idx -o read.blow5
+slow5curl get https://url/to/file.blow5 readid1 --cache /path/to/file.blow5.idx -o read.blow5
 
 # use a custom BLOW5 index which is available locally
-slow5curl get [OPTIONS] https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
+slow5curl get https://url/to/file.blow5 --index /path/to/file.blow5.idx --list readids.txt
 
 # use a custom remote BLOW5 index
-slow5curl get [OPTIONS] https://url/to/file.blow5 --index https://url/to/file.blow5.idx --list readids.txt
+slow5curl get https://url/to/file.blow5 --index https://url/to/file.blow5.idx --list readids.txt
 
 # get the header info of a remote BLOW5
 slow5curl head https://url/to/file1.blow5
 
 # get the list of read-ids of a remote BLOW5
-slow5curl reads [OPTIONS] https://url/to/file1.blow5
+slow5curl reads https://url/to/file1.blow5
 ```
 
 Working examples:
