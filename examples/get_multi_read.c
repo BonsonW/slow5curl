@@ -35,6 +35,7 @@ int main(){
     while ((n_chars = getline(&line, &len, fp)) != -1 && cur_read < N_READS) {
         line[n_chars-1] = '\0';
         read_ids[cur_read] = strdup(line);
+        free(line);
         cur_read++;
     }
 
