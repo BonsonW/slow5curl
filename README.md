@@ -34,8 +34,6 @@ wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-
 ./slow5curl
 ```
 
-
-
 ## Building
 
 ### Building A Release
