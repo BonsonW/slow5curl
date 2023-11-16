@@ -73,9 +73,6 @@ int main(){
 
     // fetch the records from read id list
     ret = s5curl_get_batch(s5c_mt, db, read_ids, N_READS);
-
-    fprintf(stderr, "yaya.\n");
-
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
     } else {
