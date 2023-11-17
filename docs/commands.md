@@ -29,7 +29,7 @@ slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 *  `-s, --sig-compress compression_type`:<br/>
     Specifies the raw signal compression method used for BLOW5 output. `compression_type` can be `none` for uncompressed raw signal or `svb-zd` to compress the raw signal using StreamVByte zig-zag delta [default value: svb-zd]. Note that record compression (-c option above) is still applied on top of the compressed signal. Signal compression with svb-zd and record compression with zstd is similar to ONT's vbz.  zstd+svb-zd offers slightly smaller file size and slightly better performance compared to the default zlib+svb-zd, however, will be less portable.
 * `-t, --threads INT`:<br/>
-    Number of threads (connections) [default value: 128]. The number of threads will depend on the request limit of the server and the number of cores available to the client. For example, a 40 core CPU may go up to 512 threads, but if the server only allows 10 requests at a time per client we will be limited by the latter.
+    Number of threads (connections) [default value: 128]. As these threads are for network access, the number of threads can be much larger than the number of CPU threads available on the system. The max number of threads will typically depend on the request limit of the server. For example, we may go up to 512 threads, but if the server only allows 128 requests at a time per client, we will be limited by the latter.
 * `-K, --batchsize`:<br/>
     The batch size. This is the number of records on the memory at once [default value: 4096]. An increased batch size improves multi-threaded performance at the cost of higher RAM.
 * `-l, --list FILE`:<br/>
@@ -45,7 +45,7 @@ slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
 
 ### head
 
-Print [header information](https://hasindu2008.github.io/slow5specs/summary#slow5-header) from a remote BLOW5 file URL. 
+Print [header information](https://hasindu2008.github.io/slow5specs/summary#slow5-header) from a remote BLOW5 file URL.
 
 ```sh
 slow5curl head https://url/to/file1.blow5
