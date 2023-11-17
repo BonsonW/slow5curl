@@ -23,12 +23,7 @@ Upon successful completion, `s5curl_global_init()` returns a non negative intege
 
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
-
-#define URL "https://example.blow5"
-#define READ_ID "0032812b-1ea5-46f1-a844-5bcc3bf3c21f"
 
 int main () {
 

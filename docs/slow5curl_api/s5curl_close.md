@@ -26,19 +26,13 @@ Upon successful completion, `s5curl_close()` returns 0. Otherwise, a negative va
 
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://example.blow5"
 
 int main () {
 
-    int ret = s5curl_global_init();
-    if (ret < 0) {
-        fprintf(stderr, "Error initializing global resources\n");
-        exit(EXIT_FAILURE);
-    }
+    // setup
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -46,11 +40,11 @@ int main () {
        exit(EXIT_FAILURE);
     }
 
-    //...
+    // s5curl operations
 
     s5curl_close(s5c);
 
-    s5curl_global_cleanup();
+    // cleanup
 }
 ```
 
