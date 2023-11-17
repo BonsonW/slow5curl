@@ -27,7 +27,11 @@ Upon successful completion, `s5curl_conn_init()` returns a *S5CURLCONN* connecti
 
 int main () {
 
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        fprintf(stderr, "Error initializing global resources\n");
+        exit(EXIT_FAILURE);
+    }
 
     S5CURLCONN *curl = s5curl_conn_init();
 

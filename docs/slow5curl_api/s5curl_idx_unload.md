@@ -24,7 +24,11 @@ No return value.
 
 int main () {
 
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        fprintf(stderr, "Error initializing global resources\n");
+        exit(EXIT_FAILURE);
+    }
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {

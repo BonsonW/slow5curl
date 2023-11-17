@@ -14,7 +14,7 @@
 
 int main(){
     char **read_ids = (char **)malloc(N_READS * sizeof *read_ids);
-    if(!read_ids){
+    if (!read_ids) {
         fprintf(stderr, "Error allocating memory for read ids.\n");
         exit(EXIT_FAILURE);
     }
@@ -35,14 +35,19 @@ int main(){
     while ((n_chars = getline(&line, &len, fp)) != -1 && cur_read < N_READS) {
         line[n_chars-1] = '\0';
         read_ids[cur_read] = strdup(line);
-        free(line);
         cur_read++;
     }
+
+    free(line);
 
     fclose(fp);
 
     // global curl init
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        fprintf(stderr, "Error initializing global resources.\n");
+        return EXIT_FAILURE;
+    }
 
     s5curl_t *s5c = s5curl_open(URL);
     if (!s5c) {
@@ -62,8 +67,6 @@ int main(){
         fprintf(stderr, "Error initializing read batch.\n");
         return EXIT_FAILURE;
     }
-
-    int ret = 0; // for return value
 
     // load the SLOW5 index
     ret = s5curl_idx_load(s5c);

@@ -29,8 +29,6 @@ SOFTWARE.
 #include <stdint.h>
 #include <string.h>
 
-#include <curl/curl.h>
-
 #include "../slow5lib/src/slow5_idx.h"
 #include "../slow5lib/src/slow5_extra.h"
 #include "../slow5lib/src/slow5_misc.h"
@@ -50,8 +48,13 @@ inline int *s5curl_errno_location(void) {
     return &s5curl_errno_intern;
 }
 
-void s5curl_global_init() {
-    curl_global_init(CURL_GLOBAL_ALL);
+int s5curl_global_init() {
+    CURLcode res = curl_global_init(CURL_GLOBAL_ALL);
+    if (res != CURLE_OK) {
+        SLOW5_ERROR("Initializing global CURL resources failed: %s.", curl_easy_strerror(res));
+        return S5CURL_ERR_CURL;
+    }
+    return S5CURL_ERR_OK;
 }
 
 void s5curl_global_cleanup() {

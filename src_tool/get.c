@@ -332,7 +332,11 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     double start;
     double end;
 
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        ERROR("%s\n", "Error initializing global resources.");
+        return EXIT_FAILURE;
+    }
 
     VERBOSE("%s", "Loading remote BLOW5 file.");
     start = slow5_realtime();
@@ -345,7 +349,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     core.ts.header = end - start;
 
     if (benchmark == false) {
-        if(slow5_hdr_fwrite(user_opts.f_out, slow5curl->s5p->header, user_opts.fmt_out, press_out) == -1){
+        if (slow5_hdr_fwrite(user_opts.f_out, slow5curl->s5p->header, user_opts.fmt_out, press_out) == -1) {
             ERROR("Could not write the output header%s\n", "");
             return EXIT_FAILURE;
         }
@@ -465,7 +469,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
             
             if (!success) {
-                if(skip_flag) continue;
+                if (skip_flag) continue;
                 ERROR("%s","Error fetching records.");
                 return EXIT_FAILURE;
             }
