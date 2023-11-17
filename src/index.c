@@ -59,11 +59,11 @@ static slow5_idx_t *s5curl_idx_init_from_url(
     if (cache == NULL) {
         index_fp = tmpfile();
     } else {
-        index_fp = fopen(cache, "r+");
+        index_fp = fopen(cache, "w+");
     }
 
     if (index_fp == NULL) {
-        SLOW5_ERROR("Could not create temporary index file for '%s'.", index->pathname);
+        SLOW5_ERROR("Could not create index file for '%s'.", index->pathname);
         slow5_idx_free(index);
         index->fp = NULL;
         return NULL;

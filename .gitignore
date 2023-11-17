@@ -43,6 +43,7 @@ Thumbs.db
 
 # Binaries #
 ############
+out/*
 /tool
 *.blow5
 *.a
