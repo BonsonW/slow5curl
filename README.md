@@ -1,7 +1,6 @@
 # slow5curl
 
-slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/). See [slow5lib](https://github.com/hasindu2008/slow5lib) or [slow5tools](https://github.com/hasindu2008/slow5tools) for fully featured SLOW5 file manipulation; slow5curl is kept standalone for its specific use case and dependencies.
-
+slow5curl is a command line tool and a library and for fetching reads from remote BLOW5 files, which is built on top of [slow5lib](https://github.com/hasindu2008/slow5lib) and [libcurl](https://curl.se/libcurl/).  Note that slow5curl is kept separate from [slow5lib](https://github.com/hasindu2008/slow5lib)/[slow5tools](https://github.com/hasindu2008/slow5tools), because *libcurl* is a complex dependency and we want to keep [slow5lib](https://github.com/hasindu2008/slow5lib)/[slow5tools](https://github.com/hasindu2008/slow5tools) as simple as possible.
 
 *This project is still under active development. Currently, the tool and the C API is available. Python API is under construction.*
 
@@ -30,7 +29,7 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
 
 ## Quick Start
 
-If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `apt-get install curl` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this). 
+If you are a Linux user on x86_64 architecture and want to quickly try slow5curl out, download the compiled binaries from the [latest release](https://github.com/BonsonW/slow5curl/releases). Binaries should work on most Linux distributions as long as the `curl` and `zlib` runtime libraries are available. You can install `curl` using `apt-get install curl` on Ubuntu. `zlib` is typically available by default on most Linux distributions. For compiled binaries to work, your processor must support SSSE3 instructions or higher (processors after 2007 have these) and your operating system must have GLIBC 2.17 or higher (Linux distributions from 2014 onwards typically have this).
 
 ```sh
 sudo apt-get install curl # curl runtime library on Ubuntu (CentOS have this by default)
@@ -133,7 +132,7 @@ slow5curl get https://github.com/BonsonW/slow5curl/raw/main/examples/data/reads_
 slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36  --cache /tmp/PGXX22394_reads.blow5.idx -o read.blow5
 
 # fetch from a large BLOW5 with the cached index
-slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 --index /tmp/PGXX22394_reads.blow5.idx -o read.blow5 
+slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_reads.blow5 05ef1592-a969-4eb8-b917-44ca536bec36 --index /tmp/PGXX22394_reads.blow5.idx -o read.blow5
 ```
 
 ### Troubleshooting/Questions
