@@ -11,6 +11,8 @@ BLOW_OUT="${OUT}reads.blow5"
 TXT_OUT="${OUT}text.txt"
 READ_LIST="${RAW}reads_10.txt"
 
+test -d ${OUT} || mkdir ${OUT}
+
 die() {
 	echo "$1" >&2
 	echo
