@@ -16,6 +16,10 @@
 
 Python API will be available soon.
 
+## Library Examples
+
+[C API Examples](https://github.com/BonsonW/slow5curl/tree/main/examples)
+
 ## Related Links
 
 [Github repository](https://github.com/BonsonW/slow5curl)
