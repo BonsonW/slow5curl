@@ -28,9 +28,6 @@ Upon successful completion, `s5curl_open()` returns a *s5curl_t* pointer. Otherw
 * `S5CURL_ERR_OTH`
     &nbsp;&nbsp;&nbsp;&nbsp; Other error (big endian, internal error, etc.).
 
-## NOTES
-Currently only opens binary slow5 files
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>

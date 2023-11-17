@@ -14,8 +14,6 @@ Every `s5curl_global_init()` should be followed by a corresponding `s5curl_globa
 ## RETURN VALUE
 No return value.
 
-## NOTES
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>

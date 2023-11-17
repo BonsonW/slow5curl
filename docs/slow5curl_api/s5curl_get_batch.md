@@ -24,8 +24,6 @@ The argument *db* points to an initialized *slow5_batch_t*. This is done with `s
 ## RETURN VALUE
 Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit and `s5curl_errno` is set to indicate the error.
 
-## NOTES
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>

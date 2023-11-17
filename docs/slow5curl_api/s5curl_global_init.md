@@ -15,11 +15,8 @@ Every `s5curl_global_init()` should be followed by a corresponding `s5curl_globa
 Upon successful completion, `s5curl_global_init()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error.
 
 ## ERRORS
-
 * `S5CURL_ERR_CURL`
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to initialise CURL global resrouces.
-
-## NOTES
 
 ## EXAMPLES
 ```c

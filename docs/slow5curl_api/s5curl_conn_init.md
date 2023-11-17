@@ -14,8 +14,6 @@ Every `s5curl_conn_init()` should be followed by a corresponding `s5curl_conn_cl
 ## RETURN VALUE
 Upon successful completion, `s5curl_conn_init()` returns a *S5CURLCONN* connection handle. Otherwise, NULL is returned.
 
-## NOTES
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>

@@ -23,15 +23,12 @@ The argument *curl* points to a *S5CURLCONN* handle.
 Upon successful completion, `s5curl_get()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
 
 ## ERRORS
-
 * `S5CURL_ERR_FETCH`       
     &nbsp;&nbsp;&nbsp;&nbsp; Fetching data failed.
 * `S5CURL_ERR_SLOW5`       
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data.
 * `S5CURL_ERR_NOTFOUND`       
     &nbsp;&nbsp;&nbsp;&nbsp; Could not find read ID.
-
-## NOTES
 
 ## EXAMPLES
 ```c

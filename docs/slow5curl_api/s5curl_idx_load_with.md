@@ -30,9 +30,6 @@ Upon successful completion, `s5curl_idx_load_with()` returns a non negative inte
 * `S5CURL_ERR_VERSION`
     &nbsp;&nbsp;&nbsp;&nbsp; Version incompatible.
 
-## NOTES
-`slow5_errno` will be set in future to indicate the type of error that occurred.
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>

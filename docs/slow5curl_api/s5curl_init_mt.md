@@ -12,10 +12,7 @@ s5curl_init_mt - initializes a resource for multithreaded operations
 This *s5curl_mt_t* should be freed by the user program using `s5curl_free_mt()`.
 
 ## RETURN VALUE
-Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. Otherwise, NULL is returned and `slow5_errno` is set to indicate the error.
-
-## NOTES
-`s5curl_errno` will be set in future to indicate the type of error that occurred.
+Upon successful completion, `s5curl_init_mt()` returns a *s5curl_mt_t* pointer. Otherwise, NULL is returned and `s5curl_errno` is set to indicate the error.
 
 ## EXAMPLES
 ```c

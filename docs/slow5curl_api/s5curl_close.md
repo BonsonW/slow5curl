@@ -15,14 +15,7 @@ The behaviour of `s5curl_close()` is undefined if the parameter is an illegal po
 If a slow5 index has been associated with the *s5p* structure (using a previous `s5curl_idx_load()` invocation), `s5curl_idx_load()` must be invoked before calling `s5curl_close()`.
 
 ## RETURN VALUE
-
-Upon successful completion, `s5curl_close()` returns 0. Otherwise, a negative value (EOF) is returned and `slow5_errno` is set to indicate the error.
-
-## ERRORS
-* `S5CURL_ERR_IO`
-  &nbsp;&nbsp;&nbsp;&nbsp;File I/O error, for instance, `fclose` failed.
-
-## NOTES
+No return value.
 
 ## EXAMPLES
 ```c

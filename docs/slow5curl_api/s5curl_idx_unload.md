@@ -12,8 +12,6 @@ s5curl_idx_unload - unloads a BLOW5 index from the memory
 ## RETURN VALUE
 No return value.
 
-## NOTES
-
 ## EXAMPLES
 ```c
 #include <slow5curl/s5curl.h>
