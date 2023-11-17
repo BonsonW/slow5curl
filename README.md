@@ -34,7 +34,7 @@ If you are a Linux user on x86_64 architecture and want to quickly try slow5curl
 
 ```sh
 sudo apt-get install curl # curl runtime library on Ubuntu (CentOS have this by default)
-VERSION=v0.1.0
+VERSION=v0.1.1
 wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-x86_64-linux-binaries.tar.gz" && tar xvf slow5curl-$VERSION-x86_64-linux-binaries.tar.gz && cd slow5curl-$VERSION/
 ./slow5curl
 ```
@@ -48,7 +48,7 @@ Quick example for Ubuntu:
 
 ```sh
 sudo apt-get install zlib1g-dev libcurl4-openssl-dev # install zlib and libcurl development libraries
-VERSION=v0.1.0
+VERSION=v0.1.1
 wget "https://github.com/BonsonW/slow5curl/releases/download/$VERSION/slow5curl-$VERSION-release.tar.gz" && tar xvf slow5curl-$VERSION-release.tar.gz && cd slow5curl-$VERSION/
 make
 ```
