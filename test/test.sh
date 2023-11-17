@@ -38,6 +38,11 @@ echo_test_name() {
 test -d ${OUT} && rm -r ${OUT}
 mkdir ${OUT} || die "mkdir failed"
 
+# version
+TESTCASE_NAME="version"
+echo_test_name ${TESTCASE_NAME}
+ex ./slow5curl --version
+
 # cache opt
 TESTCASE_NAME="get_cached"
 echo_test_name ${TESTCASE_NAME}

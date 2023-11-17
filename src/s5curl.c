@@ -254,7 +254,7 @@ static s5curl_t *s5curl_open_with(
         return NULL;
     }
 	if (fseek(fp, 0, SEEK_SET)) {
-        SLOW5_ERROR("%s", "Failed to rewind index file ptr");
+        SLOW5_ERROR("%s", "Failed to rewind index file ptr.");
         s5curl_errno = S5CURL_ERR_IO;
         return NULL;
     }

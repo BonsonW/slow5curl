@@ -8,6 +8,7 @@
 #include <getopt.h>
 #include <signal.h>
 #include <slow5/slow5.h>
+#include <slow5curl/s5curl.h>
 #include "error.h"
 #include "cmd.h"
 #include "misc.h"
@@ -145,6 +146,8 @@ int main(const int argc, char **argv){
                 case 'V':
                     DEBUG("displaying version information%s","");
                     fprintf(stdout, "slow5curl %s\n", SLOW5CURL_VERSION);
+                    fprintf(stdout, "   using slow5lib %s\n", SLOW5_LIB_VERSION);
+                    fprintf(stdout, "   using libcurl %s\n", curl_version_info(CURLVERSION_NOW)->version);
                     ret = EXIT_SUCCESS;
                     break_flag = true;
                     break;
