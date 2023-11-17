@@ -1,4 +1,4 @@
-# s5curl_conn_init
+# s5curl_conn_cleanup
 
 ## NAME
 s5curl_conn_cleanup - closes an existing connection handle
