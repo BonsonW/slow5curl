@@ -12,6 +12,7 @@
 
 #include <slow5curl/s5curl.h>
 #include "../slow5lib/src/slow5_idx.h"
+#include "../src/index.h"
 #include "cmd.h"
 #include "misc.h"
 
@@ -353,19 +354,29 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     VERBOSE("%s", "Loading index (this may take a while).");
     start = slow5_realtime();
     if (slow5_index == NULL) {
-        int ret_idx = s5curl_idx_load(slow5curl);
+        int ret_idx;
+        if (idx_cache_path != NULL) {
+            VERBOSE("Caching index to %s.", idx_cache_path);
+            ret_idx = s5curl_idx_load_and_cache(slow5curl, idx_cache_path);
+        } else {
+            ret_idx = s5curl_idx_load(slow5curl);
+        }
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s\n", f_in_name);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }
-        if (idx_cache_path != NULL) {
-            VERBOSE("%s", "Caching index.");
-            slow5_idx_t *idx = slow5curl->s5p->index;
-            copy_file_to(idx->fp, idx_cache_path);
-        }
+
     } else {
-        int ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
+        int ret_idx;
+        
+        if (idx_cache_path != NULL) {
+            VERBOSE("Caching index to %s.", idx_cache_path);
+            ret_idx = s5curl_idx_load_with_and_cache(slow5curl, slow5_index, idx_cache_path);
+        } else {
+            ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
+        }
+        
         if (ret_idx < 0) {
             ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);

@@ -87,7 +87,6 @@ int main(){
             }
             printf("\n");
         }
-
     }
 
     //..... fetch any other reads using s5curl_get_batch (as above)

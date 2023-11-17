@@ -50,6 +50,34 @@ ex ./slow5curl reads ${URL} > ${TXT_OUT} --cache "${OUT}cached" || die "Running 
 ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
+TESTCASE_NAME="get_cached_customeremoteindex"
+echo_test_name ${TESTCASE_NAME}
+test -d "${OUT}cached" && rm "${OUT}cached"
+ex ./slow5curl get ${URL} --index ${IDX_REM} --cache "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_cached_customeremoteindex"
+echo_test_name ${TESTCASE_NAME}
+test -d "${OUT}cached" && rm "${OUT}cached"
+ex ./slow5curl reads ${URL} > ${TXT_OUT} --index ${IDX_REM} --cache "${OUT}cached" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="get_cached_customelocalindex"
+echo_test_name ${TESTCASE_NAME}
+test -d "${OUT}cached" && rm "${OUT}cached"
+ex ./slow5curl get ${URL} --index ${IDX} --cache "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_cached_customelocalindex"
+echo_test_name ${TESTCASE_NAME}
+test -d "${OUT}cached" && rm "${OUT}cached"
+ex ./slow5curl reads ${URL} > ${TXT_OUT} --index ${IDX} --cache "${OUT}cached" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} --index "${OUT}cached" -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
 # head
 TESTCASE_NAME="head"
 echo_test_name ${TESTCASE_NAME}

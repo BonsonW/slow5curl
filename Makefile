@@ -55,7 +55,7 @@ $(LIBRARY): $(OBJ_LIB) $(SLOW5LIB)
 $(BUILD_DIR)/fetch.o: src/fetch.c src/fetch.h include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/index.o: src/index.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h
+$(BUILD_DIR)/index.o: src/index.c src/index.h include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 $(BUILD_DIR)/s5curl.o: src/s5curl.c include/slow5curl/s5curl.h src/fetch.h slow5lib/src/slow5_idx.h slow5lib/src/slow5_extra.h slow5lib/src/slow5_misc.h
@@ -68,13 +68,13 @@ $(BUILD_DIR)/mt.o: src/mt.c include/slow5curl/s5curl.h
 $(BUILD_DIR)/misc.o: src_tool/misc.c src_tool/error.h src_tool/cmd.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/get.o: src_tool/get.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h slow5lib/src/slow5_idx.h
+$(BUILD_DIR)/get.o: src_tool/get.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h slow5lib/src/slow5_idx.h src/index.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 $(BUILD_DIR)/head.o: src_tool/head.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
-$(BUILD_DIR)/reads.o: src_tool/reads.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h slow5lib/src/slow5_idx.h
+$(BUILD_DIR)/reads.o: src_tool/reads.c src_tool/misc.h src_tool/cmd.h include/slow5curl/s5curl.h slow5lib/src/slow5_idx.h src/index.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -c -o $@
 
 $(BUILD_DIR)/main.o: src_tool/main.c src_tool/error.h src_tool/cmd.h src_tool/misc.h
