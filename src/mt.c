@@ -55,12 +55,12 @@ s5curl_mt_t *s5curl_init_mt(
 ) {
 	if (!s5c) {
 		SLOW5_ERROR("%s", "Argument 's5c' is NULL.");
-		slow5_errno = SLOW5_ERR_ARG;
+		s5curl_errno = S5CURL_ERR_ARG;
 		return NULL;
 	}
 	if (num_thread < 1) {
 		SLOW5_ERROR("%s", "Argument 'num_thread' must be greater that 1.");
-		slow5_errno = SLOW5_ERR_ARG;
+		s5curl_errno = S5CURL_ERR_ARG;
 		return NULL;
 	}
 	

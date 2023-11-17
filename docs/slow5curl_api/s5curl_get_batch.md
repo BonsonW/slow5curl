@@ -22,7 +22,7 @@ The argument *core* points to an initialized *s5curl_mt_t*. This is done with `s
 The argument *db* points to an initialized *slow5_batch_t*. This is done with `slow5_init_batch`.
 
 ## RETURN VALUE
-Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit.
+Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit and `s5curl_errno` is set to indicate the error.
 
 ## NOTES
 

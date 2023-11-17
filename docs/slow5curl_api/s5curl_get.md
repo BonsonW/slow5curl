@@ -28,6 +28,8 @@ Upon successful completion, `s5curl_get()` returns a non negative integer (>=0).
     &nbsp;&nbsp;&nbsp;&nbsp; Fetching data failed.
 * `S5CURL_ERR_SLOW5`       
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data.
+* `S5CURL_ERR_NOTFOUND`       
+    &nbsp;&nbsp;&nbsp;&nbsp; Could not find read ID.
 
 ## NOTES
 

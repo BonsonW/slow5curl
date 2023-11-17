@@ -74,8 +74,8 @@ int main(){
 
     // fetch the records from read id list
     ret = s5curl_get_batch(s5c_mt, db, read_ids, N_READS);
-    if (ret < 0) {
-        fprintf(stderr,"Error in when fetching the read.\n");
+    if (ret != N_READS) {
+        fprintf(stderr, "Error in when fetching the read.\n");
     } else {
         for (int i = 0; i < N_READS; ++i) {
             slow5_rec_t *rec = db->slow5_rec[i];

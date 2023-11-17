@@ -44,6 +44,12 @@ extern enum slow5_exit_condition_opt slow5_exit_condition;
 #define BLOW5_HDR_META_SIZE (68)
 #define BLOW5_MAX_HDR_SIZE (32 * 1024 * 1024) // 32MB max header size
 
+__thread int s5curl_errno_intern = 0;
+
+inline int *s5curl_errno_location(void) {
+    return &s5curl_errno_intern;
+}
+
 void s5curl_global_init() {
     curl_global_init(CURL_GLOBAL_ALL);
 }
@@ -83,14 +89,14 @@ static struct slow5_file *s5curl_init(
     // pathname allowed to be NULL at this point
     if (!fp) {
         SLOW5_ERROR("Argument '%s' cannot be NULL.", SLOW5_TO_STR(fp));
-        slow5_errno = SLOW5_ERR_ARG;
+        s5curl_errno = S5CURL_ERR_ARG;
         return NULL;
     }
 
     char *fread_buff = (char *)calloc(SLOW5_FSTREAM_BUFF_SIZE, sizeof(char));
     if (!fread_buff) {
         SLOW5_MALLOC_ERROR();
-        slow5_errno = SLOW5_ERR_MEM;
+        s5curl_errno = S5CURL_ERR_MEM;
         return NULL;
     }
 
@@ -115,7 +121,7 @@ static struct slow5_file *s5curl_init(
         SLOW5_MALLOC_ERROR();
         slow5_hdr_free(header);
         free(fread_buff);
-        slow5_errno = SLOW5_ERR_MEM;
+        s5curl_errno = S5CURL_ERR_MEM;
         return NULL;
     }
 
@@ -139,7 +145,7 @@ static struct slow5_file *s5curl_init(
         slow5_press_free(s5p->compress);
         slow5_hdr_free(header);
         free(s5p);
-        slow5_errno = SLOW5_ERR_IO;
+        s5curl_errno = S5CURL_ERR_IO;
         return NULL;
     }
 
@@ -153,12 +159,12 @@ static s5curl_t *s5curl_open_with(
 ) {
     if (slow5_is_big_endian()) {
         SLOW5_ERROR_EXIT("%s", "Big endian machine detected. slow5lib only supports little endian at this time. Please open a github issue stating your machine spec <https://github.com/hasindu2008/slow5lib/issues>.");
-        slow5_errno = SLOW5_ERR_OTH;
+        s5curl_errno = S5CURL_ERR_OTH;
         return NULL;
     }
     if (!url) {
         SLOW5_ERROR_EXIT("Argument '%s' cannot be NULL.", SLOW5_TO_STR(url));
-        slow5_errno = SLOW5_ERR_ARG;
+        s5curl_errno = S5CURL_ERR_ARG;
         return NULL;
     }
 
@@ -191,16 +197,18 @@ static s5curl_t *s5curl_open_with(
 	);
 	if (res != 0) {
 		SLOW5_ERROR("Fetching file header meta data of '%s' failed: %s.", url, curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
+        s5curl_errno = S5CURL_ERR_FETCH;
 		return NULL;
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (protocol == S5CURLP_HTTP &&  s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     } else if (protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     }
 
@@ -210,7 +218,7 @@ static s5curl_t *s5curl_open_with(
 
 	if (header_size > BLOW5_MAX_HDR_SIZE) {
         SLOW5_ERROR("File '%s' with header size %u has exceeded the max header size.", url, header_size);
-        slow5_errno = SLOW5_ERR_OTH;
+        s5curl_errno = S5CURL_ERR_OTH;
         return NULL;
     }
 
@@ -218,7 +226,7 @@ static s5curl_t *s5curl_open_with(
 	FILE *fp = fmemopen(NULL, header_size+BLOW5_HDR_META_SIZE+1, "r+");
 	if (!fp) {
         SLOW5_ERROR_EXIT("Error opening file '%s': %s.", url, strerror(errno));
-        slow5_errno = SLOW5_ERR_IO;
+        s5curl_errno = S5CURL_ERR_IO;
         return NULL;
     }
 
@@ -232,24 +240,31 @@ static s5curl_t *s5curl_open_with(
 	);
 	if (res != 0) {
 		SLOW5_ERROR("Fetching file header of '%s' failed: %s.", url, curl_easy_strerror(res));
-        slow5_errno = SLOW5_ERR_OTH;
+        s5curl_errno = S5CURL_ERR_FETCH;
 		return NULL;
 	}
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (protocol == S5CURLP_HTTP &&  s5curl_resp_code != S5CURL_HTTP_PARTIAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     } else if (protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_PARTAL) {
         SLOW5_ERROR("Fetching file header data of '%s' failed: %li.", url, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     }
-	fseek(fp, 0, SEEK_SET);
+	if (fseek(index_fp, 0, SEEK_SET)) {
+        SLOW5_ERROR("%s", "Failed to rewind index file ptr");
+        s5curl_errno = S5CURL_ERR_IO;
+        return NULL;
+    }
 
     // initialize slow5 file
     struct slow5_file *s5p = s5curl_init(fp, url, SLOW5_FORMAT_BINARY);
     if (!s5p) {
         if (fclose(fp) == EOF) {
             SLOW5_ERROR("Error closing file '%s': %s.", url, strerror(errno));
+            s5curl_errno = S5CURL_ERR_IO;
         }
         SLOW5_EXIT_IF_ON_ERR();
     } else {
@@ -273,6 +288,7 @@ s5curl_t *s5curl_open(
     CURL *curl = curl_easy_init();
     if (!curl) {
         SLOW5_ERROR("Failed to initialize connection for url '%s'.", url);
+        s5curl_errno = S5CURL_ERR_CURL;
         return NULL;
     }
 
@@ -297,8 +313,7 @@ int s5curl_get(
     struct slow5_rec_idx read_index;
 	if (slow5_idx_get(s5c->s5p->index, read_id, &read_index) < 0) {
 		SLOW5_ERROR("Error getting index for read %s.", read_id);
-		slow5_errno = SLOW5_ERR_NOTFOUND;
-        return S5CURL_ERR_SLOW5;
+        return S5CURL_ERR_NOTFOUND;
 	}
     
     // fetch

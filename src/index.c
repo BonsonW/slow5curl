@@ -41,6 +41,7 @@ static slow5_idx_t *s5curl_idx_init_from_url(
 ) {
     slow5_idx_t *index = slow5_idx_init_empty();
     if (!index) {
+        s5curl_errno = S5CURL_ERR_SLOW5;
         return NULL;
     }
     slow5_file_t *s5p = s5c->s5p;
@@ -48,6 +49,7 @@ static slow5_idx_t *s5curl_idx_init_from_url(
     index->pathname = malloc(strlen(s5c->url)+5);
     if (!index->pathname) {
         slow5_idx_free(index);
+        s5curl_errno = S5CURL_ERR_MEM;
         return NULL;
     }
     strcpy(index->pathname, s5c->url);
@@ -64,6 +66,7 @@ static slow5_idx_t *s5curl_idx_init_from_url(
 
     if (index_fp == NULL) {
         SLOW5_ERROR("Could not create index file for '%s'.", index->pathname);
+        s5curl_errno = S5CURL_ERR_IO;
         slow5_idx_free(index);
         index->fp = NULL;
         return NULL;
@@ -77,24 +80,32 @@ static slow5_idx_t *s5curl_idx_init_from_url(
 	);
 	if (ret != 0) {
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
+        s5curl_errno = S5CURL_ERR_FETCH;
 		return NULL;
 	}
     long s5curl_resp_code;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &s5curl_resp_code);
     if (s5c->protocol == S5CURLP_HTTP && s5curl_resp_code != S5CURL_HTTP_OK) {
         SLOW5_ERROR("Fetching index data of '%s' failed: %li.", index->pathname, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     } else if (s5c->protocol == S5CURLP_FTP && s5curl_resp_code != S5CURL_FTP_OK) {
         SLOW5_ERROR("Fetching index data of '%s' failed: %li.", index->pathname, s5curl_resp_code);
+        s5curl_errno = S5CURL_ERR_FETCH;
         return NULL;
     }
-    fseek(index_fp, 0, SEEK_SET);
+    if (fseek(index_fp, 0, SEEK_SET)) {
+        SLOW5_ERROR("%s", "Failed to rewind index file ptr");
+        s5curl_errno = S5CURL_ERR_IO;
+        return NULL;
+    }
 
     index->fp = index_fp;
 
     ret = slow5_idx_read(index);
     if (ret < 0) {
         SLOW5_ERROR("Reading idx failed: %s.", strerror(ret));
+        s5curl_errno = S5CURL_ERR_SLOW5;
         slow5_idx_free(index);
         return NULL;
     }
@@ -105,6 +116,7 @@ static slow5_idx_t *s5curl_idx_init_from_url(
         SLOW5_ERROR("Index file version '" SLOW5_VERSION_STRING_FORMAT "' is different to slow5 file version '" SLOW5_VERSION_STRING_FORMAT "'. Please re-index.",
                 index->version.major, index->version.minor, index->version.patch,
                 s5p->header->version.major, s5p->header->version.minor, s5p->header->version.patch);
+        s5curl_errno = S5CURL_ERR_VERSION;
         slow5_idx_free(index);
         return NULL;
     }
@@ -125,7 +137,7 @@ int s5curl_idx_load(
     curl_easy_cleanup(curl);
 
     if (!s5c->s5p->index) {
-        return S5CURL_ERR_SLOW5;
+        return s5curl_errno;
     }
 
     return S5CURL_ERR_OK;
@@ -145,12 +157,12 @@ int s5curl_idx_load_with(
         curl_easy_cleanup(curl);
     
         if (!s5c->s5p->index) {
-            return S5CURL_ERR_SLOW5;
+            return s5curl_errno;
         }
     } else {
         int res = slow5_idx_load_with(s5c->s5p, path);
         if (res != 0) {
-            slow5_errno = res;
+            s5curl_errno = res;
             return S5CURL_ERR_SLOW5;
         }
     }
@@ -171,7 +183,7 @@ int s5curl_idx_load_and_cache(
     curl_easy_cleanup(curl);
 
     if (!s5c->s5p->index) {
-        return S5CURL_ERR_SLOW5;
+        return s5curl_errno;
     }
 
     return S5CURL_ERR_OK;
@@ -192,12 +204,12 @@ int s5curl_idx_load_with_and_cache(
         curl_easy_cleanup(curl);
     
         if (!s5c->s5p->index) {
-            return S5CURL_ERR_SLOW5;
+            return s5curl_errno;
         }
     } else {
         int res = slow5_idx_load_with(s5c->s5p, path);
         if (res != 0) {
-            slow5_errno = res;
+            s5curl_errno = res;
             return S5CURL_ERR_SLOW5;
         }
     }

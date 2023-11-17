@@ -16,7 +16,19 @@ Upon successful completion, `s5curl_idx_load()` returns a non negative integer (
 
 ## ERRORS
 * `S5CURL_ERR_SLOW5`       
-    &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data. 
+    &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data.
+* `S5CURL_ERR_CURL`
+    &nbsp;&nbsp;&nbsp;&nbsp; Failed to initialise CURL handle.
+* `S5CURL_ERR_FETCH`
+    &nbsp;&nbsp;&nbsp;&nbsp; Fetching data failed.
+* `S5CURL_ERR_ARG`
+    &nbsp;&nbsp;&nbsp;&nbsp; Invalid argument.
+* `S5CURL_ERR_IO`
+    &nbsp;&nbsp;&nbsp;&nbsp; Other IO error.
+* `S5CURL_ERR_MEM`
+    &nbsp;&nbsp;&nbsp;&nbsp; Memory (re)allocation error.
+* `S5CURL_ERR_VERSION`
+    &nbsp;&nbsp;&nbsp;&nbsp; Version incompatible.
 
 ## NOTES
 `slow5_errno` will be set in future to indicate the type of error that occurred.
