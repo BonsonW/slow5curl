@@ -39,15 +39,13 @@ typedef struct {
 ### High-level API
 High-level API consists of following functions:
 
-#### Resource Initialization
-* [s5curl_conn_init](s5curl_conn_init.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;opens a new connection handle
-* [s5curl_conn_cleanup](s5curl_conn_cleanup.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;closes an existing connection handle
+#### Global Initialisation
 * [s5curl_global_init](s5curl_global_init.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;global initialization for slow5curl
+  &nbsp;&nbsp;&nbsp;&nbsp;global initialisation for slow5curl
 * [s5curl_global_cleanup](s5curl_global_cleanup.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;releases resources acquired by s5curl_global_init
+
+#### Accessing a File
 * [s5curl_open](s5curl_open.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;opens a remote BLOW5 file
 * [s5curl_close](s5curl_close.md)<br/>
@@ -58,12 +56,18 @@ High-level API consists of following functions:
   &nbsp;&nbsp;&nbsp;&nbsp;loads a custom index (remote or local) for a remote BLOW5 file
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;unloads a BLOW5 index from the memory
+
+#### Connection Handle Initialisation
+* [s5curl_conn_init](s5curl_conn_init.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;opens a new connection handle for single fetches
+* [s5curl_conn_cleanup](s5curl_conn_cleanup.md)<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;closes an existing connection handle
 * [s5curl_init_mt](s5curl_init_mt.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;initializes a multithread struct
+  &nbsp;&nbsp;&nbsp;&nbsp;initialises a multithread struct for batch fetches
 * [s5curl_free_mt](s5curl_free_mt.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;frees a multithread struct from memory
 
-### Fetching
+#### Fetching
 * [s5curl_get](s5curl_get.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;fetches a record corresponding to a given read ID
 * [s5curl_get_batch](s5curl_get_batch.md)<br/>
