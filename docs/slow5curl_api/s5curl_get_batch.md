@@ -49,7 +49,7 @@ int main () {
 
     ret = s5curl_get_batch(core, db, read_ids, num_reads);
 
-    slow5_init_batch(db);
+    slow5_free_batch(db);
     
     s5curl_free_mt(core);
 
@@ -58,4 +58,4 @@ int main () {
 ```
 
 ## SEE ALSO
-[s5curl_init_mt()](s5curl_init_mt.md)
+[s5curl_init_mt()](s5curl_init_mt.md), [slow5_batch_t](https://hasindu2008.github.io/slow5lib/slow5_api/slow5_mt_api.html), [slow5_init_batch](https://hasindu2008.github.io/slow5lib/slow5_api/mt_api/slow5_init_batch.html), [slow5_free_batch](https://hasindu2008.github.io/slow5lib/slow5_api/mt_api/slow5_free_batch.html)
