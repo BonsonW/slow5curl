@@ -37,7 +37,7 @@ int main () {
 
     ret = s5curl_get_batch(core, db, read_ids, num_reads);
 
-    slow5_init_batch(db);
+    slow5_free_batch(db);
     
     s5curl_free_mt(core);
 
