@@ -40,6 +40,7 @@ int main(){
     ret = s5curl_get("000286ab-1f80-40e3-a778-8d89e4e52940", &rec, curl, s5c);
     if (ret < 0) {
         fprintf(stderr,"Error in when fetching the read.\n");
+        exit(EXIT_FAILURE);
     } else {
         printf("%s\t",rec->read_id);
         uint64_t len_raw_signal = rec->len_raw_signal;
