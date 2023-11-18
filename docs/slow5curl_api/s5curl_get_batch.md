@@ -24,25 +24,16 @@ The argument *db* points to an initialized *slow5_batch_t*. This is done with `s
 ## RETURN VALUE
 Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit and `s5curl_errno` is set to indicate the error.
 
-## NOTES
-
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
-#define URL "https://example.blow5"
+
 #define N_THREADS 10
+#define BATCH_CAPACITY 100
 
 int main () {
 
-    s5curl_global_init();
-
-    s5curl_t *s5c = s5curl_open(URL);
-    if (s5c == NULL) {
-       fprintf(stderr, "Error fetching slow5 file\n");
-       exit(EXIT_FAILURE);
-    }
+    // setup
     
     s5curl_mt_t *core = s5curl_init_mt(N_THREADS, s5c);
     if (!core) {
@@ -50,29 +41,19 @@ int main () {
         return EXIT_FAILURE;
     }
 
-    ret = s5curl_idx_load(s5c);
-    if (ret < 0) {
-        fprintf(stderr, "Error in loading index\n");
-        exit(EXIT_FAILURE);
-    }
-
-    slow5_batch_t *db = slow5_init_batch(batch_capacity);
+    slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
     if (!db) {
         fprintf(stderr, "Error initializing read batch.\n");
         return EXIT_FAILURE;
     }
 
-    ret = s5curl_get_batch(core, batch, read_ids, num_reads);
+    ret = s5curl_get_batch(core, db, read_ids, num_reads);
 
-    //...
-
-    s5curl_free_mt(s5c);
-
-    s5curl_close(s5c);
-
+    slow5_init_batch(db);
+    
     s5curl_free_mt(core);
 
-    s5curl_global_cleanup();
+    // cleanup
 }
 ```
 

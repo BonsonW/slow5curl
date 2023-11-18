@@ -49,13 +49,13 @@ extern int slow5curl_verbosity_level;
     } \
 }
 
-#define ERROR(msg, ...)  { \
+#define ERROR(msg, ...) { \
     if (slow5curl_verbosity_level >= LOG_ERR) { \
         fprintf(stderr, ERROR_PREFIX msg NO_COLOUR, __func__, __VA_ARGS__); \
     } \
 }
 
-#define INFO(msg, ...)  { \
+#define INFO(msg, ...) { \
     if (slow5curl_verbosity_level >= LOG_INFO) { \
         fprintf(stderr, INFO_PREFIX msg NO_COLOUR, __func__, __VA_ARGS__); \
     } \
@@ -66,7 +66,7 @@ extern int slow5curl_verbosity_level;
 #define DEBUG2(msg, ...) fprintf(stderr, DEBUG2_PREFIX "Error occured at %s:%d. " msg NO_COLOUR, \
                                  __func__, __FILE__, __LINE__ - 1, __VA_ARGS__) // TODO why -2
 
-#define EXIT_MSG(exit_code, argv, meta)  { \
+#define EXIT_MSG(exit_code, argv, meta) { \
     DEBUG("exiting with %s (exit code %d)", \
                     exit_code == EXIT_SUCCESS ? "SUCCESS" : \
                     exit_code == EXIT_FAILURE ? "FAILURE" : \

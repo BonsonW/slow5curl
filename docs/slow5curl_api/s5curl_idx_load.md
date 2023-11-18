@@ -30,20 +30,15 @@ Upon successful completion, `s5curl_idx_load()` returns a non negative integer (
 * `S5CURL_ERR_VERSION`
     &nbsp;&nbsp;&nbsp;&nbsp; Version incompatible.
 
-## NOTES
-`slow5_errno` will be set in future to indicate the type of error that occurred.
-
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://example.blow5"
 
 int main () {
 
-    s5curl_global_init();
+    // setup
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -57,13 +52,13 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    //...
+    // s5curl operations
 
     s5curl_idx_unload(s5c);
 
     s5curl_close(s5c);
 
-    s5curl_global_cleanup();
+    // cleanup
 }
 ```
 

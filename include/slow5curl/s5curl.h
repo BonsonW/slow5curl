@@ -60,7 +60,7 @@ typedef struct {
     int retry_wait_sec;
 } s5curl_mt_t;
 
-void s5curl_global_init();
+int s5curl_global_init();
 
 void s5curl_global_cleanup();
 

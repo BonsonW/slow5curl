@@ -23,7 +23,6 @@ The argument *curl* points to a *S5CURLCONN* handle.
 Upon successful completion, `s5curl_get()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
 
 ## ERRORS
-
 * `S5CURL_ERR_FETCH`       
     &nbsp;&nbsp;&nbsp;&nbsp; Fetching data failed.
 * `S5CURL_ERR_SLOW5`       
@@ -31,49 +30,30 @@ Upon successful completion, `s5curl_get()` returns a non negative integer (>=0).
 * `S5CURL_ERR_NOTFOUND`       
     &nbsp;&nbsp;&nbsp;&nbsp; Could not find read ID.
 
-## NOTES
-
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
-#define URL "https://example.blow5"
 #define READ_ID "0032812b-1ea5-46f1-a844-5bcc3bf3c21f"
 
 int main () {
 
-    s5curl_global_init();
+    // setup
 
     S5CURLCONN *curl = s5curl_conn_init();
 
-    s5curl_t *s5c = s5curl_open(URL);
-    if (s5c == NULL) {
-       fprintf(stderr, "Error fetching slow5 file\n");
-       exit(EXIT_FAILURE);
-    }
-
-    ret = s5curl_idx_load(s5c);
-    if (ret < 0) {
-        fprintf(stderr, "Error in loading index\n");
-        exit(EXIT_FAILURE);
-    }
+    slow5_rec_t *rec = NULL;
 
     ret = s5curl_get(s5c, curl, READ_ID, &rec);
     if (ret < 0) {
         fprintf(stderr, "Error in when fetching the read\n");
     }
 
-    //...
-
-    s5curl_idx_unload(s5c);
-
-    s5curl_close(s5c);
+    slow5_rec_free(rec);
 
     s5curl_conn_cleanup(curl);
 
-    s5curl_global_cleanup();
+    // cleanup
 }
 ```
 

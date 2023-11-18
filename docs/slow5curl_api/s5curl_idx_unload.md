@@ -12,19 +12,15 @@ s5curl_idx_unload - unloads a BLOW5 index from the memory
 ## RETURN VALUE
 No return value.
 
-## NOTES
-
 ## EXAMPLES
 ```c
-#include <stdio.h>
-#include <stdlib.h>
 #include <slow5curl/s5curl.h>
 
 #define URL "https://example.blow5"
 
 int main () {
 
-    s5curl_global_init();
+    // setup
 
     s5curl_t *s5c = s5curl_open(URL);
     if (s5c == NULL) {
@@ -38,13 +34,13 @@ int main () {
         exit(EXIT_FAILURE);
     }
 
-    //...
+    // s5curl operations
 
     s5curl_idx_unload(s5c);
 
     s5curl_close(s5c);
 
-    s5curl_global_cleanup();
+    // cleanup
 }
 ```
 

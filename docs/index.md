@@ -1,14 +1,14 @@
 # Documentation
 
-[Getting started](https://github.com/BonsonW/slow5curl/#readme)
+[Getting Started](https://github.com/BonsonW/slow5curl/#readme)
 
 ## Toolkit
 
-[Commands and options](commands.md)
+[Commands and Options](commands.md)
 
-[Example workflows](workflows.md)
+[Example Workflows](workflows.md)
 
-[Bash one-liners](oneliners.md)
+[Bash One-liners](oneliners.md)
 
 ## Library
 
@@ -16,10 +16,14 @@
 
 Python API will be available soon.
 
+## Library Examples
+
+[C API Examples](https://github.com/BonsonW/slow5curl/tree/main/examples)
+
 ## Related Links
 
-[Github repository](https://github.com/BonsonW/slow5curl)
+[Github Repository](https://github.com/BonsonW/slow5curl)
 
-[SLOW5 specification](https://hasindu2008.github.io/slow5specs)
+[SLOW5 Specification](https://hasindu2008.github.io/slow5specs)
 
 [SLOW5 Ecosystem](https://hasindu2008.github.io/slow5/)

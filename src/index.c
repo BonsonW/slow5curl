@@ -207,6 +207,7 @@ int s5curl_idx_load_with_and_cache(
             return s5curl_errno;
         }
     } else {
+        SLOW5_INFO("%s","The provided index file is already local, and hence will not be cached to a separate location.");
         int res = slow5_idx_load_with(s5c->s5p, path);
         if (res != 0) {
             s5curl_errno = res;

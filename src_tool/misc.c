@@ -14,7 +14,7 @@ void print_args(int argc, char **argv){
 
     // Debug: print arguments
     DEBUG("printing the arguments given%s","");
-    if(slow5curl_verbosity_level >= LOG_DEBUG){
+    if (slow5curl_verbosity_level >= LOG_DEBUG) {
         fprintf(stderr, DEBUG_PREFIX "argv=[",
                 __FILE__, __func__, __LINE__);
         for (int i = 0; i < argc; ++ i) {
@@ -126,13 +126,13 @@ int parse_arg_dump_all(opt_t *opt, int argc, char **argv, struct program_meta *m
 }
 
 int parse_batch_size(opt_t *opt, int argc, char **argv){
-    if(opt->arg_batch != NULL){
+    if (opt->arg_batch != NULL) {
         char *endptr;
         long ret = strtol(opt->arg_batch, &endptr, 10);
 
         if (*endptr == '\0') {
             opt->read_id_batch_capacity = ret;
-            if(opt->read_id_batch_capacity < 0){
+            if (opt->read_id_batch_capacity < 0) {
                 ERROR("invalid batch size -- '%s'", opt->arg_batch);
                 fprintf(stderr, HELP_SMALL_MSG, argv[0]);
                 return -1;
@@ -173,7 +173,7 @@ int parse_format_args(opt_t *opt, int argc, char **argv, struct program_meta *me
 
 
 int auto_detect_formats(opt_t *opt, int set_default_output_format){
-    if(opt->arg_fname_in){
+    if (opt->arg_fname_in) {
         DEBUG("auto detecting input file format%s","");
         enum slow5_fmt path_fmt_in = parse_path_to_fmt(opt->arg_fname_in);
         // Error
@@ -188,7 +188,7 @@ int auto_detect_formats(opt_t *opt, int set_default_output_format){
             opt->fmt_in = path_fmt_in;
         }
     }
-    if(opt->arg_fname_out){
+    if (opt->arg_fname_out) {
         DEBUG("auto detecting output file format%s","");
         enum slow5_fmt path_fmt_out = parse_path_to_fmt(opt->arg_fname_out);
         // Error
@@ -203,7 +203,7 @@ int auto_detect_formats(opt_t *opt, int set_default_output_format){
             opt->fmt_out = path_fmt_out;
         }
     }
-    if(set_default_output_format){
+    if (set_default_output_format) {
         DEBUG("setting default output format%s","");
         if (opt->fmt_out == SLOW5_FORMAT_UNKNOWN) {
             opt->fmt_out = SLOW5_FORMAT_BINARY;
@@ -290,15 +290,15 @@ enum slow5_fmt parse_path_to_fmt(const char *fname) {
 }
 
 int check_aux_fields_in_header(slow5_hdr_t *slow5_header, const char *attr, int verbose, uint32_t* index){
-    if(slow5_header->aux_meta->num == 0){
-        if(verbose){
+    if (slow5_header->aux_meta->num == 0) {
+        if (verbose) {
             ERROR("Header does not have auxiliary fields%s", "");
         }
         return -1;
     }
     khint_t pos = kh_get(slow5_s2ui32, slow5_header->aux_meta->attr_to_pos, attr);
-    if(pos == kh_end(slow5_header->aux_meta->attr_to_pos)){
-        if(verbose){
+    if (pos == kh_end(slow5_header->aux_meta->attr_to_pos)) {
+        if (verbose) {
             ERROR("Auxiliary field '%s' not found.", attr);
         }
         return -1;

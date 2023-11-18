@@ -56,9 +56,9 @@ int *s5curl_errno_location(void);
 #define S5CURL_ERR_HDRPARSE     (-16)   // header parsing error
 #define S5CURL_ERR_TYPE         (-17)   // error relating to slow5 data type
 
-#define S5CURL_ERR_SLOW5        (-18)    // Error processing s/blow5 data 
-#define S5CURL_ERR_FETCH        (-19)    // Fetching data failed
-#define S5CURL_ERR_CURL         (-20)    // Invalid CURL connection
+#define S5CURL_ERR_SLOW5        (-18)    // error processing s/blow5 data 
+#define S5CURL_ERR_FETCH        (-19)    // fetching data failed
+#define S5CURL_ERR_CURL         (-20)    // failed CURL initialization (handles, global resources, etc.)
 
 
 // response codes

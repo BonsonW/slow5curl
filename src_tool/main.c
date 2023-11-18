@@ -236,7 +236,7 @@ int main(const int argc, char **argv){
         }
     }
 
-    if(ret==EXIT_SUCCESS){
+    if (ret == EXIT_SUCCESS) {
         fprintf(stderr, "\n");
         DEBUG("printing command given%s", "");
         fprintf(stderr, "[%s] cmd: ",__func__);

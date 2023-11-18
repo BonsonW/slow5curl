@@ -102,7 +102,11 @@ int reads_main(int argc, char **argv, struct program_meta *meta){
         exit(EXIT_FAILURE);
     }
 
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        ERROR("%s\n", "Error initializing global resources.");
+        return EXIT_FAILURE;
+    }
 
     char *f_in_name = argv[optind];
 

@@ -11,7 +11,11 @@
 
 int main(){
     // global curl init
-    s5curl_global_init();
+    int ret = s5curl_global_init();
+    if (ret < 0) {
+        fprintf(stderr, "Error initializing global resources.\n");
+        return EXIT_FAILURE;
+    }
 
     // initialize a connection
     // to be re-used across s5curl_get(s) in a single thread
@@ -28,7 +32,6 @@ int main(){
     }
 
     slow5_rec_t *rec = NULL; // slow5 record to be read
-    int ret = 0; // for return value
 
     // load the SLOW5 index from custom path
     ret = s5curl_idx_load_with(s5c, IDX);
