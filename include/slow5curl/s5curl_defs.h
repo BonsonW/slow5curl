@@ -32,12 +32,14 @@ SOFTWARE.
 extern "C" {
 #endif
 
-/* s5curl errno */
+#define SLOW5CURL_VERSION "0.1.0"
+
+// s5curl errno
 int *s5curl_errno_location(void);
 #define s5curl_errno (*s5curl_errno_location())
 
 // error codes
-#define S5CURL_ERR_OK           (0)     // Successfully completed
+#define S5CURL_ERR_OK           (0)     // successfully completed
 #define S5CURL_ERR_EOF          (-1)    // EOF reached
 #define S5CURL_ERR_ARG          (-2)    // bad argument
 #define S5CURL_ERR_TRUNC        (-3)    // file truncated, or size of header/record in blow5 differs to actual size read
@@ -59,7 +61,6 @@ int *s5curl_errno_location(void);
 #define S5CURL_ERR_SLOW5        (-18)    // error processing s/blow5 data 
 #define S5CURL_ERR_FETCH        (-19)    // fetching data failed
 #define S5CURL_ERR_CURL         (-20)    // failed CURL initialisation (handles, global resources, etc.)
-
 
 // response codes
 #define S5CURL_HTTP_OK      (200)   // HTTP successfully completed get
