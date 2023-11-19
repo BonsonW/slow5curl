@@ -79,6 +79,7 @@ int main(){
     ret = s5curl_get_batch(s5c_mt, db, read_ids, N_READS);
     if (ret != N_READS) {
         fprintf(stderr, "Error in when fetching the read.\n");
+        exit(EXIT_FAILURE);
     } else {
         for (int i = 0; i < N_READS; ++i) {
             slow5_rec_t *rec = db->slow5_rec[i];

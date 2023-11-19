@@ -24,20 +24,12 @@ int main () {
     // setup
     
     s5curl_mt_t *core = s5curl_init_mt(N_THREADS, s5c);
-    if (!core) {
-        fprintf(stderr, "Error opening connections.\n");
-        return EXIT_FAILURE;
-    }
 
     slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
-    if (!db) {
-        fprintf(stderr, "Error initialising read batch.\n");
-        return EXIT_FAILURE;
-    }
 
     ret = s5curl_get_batch(core, db, read_ids, num_reads);
 
-    slow5_init_batch(db);
+    slow5_free_batch(db);
     
     s5curl_free_mt(core);
 

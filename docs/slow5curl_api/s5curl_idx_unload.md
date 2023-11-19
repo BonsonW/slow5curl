@@ -23,11 +23,7 @@ int main () {
     // setup
 
     s5curl_t *s5c = s5curl_open(URL);
-    if (s5c == NULL) {
-       fprintf(stderr, "Error fetching slow5 file\n");
-       exit(EXIT_FAILURE);
-    }
-
+    
     ret = s5curl_idx_load(s5c);
     if (ret < 0) {
         fprintf(stderr, "Error in loading index\n");

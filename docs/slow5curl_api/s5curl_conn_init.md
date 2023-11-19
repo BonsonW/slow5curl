@@ -29,9 +29,6 @@ int main () {
     slow5_rec_t *rec = NULL;
 
     ret = s5curl_get(s5c, curl, READ_ID, &rec);
-    if (ret < 0) {
-        fprintf(stderr, "Error in when fetching the read\n");
-    }
 
     slow5_rec_free(rec);
 

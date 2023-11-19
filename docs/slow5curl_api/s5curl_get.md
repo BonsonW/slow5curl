@@ -47,6 +47,7 @@ int main () {
     ret = s5curl_get(s5c, curl, READ_ID, &rec);
     if (ret < 0) {
         fprintf(stderr, "Error in when fetching the read\n");
+        exit(EXIT_FAILURE);
     }
 
     slow5_rec_free(rec);
