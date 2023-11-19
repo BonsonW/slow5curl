@@ -32,7 +32,7 @@ SOFTWARE.
 extern "C" {
 #endif
 
-#define SLOW5CURL_VERSION "0.2.0"
+#define SLOW5CURL_VERSION "0.2.0-dev"
 
 // s5curl errno
 int *s5curl_errno_location(void);
