@@ -10,7 +10,7 @@
 6. commit the version bump
 7. push and wait for all the tests to pass
 8. Run test extensive if a major change
-9. git tag -a v1.x.0 -m "version 1.x.0" # create the tag
+9. git tag -a vX.Y.Z -m "version X.Y.Z" # create the tag
 10. git push --tags
 11. Change the release name to slow5curl-xxx and edit the changes
 12. git checkout dev
