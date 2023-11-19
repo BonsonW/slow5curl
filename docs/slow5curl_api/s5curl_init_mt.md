@@ -1,13 +1,13 @@
 # s5curl_init_mt
 
 ## NAME
-s5curl_init_mt - initializes a resource for multithreaded operations
+s5curl_init_mt - initialises a resource for multithreaded operations
 
 ## SYNOPSYS
 `s5curl_mt_t *s5curl_init_mt(int num_thread, s5curl_t *s5c)`
 
 ## DESCRIPTION
-`s5curl_init_mt()` initializes a resource to be used by multithreaded read fetches. This resource is not thread safe but can be reused throughout the program by multiple calls.
+`s5curl_init_mt()` initialises a resource to be used by multithreaded read fetches. This resource is not thread safe but can be reused throughout the program by multiple calls.
 
 This *s5curl_mt_t* should be freed by the user program using `s5curl_free_mt()`.
 
@@ -33,7 +33,7 @@ int main () {
 
     slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
     if (!db) {
-        fprintf(stderr, "Error initializing read batch.\n");
+        fprintf(stderr, "Error initialising read batch.\n");
         return EXIT_FAILURE;
     }
 

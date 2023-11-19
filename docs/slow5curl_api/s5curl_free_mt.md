@@ -31,7 +31,7 @@ int main () {
 
     slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
     if (!db) {
-        fprintf(stderr, "Error initializing read batch.\n");
+        fprintf(stderr, "Error initialising read batch.\n");
         return EXIT_FAILURE;
     }
 

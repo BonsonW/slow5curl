@@ -17,9 +17,9 @@ The argument *num_rid* corresponds with the number of read IDs passed in the met
 
 The argument *s5c* points to a *slow5_file_t* opened using `s5curl_open()`. `s5curl_get_batch()` requires the SLOW index to be pre-loaded to *s5c* using `s5curl_idx_load()` or `s5curl_idx_load_with()`.
 
-The argument *core* points to an initialized *s5curl_mt_t*. This is done with `s5curl_init_mt`.
+The argument *core* points to an initialised *s5curl_mt_t*. This is done with `s5curl_init_mt`.
 
-The argument *db* points to an initialized *slow5_batch_t*. This is done with `slow5_init_batch`.
+The argument *db* points to an initialised *slow5_batch_t*. This is done with `slow5_init_batch`.
 
 ## RETURN VALUE
 Upon successful completion, `s5curl_get_batch()` returns the number of reads passed in. Otherwise, the process will exit and `s5curl_errno` is set to indicate the error.
@@ -43,7 +43,7 @@ int main () {
 
     slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
     if (!db) {
-        fprintf(stderr, "Error initializing read batch.\n");
+        fprintf(stderr, "Error initialising read batch.\n");
         return EXIT_FAILURE;
     }
 

@@ -129,7 +129,7 @@ int s5curl_idx_load(
 ) {
     CURL *curl = curl_easy_init();
     if (!curl) {
-        SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+        SLOW5_ERROR("Failed to initialise CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
         return S5CURL_ERR_CURL;
     }
 
@@ -150,7 +150,7 @@ int s5curl_idx_load_with(
     if (s5curl_is_url(path)) {
         CURL *curl = curl_easy_init();
         if (!curl) {
-            SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+            SLOW5_ERROR("Failed to initialise CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
             return S5CURL_ERR_CURL;
         }
         s5c->s5p->index = s5curl_idx_init_from_url(s5c, curl, NULL);
@@ -175,7 +175,7 @@ int s5curl_idx_load_and_cache(
 ) {
     CURL *curl = curl_easy_init();
     if (!curl) {
-        SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+        SLOW5_ERROR("Failed to initialise CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
         return S5CURL_ERR_CURL;
     }
 
@@ -197,7 +197,7 @@ int s5curl_idx_load_with_and_cache(
     if (s5curl_is_url(path)) {
         CURL *curl = curl_easy_init();
         if (!curl) {
-            SLOW5_ERROR("Failed to initialize CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
+            SLOW5_ERROR("Failed to initialise CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
             return S5CURL_ERR_CURL;
         }
         s5c->s5p->index = s5curl_idx_init_from_url(s5c, curl, cache);

@@ -76,7 +76,7 @@ int head_main(int argc, char **argv, struct program_meta *meta){
 
     int ret = s5curl_global_init();
     if (ret < 0) {
-        ERROR("%s\n", "Error initializing global resources.");
+        ERROR("%s\n", "Error initialising global resources.");
         return EXIT_FAILURE;
     }
     

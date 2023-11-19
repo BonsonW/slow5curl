@@ -1,7 +1,7 @@
 # s5curl_global_init
 
 ## NAME
-s5curl_global_init - global initialization for slow5curl
+s5curl_global_init - global initialisation for slow5curl
 
 ## SYNOPSYS
 `int s5curl_global_init()`
@@ -26,7 +26,7 @@ int main () {
 
     int ret = s5curl_global_init();
     if (ret < 0) {
-        fprintf(stderr, "Error initializing global resources\n");
+        fprintf(stderr, "Error initialising global resources\n");
         exit(EXIT_FAILURE);
     }
 

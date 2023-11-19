@@ -39,13 +39,13 @@ typedef struct {
 ### High-level API
 High-level API consists of following functions:
 
-#### Resource Initialization
+#### Resource Initialisation
 * [s5curl_conn_init](s5curl_conn_init.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;opens a new connection handle
 * [s5curl_conn_cleanup](s5curl_conn_cleanup.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;closes an existing connection handle
 * [s5curl_global_init](s5curl_global_init.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;global initialization for slow5curl
+  &nbsp;&nbsp;&nbsp;&nbsp;global initialisation for slow5curl
 * [s5curl_global_cleanup](s5curl_global_cleanup.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;releases resources acquired by s5curl_global_init
 * [s5curl_open](s5curl_open.md)<br/>
@@ -59,7 +59,7 @@ High-level API consists of following functions:
 * [s5curl_idx_unload](s5curl_idx_unload.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;unloads a BLOW5 index from the memory
 * [s5curl_init_mt](s5curl_init_mt.md)<br/>
-  &nbsp;&nbsp;&nbsp;&nbsp;initializes a multithread struct
+  &nbsp;&nbsp;&nbsp;&nbsp;initialises a multithread struct
 * [s5curl_free_mt](s5curl_free_mt.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;frees a multithread struct from memory
 

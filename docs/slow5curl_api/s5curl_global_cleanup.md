@@ -22,7 +22,7 @@ int main () {
 
     int ret = s5curl_global_init();
     if (ret < 0) {
-        fprintf(stderr, "Error initializing global resources\n");
+        fprintf(stderr, "Error initialising global resources\n");
         exit(EXIT_FAILURE);
     }
 

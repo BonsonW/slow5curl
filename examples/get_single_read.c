@@ -12,15 +12,15 @@ int main(){
     // global curl init
     int ret = s5curl_global_init();
     if (ret < 0) {
-        fprintf(stderr, "Error initializing global resources.\n");
+        fprintf(stderr, "Error initialising global resources.\n");
         return EXIT_FAILURE;
     }
 
-    // initialize a connection
+    // initialise a connection
     // to be re-used across s5curl_get(s) in a single thread
     S5CURLCONN *curl = s5curl_conn_init();
     if (!curl) {
-        fprintf(stderr, "Error initializing connection.\n");
+        fprintf(stderr, "Error initialising connection.\n");
         return EXIT_FAILURE;
     }
 

@@ -129,7 +129,7 @@ bool get_single(
         if (core->benchmark == false) {
             struct slow5_press* compress = slow5_press_init(core->press_method);
             if (!compress) {
-                ERROR("Could not initialize the slow5 compression method%s","");
+                ERROR("Could not initialise the slow5 compression method%s","");
                 exit(EXIT_FAILURE);
             }
             slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, core->format_out, compress);
@@ -334,7 +334,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
 
     int ret = s5curl_global_init();
     if (ret < 0) {
-        ERROR("%s\n", "Error initializing global resources.");
+        ERROR("%s\n", "Error initialising global resources.");
         return EXIT_FAILURE;
     }
 

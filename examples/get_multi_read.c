@@ -45,7 +45,7 @@ int main(){
     // global curl init
     int ret = s5curl_global_init();
     if (ret < 0) {
-        fprintf(stderr, "Error initializing global resources.\n");
+        fprintf(stderr, "Error initialising global resources.\n");
         return EXIT_FAILURE;
     }
 
@@ -55,16 +55,16 @@ int main(){
         return EXIT_FAILURE;
     }
 
-    // initialize a multithread struct
+    // initialise a multithread struct
     s5curl_mt_t *s5c_mt = s5curl_init_mt(N_THREADS, s5c);
     if (!s5c_mt) {
-        fprintf(stderr, "Error initializing multithread stcut.\n");
+        fprintf(stderr, "Error initialising multithread stcut.\n");
         return EXIT_FAILURE;
     }
 
     slow5_batch_t *db = slow5_init_batch(BATCH_CAPACITY);
     if (!db) {
-        fprintf(stderr, "Error initializing read batch.\n");
+        fprintf(stderr, "Error initialising read batch.\n");
         return EXIT_FAILURE;
     }
 

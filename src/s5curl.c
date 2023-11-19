@@ -51,7 +51,7 @@ inline int *s5curl_errno_location(void) {
 int s5curl_global_init() {
     CURLcode res = curl_global_init(CURL_GLOBAL_ALL);
     if (res != CURLE_OK) {
-        SLOW5_ERROR("Initializing global CURL resources failed: %s.", curl_easy_strerror(res));
+        SLOW5_ERROR("Initialising global CURL resources failed: %s.", curl_easy_strerror(res));
         return S5CURL_ERR_CURL;
     }
     return S5CURL_ERR_OK;
@@ -262,7 +262,7 @@ static s5curl_t *s5curl_open_with(
         return NULL;
     }
 
-    // initialize slow5 file
+    // initialise slow5 file
     struct slow5_file *s5p = s5curl_init(fp, url, SLOW5_FORMAT_BINARY);
     if (!s5p) {
         if (fclose(fp) == EOF) {
@@ -290,7 +290,7 @@ s5curl_t *s5curl_open(
 ) {
     CURL *curl = curl_easy_init();
     if (!curl) {
-        SLOW5_ERROR("Failed to initialize connection for url '%s'.", url);
+        SLOW5_ERROR("Failed to initialise connection for url '%s'.", url);
         s5curl_errno = S5CURL_ERR_CURL;
         return NULL;
     }

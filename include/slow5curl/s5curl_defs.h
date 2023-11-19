@@ -58,7 +58,7 @@ int *s5curl_errno_location(void);
 
 #define S5CURL_ERR_SLOW5        (-18)    // error processing s/blow5 data 
 #define S5CURL_ERR_FETCH        (-19)    // fetching data failed
-#define S5CURL_ERR_CURL         (-20)    // failed CURL initialization (handles, global resources, etc.)
+#define S5CURL_ERR_CURL         (-20)    // failed CURL initialisation (handles, global resources, etc.)
 
 
 // response codes
