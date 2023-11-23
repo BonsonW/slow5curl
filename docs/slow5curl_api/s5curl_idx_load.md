@@ -15,7 +15,7 @@ s5curl_idx_load - fetches and loads the index file for a remote BLOW5 file
 Upon successful completion, `s5curl_idx_load()` returns a non negative integer (>=0). Otherwise, a negative value is returned that indicates the error. If the error occured with SLOW5 then `slow5_errno` is set to indicate the error.
 
 ## ERRORS
-* `S5CURL_ERR_SLOW5`       
+* `S5CURL_ERR_SLOW5`
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to parse SLOW5 data.
 * `S5CURL_ERR_CURL`
     &nbsp;&nbsp;&nbsp;&nbsp; Failed to initialise CURL handle.
