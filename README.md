@@ -176,6 +176,11 @@ If you compiled slow5curl with zstd support enabled, make sure you append `-lzst
 
 If you need any help with using the library please open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
+## Compatibility
+
+slow5curl version | slow5lib version
+--- | ---
+0.2.0 | 1.2.0-beta
 
 ## Acknowledgement
 
