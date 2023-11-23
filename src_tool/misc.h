@@ -53,6 +53,8 @@ typedef struct {
     int flag_retain_dir_structure;
     int flag_dump_all;
     int flag_continue_merge;
+    int num_retry;
+    int retry_wait_sec;
 
     // Input arguments
     char *arg_fname_in;
@@ -67,6 +69,8 @@ typedef struct {
     char *arg_dir_out;
     char *arg_lossless;
     char *arg_dump_all;
+    char *arg_num_retry;
+    char *arg_retry_wait_sec;
 
 } opt_t;
 
@@ -93,6 +97,8 @@ int parse_num_processes(opt_t *opt, int argc, char **argv, struct program_meta *
 int parse_arg_lossless(opt_t *opt, int argc, char **argv, struct program_meta *meta);
 int parse_arg_dump_all(opt_t *opt, int argc, char **argv, struct program_meta *meta);
 int parse_batch_size(opt_t *opt, int argc, char **arg);
+int parse_num_retry(opt_t *opt, int argc, char **arg);
+int parse_retry_wait(opt_t *opt, int argc, char **arg);
 int parse_format_args(opt_t *opt, int argc, char **argv, struct program_meta *meta);
 int auto_detect_formats(opt_t *opt, int set_default_output_format);
 int parse_compression_opts(opt_t *opt);

@@ -34,6 +34,10 @@ slow5curl get [OPTIONS] https://url/to/file1.blow5 --list readids.txt
     The batch size. This is the number of records on the memory at once [default value: 4096]. An increased batch size improves multi-threaded performance at the cost of higher RAM.
 * `-l, --list FILE`:<br/>
     List of read ids provided as a single-column text file with one read id per line.
+* `-r, --retry INT`:<br/>
+    Number of times to retry a fetch before aborting the program [default value: 1]. These are a rare occurance and thus should be kept a low number. If a fetch fails twice in a row it is likely that something has gone wrong with the connection/server, or the client is being denied further access to the remote BLOW5.
+* `-w, --wait INT`:<br/>
+    Number of seconds to wait before retrying a fetch [default value: 1].
 * `--skip`:<br/>
     Warn and continue if a read_id was not found
 * `--index FILE`:<br/>

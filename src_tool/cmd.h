@@ -13,6 +13,8 @@ extern "C" {
 #define DEFAULT_RETAIN_DIR_STRUCTURE 0
 #define DEFAULT_DUMP_ALL 0
 #define DEFAULT_CONTINUE_MERGE 0
+#define DEFAULT_NUM_RETRY 1
+#define DEFAULT_RETRY_WAIT 1
 
 #define TO_STR(x) TO_STR2(x)
 #define TO_STR2(x) #x
@@ -48,17 +50,11 @@ extern "C" {
     "    -p, --iop INT                 number of I/O processes [" TO_STR(DEFAULT_NUM_PROCESSES) "]\n"
 
 #define HELP_MSG_BATCH \
-    "    -K, --batchsize INT           number of records loaded to the memory at once [" TO_STR(DEFAULT_BATCH_SIZE) "]\n"
+    "    -K, --batchsize INT           number of records loaded to the memory at once [" TO_STR(DEFAULT_BATCH_SIZE) "]\n" \
 
-// for f2s
-#define HELP_MSG_RETAIN_DIR_STRUCTURE \
-    "        --retain                  retain the same directory structure in the converted output as the input (experimental)\n"
-// for f2s
-#define HELP_MSG_CONTINUE_F2S    \
-    "    -a, --allow                   allow run id mismatches in a multi-fast5 file or in a single-fast5 directory\n" \
-// for merge
-#define HELP_MSG_CONTINUE_MERGE \
-    "    -a, --allow                   allow merging despite attribute differences in the same run_id\n"
+#define HELP_MSG_RETRY \
+    "    -r, --retry INT               number of retries on a fetch before aborting the batch [" TO_STR(DEFAULT_NUM_RETRY) "]\n" \
+    "    -w, --wait INT                time (sec) to wait before the next fetch retry [" TO_STR(DEFAULT_RETRY_WAIT) "]\n"
 
 #define HELP_MSG_HELP \
     "    -h, --help                    display this message and exit\n" \
@@ -75,8 +71,6 @@ extern "C" {
     "    none - no special signal compression\n" \
     "    svb-zd - StreamVByte with zig-zag delta \n\n" \
     "See https://slow5.page.link/slow5curl for a detailed description of these command-line options.\n"
-
-
 
 struct program_meta {
     int verbosity_level;

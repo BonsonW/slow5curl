@@ -33,6 +33,7 @@
     "    -l --list [FILE]              list of read ids provided as a single-column text file with one read id per line.\n" \
     "    --skip                        warn and continue if a read_id was not found.\n" \
     "    --index [FILE]                path to a custom slow5 index (experimental).\n" \
+    HELP_MSG_RETRY \
     HELP_MSG_HELP \
     HELP_FORMATS_METHODS
 
@@ -155,18 +156,20 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     static struct option long_opts[] = {
-        {"to",          required_argument, NULL, 'b'},    //0
+        {"to",          required_argument, NULL, 'b'},  //0
         {"compress",    required_argument, NULL, 'c'},  //1
         {"sig-compress",required_argument,  NULL, 's'}, //2
         {"batchsize",   required_argument, NULL, 'K'},  //3
-        {"output",      required_argument, NULL, 'o'}, //4
+        {"output",      required_argument, NULL, 'o'},  //4
         {"list",        required_argument, NULL, 'l'},  //5
-        {"skip",        no_argument, NULL, 0},  //6
+        {"skip",        no_argument, NULL, 0},          //6
         {"threads",     required_argument, NULL, 't' }, //7
-        {"help",        no_argument, NULL, 'h' }, //8
-        {"benchmark",   no_argument, NULL, 'e' }, //9
-        {"index",       required_argument, NULL, 0 }, //10
-        {"cache",       required_argument, NULL, 0 }, //11
+        {"help",        no_argument, NULL, 'h' },       //8
+        {"benchmark",   no_argument, NULL, 'e' },       //9
+        {"index",       required_argument, NULL, 0 },   //10
+        {"cache",       required_argument, NULL, 0 },   //11
+        {"retry",     required_argument, NULL, 'r' }, //12
+        {"wait",        required_argument, NULL, 'w' }, //13
         {NULL, 0, NULL, 0 }
     };
 
@@ -187,7 +190,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     int skip_flag = 0;
 
     // Parse options
-    while ((opt = getopt_long(argc, argv, "o:b:c:s:K:l:t:he", long_opts, &longindex)) != -1) {
+    while ((opt = getopt_long(argc, argv, "o:b:c:s:K:l:t:r:w:he", long_opts, &longindex)) != -1) {
         DEBUG("opt='%c', optarg=\"%s\", optind=%d, opterr=%d, optopt='%c'",
                   opt, optarg, optind, opterr, optopt);
         switch (opt) {
@@ -214,6 +217,12 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 break;
             case 'l':
                 read_list_file_in = optarg;
+                break;
+            case 'r':
+                user_opts.arg_num_retry = optarg;
+                break;
+            case 'w':
+                user_opts.arg_retry_wait_sec = optarg;
                 break;
             case 'h':
                 DEBUG("displaying large help message%s","");
@@ -266,6 +275,16 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     if (parse_compression_opts(&user_opts) < 0) {
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
+
+    if (parse_num_retry(&user_opts,argc,argv) < 0) {
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
+
+    if (parse_retry_wait(&user_opts,argc,argv) < 0) {
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         return EXIT_FAILURE;
     }
@@ -325,8 +344,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     core.format_out = user_opts.fmt_out;
     core.press_method = press_out;
     core.benchmark = benchmark;
-    core.num_retry = 1;
-    core.retry_wait_sec = 1;
+    core.num_retry = user_opts.num_retry;
+    core.retry_wait_sec = user_opts.retry_wait_sec;
 
     // Time stamps
     double start;

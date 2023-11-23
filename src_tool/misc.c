@@ -43,6 +43,8 @@ void init_opt(opt_t *opt){
     opt->arg_lossless = NULL;
     opt->arg_dump_all = NULL;
     opt->arg_num_processes = NULL;
+    opt->arg_num_retry = NULL;
+    opt->arg_retry_wait_sec = NULL;
 
     // Default options
     opt->fmt_in = SLOW5_FORMAT_UNKNOWN;
@@ -58,6 +60,8 @@ void init_opt(opt_t *opt){
     opt->flag_retain_dir_structure = DEFAULT_RETAIN_DIR_STRUCTURE;
     opt->flag_dump_all = DEFAULT_DUMP_ALL;
     opt->flag_continue_merge = DEFAULT_CONTINUE_MERGE;
+    opt->num_retry = DEFAULT_NUM_RETRY;
+    opt->retry_wait_sec = DEFAULT_RETRY_WAIT;
 }
 
 int parse_num_threads(opt_t *opt, int argc, char **argv, struct program_meta *meta){
@@ -139,6 +143,38 @@ int parse_batch_size(opt_t *opt, int argc, char **argv){
             }
         } else {
             ERROR("invalid batch size -- '%s'", opt->arg_batch);
+            fprintf(stderr, HELP_SMALL_MSG, argv[0]);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int parse_num_retry(opt_t *opt, int argc, char **argv){
+    if (opt->arg_num_retry != NULL) {
+        char *endptr;
+        long ret = strtol(opt->arg_num_retry, &endptr, 10);
+
+        if (*endptr == '\0') {
+            opt->num_retry = ret;
+        } else {
+            ERROR("invalid number of retries -- '%s'", opt->arg_num_retry);
+            fprintf(stderr, HELP_SMALL_MSG, argv[0]);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int parse_retry_wait(opt_t *opt, int argc, char **argv){
+    if (opt->arg_retry_wait_sec != NULL) {
+        char *endptr;
+        long ret = strtol(opt->arg_retry_wait_sec, &endptr, 10);
+
+        if (*endptr == '\0') {
+            opt->retry_wait_sec = ret;
+        } else {
+            ERROR("invalid retry wait seconds -- '%s'", opt->arg_retry_wait_sec);
             fprintf(stderr, HELP_SMALL_MSG, argv[0]);
             return -1;
         }
