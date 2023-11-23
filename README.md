@@ -24,6 +24,7 @@ SLOW5 ecosystem: https://hasindu2008.github.io/slow5<br/>
     - [Tool Examples](#tool-examples)
     - [Troubleshooting/Questions](#troubleshootingquestions)
 - [Library](#library)
+- [Compatibility](#compatibility)
 - [Acknowledgement](#acknowledgement)
 - [Citation](#citation)
 
