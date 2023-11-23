@@ -30,9 +30,9 @@
     "    --cite           Prints the citation.\n" \
     "\n" \
     "COMMANDS:\n" \
-    "    get                   display the read entry for each specified read id\n" \
-    "    head                  print the header\n" \
-    "    reads                 list all read ids\n" \
+    "    get                   Retrieve records for specified read IDs from a remote BLOW5 file URL.\n" \
+    "    head                  Print header information from a remote BLOW5 file URL.\n" \
+    "    reads                 Print list of all read IDs from a remote BLOW5 file URL.\n" \
     "\n" \
     "ARGS:    Try '%s [COMMAND] --help' for more information.\n" \
 
