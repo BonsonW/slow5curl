@@ -36,6 +36,7 @@ echo_test_name() {
     printf '\n--%s--\n' "$1"
 }
 
+# clean out dir
 test -d ${OUT} && rm -r ${OUT}
 mkdir ${OUT} || die "mkdir failed"
 
