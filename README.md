@@ -6,6 +6,7 @@ slow5curl is a command line tool and a library and for fetching reads from remot
 
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/BonsonW/slow5curl/total?logo=GitHub)](https://github.com/BonsonW/slow5curl/releases)
+[![BioConda Install](https://img.shields.io/conda/dn/bioconda/slow5curl.svg?style=flag&label=BioConda%20install)](https://anaconda.org/bioconda/slow5curl)
 [![CI](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/BonsonW/slow5curl/actions/workflows/c-cpp.yml)
 
 Full documentation: https://BonsonW.github.io/slow5curl<br/>
