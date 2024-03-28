@@ -25,7 +25,7 @@ static void print_hdr(s5curl_t* s5c) {
     slow5_hdr_print(s5c->s5p->header, SLOW5_FORMAT_ASCII, press_method);
 }
 
-int head_main(int argc, char **argv, struct program_meta *meta){
+int head_main(int argc, char **argv, struct program_meta *meta) {
 
     // Debug: print arguments
     print_args(argc,argv);

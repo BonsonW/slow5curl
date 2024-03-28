@@ -37,7 +37,7 @@ static void print_rid(s5curl_t* s5c) {
     s5curl_idx_unload(s5c);
 }
 
-int reads_main(int argc, char **argv, struct program_meta *meta){
+int reads_main(int argc, char **argv, struct program_meta *meta) {
 
     // Debug: print arguments
     print_args(argc,argv);

@@ -36,9 +36,9 @@ extern "C" {
 #endif
 
 enum S5CURLProtocol {
-  S5CURLP_FTP,
-  S5CURLP_HTTP,
-  S5CURLP_UNKOWN
+    S5CURLP_FTP,
+    S5CURLP_HTTP,
+	S5CURLP_UNKOWN
 };
 
 typedef enum S5CURLProtocol S5CURLProtocol;

@@ -30,9 +30,9 @@
     "    --cite           Prints the citation.\n" \
     "\n" \
     "COMMANDS:\n" \
-    "    get                   Retrieve records for specified read IDs from a remote BLOW5 file URL.\n" \
-    "    head                  Print header information from a remote BLOW5 file URL.\n" \
-    "    reads                 Print list of all read IDs from a remote BLOW5 file URL.\n" \
+    "    get              Retrieve records for specified read IDs from a remote BLOW5 file URL.\n" \
+    "    head             Print header information from a remote BLOW5 file URL.\n" \
+    "    reads            Print list of all read IDs from a remote BLOW5 file URL.\n" \
     "\n" \
     "ARGS:    Try '%s [COMMAND] --help' for more information.\n" \
 
@@ -83,7 +83,7 @@ void segv_handler(int sig) {
 }
 
 
-int main(const int argc, char **argv){
+int main(const int argc, char **argv) {
 
     // Initial time
     double init_realtime = slow5_realtime();
