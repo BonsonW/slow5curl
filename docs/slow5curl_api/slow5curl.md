@@ -63,11 +63,7 @@ High-level API consists of following functions:
 * [s5curl_conn_cleanup](s5curl_conn_cleanup.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;closes an existing connection handle
 * [s5curl_init_mt](s5curl_init_mt.md)<br/>
-<<<<<<< HEAD
-  &nbsp;&nbsp;&nbsp;&nbsp;initialises a multithread struct
-=======
   &nbsp;&nbsp;&nbsp;&nbsp;initialises a multithread struct for batch fetches
->>>>>>> 2654f1739bbc426486d5175258353555bc399b60
 * [s5curl_free_mt](s5curl_free_mt.md)<br/>
   &nbsp;&nbsp;&nbsp;&nbsp;frees a multithread struct from memory
 
