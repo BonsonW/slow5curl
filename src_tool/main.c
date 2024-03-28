@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @brief main programme
- * @author Sasha Jenner (jenner.sasha@gmail.com), Hasindu Gamaarachchi (hasindu@garvan.org.au)
+ * @author Sasha Jenner (jenner.sasha@gmail.com), Hasindu Gamaarachchi (hasindu@garvan.org.au), Bonson Wong (bonson.ym@gmail.com)
  * @date 27/02/2021
  */
 
@@ -108,17 +108,17 @@ int main(const int argc, char **argv) {
 
     } else {
         const struct command cmds[] = {
-            {"get",          get_main},
-            {"head",         head_main},
-            {"reads",        reads_main},
+            {"get",     get_main},
+            {"head",    head_main},
+            {"reads",   reads_main},
         };
         const size_t num_cmds = sizeof (cmds) / sizeof (*cmds);
 
         static struct option long_opts[] = {
-            {"help", no_argument, NULL, 'h' }, //0
-            {"verbose", required_argument, NULL, 'v'}, //1
-            {"version", no_argument, NULL, 'V'}, //2
-            {"cite", no_argument, NULL, 0}, //3
+            {"help", no_argument, NULL, 'h'},           //0
+            {"verbose", required_argument, NULL, 'v'},  //1
+            {"version", no_argument, NULL, 'V'},        //2
+            {"cite", no_argument, NULL, 0},             //3
             {NULL, 0, NULL, 0 }
         };
 
@@ -136,9 +136,6 @@ int main(const int argc, char **argv) {
                     DEBUG("displaying large help message%s","");
                     fprintf(stdout, HELP_LARGE_MSG, argv[0], argv[0]);
                     exit(EXIT_SUCCESS);
-                    // ret = EXIT_SUCCESS;
-                    // break_flag = true;
-                    // break;
                 case 'v':
                     slow5curl_verbosity_level = atoi(optarg);
                     print_args(argc,argv);

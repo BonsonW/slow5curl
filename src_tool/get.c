@@ -168,7 +168,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         {"benchmark",   no_argument, NULL, 'e' },       //9
         {"index",       required_argument, NULL, 0 },   //10
         {"cache",       required_argument, NULL, 0 },   //11
-        {"retry",     required_argument, NULL, 'r' }, //12
+        {"retry",     required_argument, NULL, 'r' },   //12
         {"wait",        required_argument, NULL, 'w' }, //13
         {NULL, 0, NULL, 0 }
     };
