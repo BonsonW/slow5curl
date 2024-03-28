@@ -43,10 +43,10 @@ int reads_main(int argc, char **argv, struct program_meta *meta) {
     print_args(argc,argv);
 
     static struct option long_opts[] = {
-        {"help", no_argument, NULL, 'h' }, //0
-        {"index",       required_argument, NULL, 0 }, //1
-        {"cache",       required_argument, NULL, 0 }, //2
-        {NULL, 0, NULL, 0 }
+        {"help",    no_argument, NULL, 'h'},        //0
+        {"index",   required_argument, NULL, 0},    //1
+        {"cache",   required_argument, NULL, 0},    //2
+        {NULL, 0, NULL, 0}
     };
 
     opt_t user_opts;
