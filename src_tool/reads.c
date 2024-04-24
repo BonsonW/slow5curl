@@ -18,7 +18,10 @@
     "Prints the reads in a remote BLOW5 file. "\
     USAGE_MSG \
     "\n" \
+    HELP_MSG_CACHE \
+    HELP_MSG_INDEX \
     HELP_MSG_HELP \
+    HELP_DOCS
 
 extern int slow5curl_verbosity_level;
 
@@ -41,6 +44,13 @@ int reads_main(int argc, char **argv, struct program_meta *meta) {
 
     // Debug: print arguments
     print_args(argc,argv);
+
+    // No arguments given
+    if (argc <= 1) {
+        fprintf(stderr, HELP_LARGE_MSG, argv[0]);
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
 
     static struct option long_opts[] = {
         {"help",    no_argument, NULL, 'h'},        //0
@@ -96,7 +106,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     if (argc - optind > 1){
-        ERROR("%s", "Too many arguments");
+        ERROR("%s\n", "Too many arguments.");
         fprintf(stderr, HELP_SMALL_MSG, argv[0]);
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         exit(EXIT_FAILURE);
@@ -113,7 +123,7 @@ int reads_main(int argc, char **argv, struct program_meta *meta) {
     VERBOSE("%s", "Loading remote BLOW5 file.");
     s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
-        ERROR("cannot open %s. \n", f_in_name);
+        ERROR("cannot open %s.\n", f_in_name);
         return EXIT_FAILURE;
     }
 
@@ -127,23 +137,20 @@ int reads_main(int argc, char **argv, struct program_meta *meta) {
             ret_idx = s5curl_idx_load(slow5curl);
         }
         if (ret_idx < 0) {
-            ERROR("Error loading index file for %s\n", f_in_name);
+            ERROR("Error loading index file for %s.\n", f_in_name);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }
-
     } else {
         int ret_idx;
-        
         if (idx_cache_path != NULL) {
             VERBOSE("Caching index to %s.", idx_cache_path);
             ret_idx = s5curl_idx_load_with_and_cache(slow5curl, slow5_index, idx_cache_path);
         } else {
             ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
         }
-        
         if (ret_idx < 0) {
-            ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
+            ERROR("Error loading index file for %s from file path %s.\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }

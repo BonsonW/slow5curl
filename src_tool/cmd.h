@@ -50,14 +50,20 @@ extern "C" {
     "    -p, --iop INT                 number of I/O processes [" TO_STR(DEFAULT_NUM_PROCESSES) "]\n"
 
 #define HELP_MSG_BATCH \
-    "    -K, --batchsize INT           number of records loaded to the memory at once [" TO_STR(DEFAULT_BATCH_SIZE) "]\n" \
+    "    -K, --batchsize INT           number of records loaded to the memory at once [" TO_STR(DEFAULT_BATCH_SIZE) "]\n"
 
 #define HELP_MSG_RETRY \
     "    -r, --retry INT               number of retries on a fetch before aborting the batch [" TO_STR(DEFAULT_NUM_RETRY) "]\n" \
     "    -w, --wait INT                time (sec) to wait before the next fetch retry [" TO_STR(DEFAULT_RETRY_WAIT) "]\n"
 
+#define HELP_MSG_CACHE \
+    "        --cache FILE              save the downloaded index to the specified file path [false]\n"
+
+#define HELP_MSG_INDEX \
+    "        --index FILE              specify path to a custom slow5 index\n" \
+
 #define HELP_MSG_HELP \
-    "    -h, --help                    display this message and exit\n" \
+    "    -h, --help                    display this message and exit\n\n"
 
 #define HELP_FORMATS_METHODS \
     "FORMAT:\n" \
@@ -70,6 +76,8 @@ extern "C" {
     "SIG_MTD:\n" \
     "    none - no special signal compression\n" \
     "    svb-zd - StreamVByte with zig-zag delta \n\n" \
+
+#define HELP_DOCS \
     "See https://slow5.page.link/slow5curl for a detailed description of these command-line options.\n"
 
 struct program_meta {

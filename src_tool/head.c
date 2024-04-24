@@ -17,6 +17,7 @@
     USAGE_MSG \
     "\n" \
     HELP_MSG_HELP \
+    HELP_DOCS
 
 extern int slow5curl_verbosity_level;
 
@@ -29,6 +30,13 @@ int head_main(int argc, char **argv, struct program_meta *meta) {
 
     // Debug: print arguments
     print_args(argc,argv);
+
+    // No arguments given
+    if (argc <= 1) {
+        fprintf(stderr, HELP_LARGE_MSG, argv[0]);
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
 
     static struct option long_opts[] = {
             {"help", no_argument, NULL, 'h' }, //0
@@ -68,7 +76,7 @@ int head_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     if (argc - optind > 1){
-        ERROR("%s", "Too many arguments");
+        ERROR("%s", "Too many arguments.");
         fprintf(stderr, HELP_SMALL_MSG, argv[0]);
         EXIT_MSG(EXIT_FAILURE, argv, meta);
         exit(EXIT_FAILURE);
@@ -80,9 +88,12 @@ int head_main(int argc, char **argv, struct program_meta *meta) {
         return EXIT_FAILURE;
     }
     
-    s5curl_t *slow5curl = s5curl_open(argv[optind]);
+    char *f_in_name = argv[optind];
+
+    VERBOSE("%s", "Loading remote BLOW5 file.");
+    s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
-        ERROR("cannot open %s. \n", argv[optind]);
+        ERROR("cannot open %s.\n", f_in_name);
         return EXIT_FAILURE;
     }
 

@@ -21,21 +21,23 @@
 #define USAGE_MSG "Usage: %s [OPTIONS] [SLOW5_FILE] [READ_ID]...\n"
 #define HELP_LARGE_MSG \
     "Display the read entry for each specified READ_ID from a blow5 file.\n" \
-    "If READ_ID is not specified, a newline separated list of read ids will be read from the standard input .\n" \
+    "If READ_ID is not specified, a newline separated list of read ids will be read from the standard input.\n" \
     USAGE_MSG \
     "\n" \
     "OPTIONS:\n" \
     "    --to FORMAT                   specify output file format (slow5 or blow5)\n" \
     "    -o, --output [FILE]           output contents to FILE (.slow5 or .blow5 extensions) [default: stdout]\n" \
+    HELP_MSG_INDEX \
+    HELP_MSG_CACHE \
     HELP_MSG_PRESS \
     HELP_MSG_THREADS \
     HELP_MSG_BATCH \
     "    -l --list [FILE]              list of read ids provided as a single-column text file with one read id per line.\n" \
     "    --skip                        warn and continue if a read_id was not found.\n" \
-    "    --index [FILE]                path to a custom slow5 index (experimental).\n" \
     HELP_MSG_RETRY \
     HELP_MSG_HELP \
-    HELP_FORMATS_METHODS
+    HELP_FORMATS_METHODS \
+    HELP_DOCS
 
 typedef struct {
     double fetch;
@@ -130,7 +132,7 @@ bool get_single(
         if (core->benchmark == false) {
             struct slow5_press* compress = slow5_press_init(core->press_method);
             if (!compress) {
-                ERROR("Could not initialise the slow5 compression method%s","");
+                ERROR("%s","Could not initialise the slow5 compression method.");
                 exit(EXIT_FAILURE);
             }
             slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, core->format_out, compress);
@@ -163,13 +165,13 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         {"output",      required_argument, NULL, 'o'},  //4
         {"list",        required_argument, NULL, 'l'},  //5
         {"skip",        no_argument, NULL, 0},          //6
-        {"threads",     required_argument, NULL, 't' }, //7
-        {"help",        no_argument, NULL, 'h' },       //8
-        {"benchmark",   no_argument, NULL, 'e' },       //9
-        {"index",       required_argument, NULL, 0 },   //10
-        {"cache",       required_argument, NULL, 0 },   //11
-        {"retry",     required_argument, NULL, 'r' },   //12
-        {"wait",        required_argument, NULL, 'w' }, //13
+        {"threads",     required_argument, NULL, 't'}, //7
+        {"help",        no_argument, NULL, 'h'},       //8
+        {"benchmark",   no_argument, NULL, 'e'},       //9
+        {"index",       required_argument, NULL, 0},   //10
+        {"cache",       required_argument, NULL, 0},   //11
+        {"retry",       required_argument, NULL, 'r'}, //12
+        {"wait",        required_argument, NULL, 'w'}, //13
         {NULL, 0, NULL, 0 }
     };
 
@@ -361,7 +363,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     start = slow5_realtime();
     s5curl_t *slow5curl = s5curl_open(f_in_name);
     if (!slow5curl) {
-        ERROR("cannot open %s. \n", f_in_name);
+        ERROR("cannot open %s.\n", f_in_name);
         return EXIT_FAILURE;
     }
     end = slow5_realtime();
@@ -385,23 +387,20 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
             ret_idx = s5curl_idx_load(slow5curl);
         }
         if (ret_idx < 0) {
-            ERROR("Error loading index file for %s\n", f_in_name);
+            ERROR("Error loading index file for %s.\n", f_in_name);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }
-
     } else {
         int ret_idx;
-        
         if (idx_cache_path != NULL) {
             VERBOSE("Caching index to %s.", idx_cache_path);
             ret_idx = s5curl_idx_load_with_and_cache(slow5curl, slow5_index, idx_cache_path);
         } else {
             ret_idx = s5curl_idx_load_with(slow5curl, slow5_index);
         }
-        
         if (ret_idx < 0) {
-            ERROR("Error loading index file for %s from file path %s\n", f_in_name, slow5_index);
+            ERROR("Error loading index file for %s from file path %s.\n", f_in_name, slow5_index);
             EXIT_MSG(EXIT_FAILURE, argv, meta);
             return EXIT_FAILURE;
         }
