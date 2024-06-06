@@ -205,3 +205,19 @@ Please cite the following in your publications when using the *SLOW5* file forma
   publisher={Nature Publishing Group}
 }
 ```
+
+Please cite the following in your publications when using slow5curl:
+
+> Bonson Wong, James M Ferguson, Jessica Y Do, Hasindu Gamaarachchi, Ira W Deveson, Streamlining remote nanopore data access with slow5curl, GigaScience, Volume 13, 2024, giae016, https://doi.org/10.1093/gigascience/giae016
+
+```
+@article{10.1093/gigascience/giae016,
+    title="{Streamlining remote nanopore data access with slow5curl}",
+    author={Wong, Bonson and Ferguson, James M and Do, Jessica Y and Gamaarachchi, Hasindu and Deveson, Ira W},
+    journal={GigaScience},
+    volume={13},
+    pages={7},
+    year={2024},
+    publisher={Oxford University Press},
+}
+```
