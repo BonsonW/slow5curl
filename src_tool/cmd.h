@@ -78,7 +78,7 @@ extern "C" {
     "    svb-zd - StreamVByte with zig-zag delta \n\n" \
 
 #define HELP_DOCS \
-    "See https://slow5.page.link/slow5curl for a detailed description of these command-line options.\n"
+    "See https://slow5.bioinf.science/slow5curl for a detailed description of these command-line options.\n"
 
 struct program_meta {
     int verbosity_level;
