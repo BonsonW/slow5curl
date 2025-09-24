@@ -46,19 +46,24 @@ TESTCASE_NAME="version"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl --version
 
-# head lossy
+# lossy
 TESTCASE_NAME="head_lossy"
 echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*
 ex ./slow5curl head ${URL_LOSSY} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
-# reads
 TESTCASE_NAME="reads_remoteindex_lossy"
 echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*
 ex ./slow5curl reads ${URL_LOSSY} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="singlethread_singleread_remoteindex_lossy"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL_LOSSY} -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1_lossy.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # cache opt
 TESTCASE_NAME="get_cached"
