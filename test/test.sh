@@ -4,6 +4,7 @@ RAW="test/data/raw/"
 EXP="test/data/exp/"
 
 URL="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
+URL_LOSSY="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10_lossy.blow5"
 IDX="${RAW}reads_10.blow5.idx"
 IDX_REM="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5.idx"
 OUT="test/data/out/"
@@ -44,6 +45,20 @@ mkdir ${OUT} || die "mkdir failed"
 TESTCASE_NAME="version"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl --version
+
+# head lossy
+TESTCASE_NAME="head_lossy"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl head ${URL_LOSSY} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+# reads
+TESTCASE_NAME="reads_remoteindex_lossy"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl reads ${URL_LOSSY} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # cache opt
 TESTCASE_NAME="get_cached"
