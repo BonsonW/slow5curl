@@ -152,6 +152,14 @@ slow5curl get https://gtgseq.s3.amazonaws.com/ont-r10-dna/NA24385/raw/PGXX22394_
 
 Open an [Issue](https://github.com/BonsonW/slow5curl/issues).
 
+#### Common Issues
+
+Q: Issue establishing connection, or cannot download reads.
+
+A: Sometimes, too many requests are made to the server. This will cause reads to fail to download, or cause a non-descript backend error.
+You can try running slow5curl with the option `-t 1`. 
+If it fixes the issue, the problem is likely related to the maximum connections. You can then increase `-t` until you find the max number of connections.
+
 ## Library
 
 Follow the steps to [build slow5curl from GitHub](https://github.com/BonsonW/slow5curl/edit/main/README.md#building-from-github). Include `<slow5curl/s5curl.h>` in your C program and call the API functions. To compile your program and statically link against slow5curl:
