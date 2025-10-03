@@ -22,7 +22,7 @@ jobs:
       run: |
         apt-get install -y wget xz-utils
         wget https://unofficial-builds.nodejs.org/download/release/v20.9.0/node-v20.9.0-linux-x64-glibc-217.tar.xz
-        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217      
+        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -61,15 +61,15 @@ jobs:
     name: Ubuntu 20
     runs-on: ubuntu-24.04
     container:
-      image: ubuntu:20.04    
+      image: ubuntu:20.04
     steps:
     - name: install git
-      run: apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:git-core/ppa && apt-get update -y && apt-get install git -y    
+      run: apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:git-core/ppa && apt-get update -y && apt-get install git -y
     - uses: actions/checkout@v2
       with:
         submodules: recursive
     - name: install packages
-      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind
     - name: build
       run:  make slow5_mt=1
     - name: test
@@ -107,7 +107,7 @@ jobs:
     - name: mem
       run: make mem
     - name: examples
-      run: make examples      
+      run: make examples
   os_x:
     name: OSX
     runs-on: macos-latest

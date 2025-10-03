@@ -14,7 +14,7 @@ jobs:
     container: centos:7
     steps:
     - name: install git
-      run: yum update -y && yum -y install https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm && yum install -y git
+      run: sed -i -e '/^mirrorlist/d;/^#baseurl=/{s,^#,,;s,/mirror,/vault,;}' /etc/yum.repos.d/CentOS*.repo && yum update -y && yum install -y git
     - uses: actions/checkout@v2
       with:
         submodules: recursive
