@@ -9,11 +9,20 @@ on:
 jobs:
   ubuntu_16:
     name: Ubuntu 16
-    runs-on: ubuntu-22.04
-    container: ubuntu:16.04
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:16.04
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - /node20217:/__e/node20:ro,rshared
     steps:
     - name: install git
       run: apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:git-core/ppa && apt-get update -y && apt-get install git -y
+    - name: nodejs
+      run: |
+        apt-get install -y wget xz-utils
+        wget https://unofficial-builds.nodejs.org/download/release/v20.9.0/node-v20.9.0-linux-x64-glibc-217.tar.xz
+        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217      
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -25,11 +34,20 @@ jobs:
       run: make test
   ubuntu_18:
     name: Ubuntu 18
-    runs-on: ubuntu-22.04
-    container: ubuntu:18.04
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:18.04
+      volumes:
+        - /node20217:/node20217:rw,rshared
+        - /node20217:/__e/node20:ro,rshared
     steps:
     - name: install git
       run: apt-get update && apt-get install -y software-properties-common && add-apt-repository ppa:git-core/ppa && apt-get update -y && apt-get install git -y
+    - name: nodejs
+      run: |
+        apt-get install -y wget xz-utils
+        wget https://unofficial-builds.nodejs.org/download/release/v20.9.0/node-v20.9.0-linux-x64-glibc-217.tar.xz
+        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /node20217
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -41,7 +59,9 @@ jobs:
       run: make test
   ubuntu_20:
     name: Ubuntu 20
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
+    container:
+      image: ubuntu:20.04    
     steps:
     - uses: actions/checkout@v2
       with:
@@ -69,6 +89,23 @@ jobs:
       run: make mem
     - name: examples
       run: make examples
+  ubuntu_24:
+    name: Ubuntu 24
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: install packages
+      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind
+    - name: build
+      run:  make slow5_mt=1
+    - name: test
+      run: make test
+    - name: mem
+      run: make mem
+    - name: examples
+      run: make examples      
   os_x:
     name: OSX
     runs-on: macos-latest
