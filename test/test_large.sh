@@ -5,7 +5,7 @@ READ_LIST="test/data/raw/PGXX22394_reads_chr22_readid.list"
 OUT="test/data/out/"
 BLOW_OUT="${OUT}reads.blow5"
 EXP="363428f5351918ebcaf6f0f4a95e755c"
-THREADS="512"
+THREADS="128"
 
 die() {
 	echo "$1" >&2

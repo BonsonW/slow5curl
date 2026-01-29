@@ -47,14 +47,12 @@ static slow5_idx_t *s5curl_idx_init_from_custom_url(
     }
     slow5_file_t *s5p = s5c->s5p;
 
-    index->pathname = malloc(strlen(s5c->url)+5);
+    index->pathname = strdup(path);
     if (!index->pathname) {
         slow5_idx_free(index);
         s5curl_errno = S5CURL_ERR_MEM;
         return NULL;
     }
-    strcpy(index->pathname, s5c->url);
-    strcat(index->pathname, ".idx");
 
     FILE *index_fp;
 
@@ -76,7 +74,7 @@ static slow5_idx_t *s5curl_idx_init_from_custom_url(
 	int ret = s5curl_fetch_into_file(
         curl,
 	    index_fp,
-		path
+		index->pathname
 	);
 	if (ret != 0) {
 		SLOW5_ERROR("Fetching index data of '%s' failed: %s.", index->pathname, curl_easy_strerror(ret));
@@ -243,7 +241,6 @@ int s5curl_idx_load_with(
             SLOW5_ERROR("Failed to initialise CURL handle: %s.", curl_easy_strerror(CURLE_FAILED_INIT));
             return S5CURL_ERR_CURL;
         }
-        fprintf(stderr, "loading index path: %s", path);
         s5c->s5p->index = s5curl_idx_init_from_custom_url(s5c, curl, NULL, path);
         curl_easy_cleanup(curl);
     
