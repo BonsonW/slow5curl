@@ -219,3 +219,5 @@ echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*
 ex ./slow5curl get ${URL} -o "${OUT}sig_svb-zd.blow5" -c "zlib" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}sig_svb-zd.blow5 "${OUT}sig_svb-zd.blow5" || die "diff failed for test: ${TESTCASE_NAME}"
+
+echo "all tests passed!"
