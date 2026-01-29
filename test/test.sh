@@ -3,10 +3,10 @@
 RAW="test/data/raw/"
 EXP="test/data/exp/"
 
-URL="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5"
+URL="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10.blow5"
 URL_LOSSY="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10_lossy.blow5"
-IDX="${RAW}reads_10.blow5.idx"
-IDX_REM="https://github.com/BonsonW/slow5curl/raw/main/test/data/raw/reads_10.blow5.idx"
+IDX="${RAW}/custom_index/reads_10.blow5.idx"
+IDX_REM="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/custom_index/reads_10.blow5.idx"
 OUT="test/data/out/"
 BLOW_OUT="${OUT}reads.blow5"
 SLOW_OUT="${OUT}reads.slow5"
