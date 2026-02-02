@@ -5,6 +5,7 @@ EXP="test/data/exp/"
 
 URL="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10.blow5"
 URL_ZSTD="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10_zstd.blow5"
+URL_EXZD="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10_exzd.blow5"
 URL_LOSSY="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/reads_10_lossy.blow5"
 IDX="${RAW}/custom_index/reads_10.blow5.idx"
 IDX_REM="https://github.com/BonsonW/slow5curl/raw/dev/test/data/raw/custom_index/reads_10.blow5.idx"
@@ -46,6 +47,25 @@ mkdir ${OUT} || die "mkdir failed"
 TESTCASE_NAME="version"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl --version
+
+# exzd
+TESTCASE_NAME="head_exzd"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl head ${URL_EXZD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="reads_remoteindex_exzd"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl reads ${URL_EXZD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="singlethread_singleread_remoteindex_exzd"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL_EXZD} -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1_exzd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # zstd
 TESTCASE_NAME="head_zstd"
