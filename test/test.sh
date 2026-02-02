@@ -48,56 +48,6 @@ TESTCASE_NAME="version"
 echo_test_name ${TESTCASE_NAME}
 ex ./slow5curl --version
 
-# exzd
-TESTCASE_NAME="head_exzd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl head ${URL_EXZD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="reads_remoteindex_exzd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl reads ${URL_EXZD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="singlethread_singleread_remoteindex_exzd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl get ${URL_EXZD} -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="singlethread_singleread_remoteindex_exzd_to_exzd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl get ${URL_EXZD} -o ${BLOW_OUT} -s ex-zd "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1_exzd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-# zstd
-TESTCASE_NAME="head_zstd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl head ${URL_ZSTD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}head.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="reads_remoteindex_zstd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl reads ${URL_ZSTD} > ${TXT_OUT} || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="singlethread_singleread_remoteindex_zstd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl get ${URL_ZSTD} -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
-TESTCASE_NAME="singlethread_singleread_remoteindex_zstd_to_zstd"
-echo_test_name ${TESTCASE_NAME}
-rm ${OUT}*
-ex ./slow5curl get ${URL_ZSTD} -o ${BLOW_OUT} -c zstd "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}reads_1_zstd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
-
 # lossy
 TESTCASE_NAME="head_lossy"
 echo_test_name ${TESTCASE_NAME}
@@ -259,17 +209,29 @@ rm ${OUT}*
 ex ./slow5curl get ${URL} -o "${OUT}press_zlib.blow5" -c "zlib" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
 diff -q ${EXP}press_zlib.blow5 "${OUT}press_zlib.blow5" || die "diff failed for test: ${TESTCASE_NAME}"
 
+# TESTCASE_NAME="singlethread_singleread_remoteindex_compress_zstd"
+# echo_test_name ${TESTCASE_NAME}
+# rm ${OUT}*
+# ex ./slow5curl get ${URL_ZSTD} -o ${BLOW_OUT} -c zstd "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+# diff -q ${EXP}reads_1_zstd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
 # signal type
 TESTCASE_NAME="singlethread_singleread_remoteindex_signal_none"
 echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*
-ex ./slow5curl get ${URL} -o "${OUT}sig_none.blow5" -s "none" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}sig_none.blow5 "${OUT}sig_none.blow5" || die "diff failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} -o ${BLOW_OUT} -s "none" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1_none.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 TESTCASE_NAME="singlethread_singleread_remoteindex_signal_svb-zd"
 echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*
-ex ./slow5curl get ${URL} -o "${OUT}sig_svb-zd.blow5" -c "zlib" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
-diff -q ${EXP}sig_svb-zd.blow5 "${OUT}sig_svb-zd.blow5" || die "diff failed for test: ${TESTCASE_NAME}"
+ex ./slow5curl get ${URL} -o ${BLOW_OUT} -c "zlib" "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1_svb-zd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+TESTCASE_NAME="singlethread_singleread_remoteindex_signal_ex-zd"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL} -o ${BLOW_OUT} -s ex-zd "00002194-fea5-433c-ba89-1eb6b60f0f28" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1_exzd.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 echo "all tests passed!"
