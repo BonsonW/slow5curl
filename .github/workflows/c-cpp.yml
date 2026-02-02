@@ -116,7 +116,7 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: brew install curl
+      run: brew install curl zstd
     - name: build
       run: make slow5_mt=1 zstd=1
     - name: test
