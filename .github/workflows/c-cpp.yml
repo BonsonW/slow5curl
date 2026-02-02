@@ -27,9 +27,9 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make libzstd1-dev
     - name: build
-      run:  make slow5_mt=1
+      run:  make slow5_mt=1 zstd=1
     - name: test
       run: make test
   ubuntu_18:
@@ -52,9 +52,9 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make libzstd1-dev
     - name: build
-      run:  make slow5_mt=1
+      run:  make slow5_mt=1 zstd=1
     - name: test
       run: make test
   ubuntu_20:
@@ -69,9 +69,9 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make
+      run: apt-get update && apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind make libzstd-dev
     - name: build
-      run:  make slow5_mt=1
+      run:  make slow5_mt=1 zstd=1
     - name: test
       run: make test
   ubuntu_22:
@@ -82,9 +82,9 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind
+      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind libzstd-dev
     - name: build
-      run:  make slow5_mt=1
+      run:  make slow5_mt=1 zstd=1
     - name: test
       run: make test
     - name: mem
@@ -99,9 +99,9 @@ jobs:
       with:
         submodules: recursive
     - name: install packages
-      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind
+      run: sudo apt-get update && sudo apt-get install -y zlib1g-dev gcc libcurl4-openssl-dev valgrind libzstd-dev
     - name: build
-      run:  make slow5_mt=1
+      run:  make slow5_mt=1 zstd=1
     - name: test
       run: make test
     - name: mem
@@ -118,7 +118,7 @@ jobs:
     - name: install packages
       run: brew install curl
     - name: build
-      run: make slow5_mt=1
+      run: make slow5_mt=1 zstd=1
     - name: test
       run: make test
     - name: examples
