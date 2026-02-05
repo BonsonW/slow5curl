@@ -75,7 +75,8 @@ extern "C" {
     "    zstd - Z standard \n" \
     "SIG_MTD:\n" \
     "    none - no special signal compression\n" \
-    "    svb-zd - StreamVByte with zig-zag delta \n\n" \
+    "    svb-zd - StreamVByte with zig-zag delta \n" \
+    "    ex-zd - exception with zig-zag delta\n\n" 
 
 #define HELP_DOCS \
     "See https://slow5.bioinf.science/slow5curl for a detailed description of these command-line options.\n"
