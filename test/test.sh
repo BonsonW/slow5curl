@@ -135,6 +135,63 @@ ex ./slow5curl reads ${URL} --index ${IDX_REM} > ${TXT_OUT} || die "Running the 
 diff -q ${EXP}reads_10.txt ${TXT_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
 
 # get
+
+# --skip: single-thread, one valid + one invalid read ID → fetches the valid read
+TESTCASE_NAME="singlethread_skip_valid_with_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" "invalid_read_id" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+# --skip: single-thread, all invalid read IDs → no reads fetched, must fail
+TESTCASE_NAME="singlethread_skip_all_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} "invalid_read_id_1" "invalid_read_id_2" && die "Expected failure for test: ${TESTCASE_NAME}"
+
+# no --skip: single-thread, invalid read ID → must fail
+TESTCASE_NAME="singlethread_noskip_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL} -o ${BLOW_OUT} "invalid_read_id" && die "Expected failure for test: ${TESTCASE_NAME}"
+
+# --skip: single-thread, >50% invalid (2 invalid, 1 valid) → warns but succeeds, fetches the valid read
+TESTCASE_NAME="singlethread_skip_majority_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} "00002194-fea5-433c-ba89-1eb6b60f0f28" "invalid_read_id_1" "invalid_read_id_2" || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+# --skip: batch mode, list with one valid + one invalid → fetches the valid read
+TESTCASE_NAME="batch_skip_valid_with_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+printf "00002194-fea5-433c-ba89-1eb6b60f0f28\ninvalid_read_id\n" > ${OUT}mixed_reads.txt
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} -l ${OUT}mixed_reads.txt || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
+# --skip: batch mode, all invalid IDs → no reads fetched, must fail
+TESTCASE_NAME="batch_skip_all_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+printf "invalid_read_id_1\ninvalid_read_id_2\n" > ${OUT}invalid_reads.txt
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} -l ${OUT}invalid_reads.txt && die "Expected failure for test: ${TESTCASE_NAME}"
+
+# no --skip: batch mode, list with invalid ID → must fail
+TESTCASE_NAME="batch_noskip_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+printf "invalid_read_id\n" > ${OUT}invalid_reads.txt
+ex ./slow5curl get ${URL} -o ${BLOW_OUT} -l ${OUT}invalid_reads.txt && die "Expected failure for test: ${TESTCASE_NAME}"
+
+# --skip: batch mode, >50% invalid (2 invalid, 1 valid) → warns but succeeds, fetches the valid read
+TESTCASE_NAME="batch_skip_majority_invalid"
+echo_test_name ${TESTCASE_NAME}
+rm ${OUT}*
+printf "00002194-fea5-433c-ba89-1eb6b60f0f28\ninvalid_read_id_1\ninvalid_read_id_2\n" > ${OUT}majority_invalid_reads.txt
+ex ./slow5curl get ${URL} --skip -o ${BLOW_OUT} -l ${OUT}majority_invalid_reads.txt || die "Running the tool failed for test: ${TESTCASE_NAME}"
+diff -q ${EXP}reads_1.blow5 ${BLOW_OUT} || die "diff failed for test: ${TESTCASE_NAME}"
+
 TESTCASE_NAME="singlethread_singleread_customlocalindex"
 echo_test_name ${TESTCASE_NAME}
 rm ${OUT}*

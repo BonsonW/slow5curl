@@ -7,6 +7,7 @@
 
 #define _XOPEN_SOURCE 700
 #include <getopt.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -99,15 +100,13 @@ void get_batch(
     core->ts.encode += end - start;
 }
 
-bool get_single(
+int get_single(
     s5curl_t *s5c,
     const char *read_id,
     core_t *core,
     FILE *slow5_file_pointer,
     CURL *curl
 ) {
-    bool success = true;
-
     int ret = 0;
     slow5_rec_t *record = NULL;
 
@@ -126,24 +125,26 @@ bool get_single(
     core->ts.fetch = end - start;
 
     start = slow5_realtime();
-    if (record == NULL || ret != 0) {
-        success = false;
-    } else {
-        if (core->benchmark == false) {
-            struct slow5_press* compress = slow5_press_init(core->press_method);
-            if (!compress) {
-                ERROR("%s","Could not initialise the slow5 compression method.");
-                exit(EXIT_FAILURE);
-            }
-            slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, core->format_out, compress);
-            slow5_press_free(compress);
-        }
-        slow5_rec_free(record);
+    if (ret != 0) {
+        end = slow5_realtime();
+        core->ts.fetch = end - start;
+        return ret;
     }
+
+    if (core->benchmark == false) {
+        struct slow5_press* compress = slow5_press_init(core->press_method);
+        if (!compress) {
+            ERROR("%s","Could not initialise the slow5 compression method.");
+            exit(EXIT_FAILURE);
+        }
+        slow5_rec_fwrite(slow5_file_pointer, record, s5c->s5p->header->aux_meta, core->format_out, compress);
+        slow5_press_free(compress);
+    }
+    slow5_rec_free(record);
     end = slow5_realtime();
     core->ts.fetch = end - start;
 
-    return success;
+    return 0;
 }
 
 int get_main(int argc, char **argv, struct program_meta *meta) {
@@ -253,8 +254,7 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     }
 
     if (skip_flag) {
-        WARNING("Will skip records that are not found%s","");
-        slow5_set_exit_condition(SLOW5_EXIT_OFF);
+        slow5_set_skip_rid();
     }
 
     if (parse_num_threads(&user_opts,argc,argv,meta) < 0) {
@@ -349,6 +349,10 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
     core.num_retry = user_opts.num_retry;
     core.retry_wait_sec = user_opts.retry_wait_sec;
 
+    int64_t num_fetched = 0;
+    int64_t num_skipped = 0;
+    int64_t num_requested = 0;
+
     // Time stamps
     double start;
     double end;
@@ -437,6 +441,23 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 char *curr_id = strndup(buf, len_buf);
                 curr_id[len_buf] = '\0'; // Add string terminator '\0'
                 free(buf); // Free buffer
+
+                num_requested++;
+
+                struct slow5_rec_idx read_index;
+                if (slow5_idx_get(slow5curl->s5p->index, curr_id, &read_index) < 0) {
+                    if (skip_flag) {
+                        WARNING("Skipping read %s (not found in index).", curr_id);
+                        num_skipped++;
+                        free(curr_id);
+                        continue;
+                    } else {
+                        ERROR("Read %s not found in index.", curr_id);
+                        free(curr_id);
+                        return EXIT_FAILURE;
+                    }
+                }
+
                 if (num_ids >= cap_ids) {
                     // Double read id list capacity
                     cap_ids *= 2;
@@ -445,6 +466,8 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                 rid[num_ids] = curr_id;
                 ++num_ids;
             }
+
+            if (num_ids == 0) continue;
 
             // Fetch records for read ids in the batch
             start = slow5_realtime();
@@ -460,15 +483,17 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
                     void *buffer = db->mem_records[i];
                     int len = db->mem_bytes[i];
                     if (buffer == NULL || len < 0) {
-                        if (skip_flag) continue;
                         ERROR("Could not write the fetched read %s.", db->rid[i]);
                         return EXIT_FAILURE;
                     } else {
                         fwrite(buffer, 1, len, user_opts.f_out);
                         free(buffer);
+                        num_fetched++;
                     }
                     free(rid[i]);
                 }
+            } else {
+                num_fetched += num_ids;
             }
             end = slow5_realtime();
             core.ts.write += end - start;
@@ -484,19 +509,39 @@ int get_main(int argc, char **argv, struct program_meta *meta) {
         S5CURLCONN *curl = s5curl_conn_init();
         start = slow5_realtime();
         for (int i = optind + 1; i < argc; ++i){
-            bool success = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
-            
-            if (!success) {
-                if (skip_flag) continue;
-                ERROR("%s","Error fetching records.");
+            num_requested++;
+            int fetch_ret = get_single(slow5curl, argv[i], &core, user_opts.f_out, curl);
+
+            if (fetch_ret != 0) {
+                if (fetch_ret == S5CURL_ERR_NOTFOUND && skip_flag) {
+                    WARNING("Skipping read %s (not found in index).", argv[i]);
+                    num_skipped++;
+                    continue;
+                }
+                ERROR("Error fetching read %s.", argv[i]);
+                curl_easy_cleanup(curl);
                 return EXIT_FAILURE;
             }
+            num_fetched++;
         }
         end = slow5_realtime();
-        VERBOSE("Fetched %d reads in %.3f seconds.", argc - (optind + 1), end - start);
+        VERBOSE("Fetched %"PRId64" reads in %.3f seconds.", num_fetched, end - start);
 
         curl_easy_cleanup(curl);
     }
+    INFO("%" PRId64 " reads fetched, %" PRId64 " reads skipped.", num_fetched, num_skipped);
+
+    if (num_fetched == 0) {
+        ERROR("%s", "No reads were fetched.");
+        EXIT_MSG(EXIT_FAILURE, argv, meta);
+        return EXIT_FAILURE;
+    }
+
+    if (skip_flag && num_skipped > num_requested / 2) {
+        WARNING("More than 50%% of reads were skipped (%" PRId64 "/%" PRId64 ").",
+                num_skipped, num_requested);
+    }
+
     VERBOSE("%s","Finished.\n");
 
     VERBOSE("%s", "Timings:");
